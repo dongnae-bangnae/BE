@@ -1,5 +1,7 @@
 package DNBN.spring.config.security.jwt;
 
+import DNBN.spring.config.properties.Constants;
+import DNBN.spring.config.properties.JwtProperties;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
@@ -12,10 +14,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
-import umc.spring.apiPayload.code.status.ErrorStatus;
-import umc.spring.apiPayload.exception.handler.MemberHandler;
-import umc.spring.config.properties.Constants;
-import umc.spring.config.properties.JwtProperties;
 
 import java.security.Key;
 import java.util.Collections;
@@ -77,11 +75,11 @@ public class JwtTokenProvider {
         return null;
     }
 
-    public Authentication extractAuthentication(HttpServletRequest request){
-        String accessToken = resolveToken(request);
-        if(accessToken == null || !validateToken(accessToken)) {
-            throw new MemberHandler(ErrorStatus.INVALID_TOKEN);
-        }
-        return getAuthentication(accessToken);
-    }
+//    public Authentication extractAuthentication(HttpServletRequest request){
+//        String accessToken = resolveToken(request);
+//        if(accessToken == null || !validateToken(accessToken)) {
+//            throw new MemberHandler(ErrorStatus.INVALID_TOKEN);
+//        }
+//        return getAuthentication(accessToken);
+//    }
 }
