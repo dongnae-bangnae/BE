@@ -1,6 +1,7 @@
 package DNBN.spring.service.MemberService;
 
 import DNBN.spring.apiPayload.code.status.ErrorStatus;
+import DNBN.spring.apiPayload.exception.handler.MemberHandler;
 import DNBN.spring.config.security.jwt.JwtTokenProvider;
 import DNBN.spring.domain.Member;
 import DNBN.spring.repository.MemberRepository.MemberRepository;

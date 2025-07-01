@@ -1,5 +1,7 @@
 package DNBN.spring.config.security.jwt;
 
+import DNBN.spring.apiPayload.code.status.ErrorStatus;
+import DNBN.spring.apiPayload.exception.handler.MemberHandler;
 import DNBN.spring.config.properties.Constants;
 import DNBN.spring.config.properties.JwtProperties;
 import io.jsonwebtoken.Claims;
