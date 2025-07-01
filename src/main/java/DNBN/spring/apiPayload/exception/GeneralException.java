@@ -1,5 +1,7 @@
 package DNBN.spring.apiPayload.exception;
 
+import DNBN.spring.apiPayload.code.BaseErrorCode;
+import DNBN.spring.apiPayload.code.ErrorReasonDTO;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
