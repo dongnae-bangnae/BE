@@ -1,6 +1,7 @@
 package DNBN.spring.domain;
 
 import DNBN.spring.domain.common.BaseEntity;
+import DNBN.spring.domain.enums.Provider;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -22,17 +23,13 @@ public class Member extends BaseEntity {
     private Long id;
 
     private String socialId;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Provider provider; // KAKAO, NAVER, GOOGLE 등
+    private Provider provider; // KAKAO, NAVER, GOOGLE
+
     private String nickname;
     private String profileImage;
 
     private boolean isOnboarded;
-
-    public enum Provider {
-        KAKAO,
-        GOOGLE,
-        NAVER
-    }
 }
