@@ -27,6 +27,8 @@ public class QMember extends EntityPathBase<Member> {
 
     public final NumberPath<Long> id = createNumber("id", Long.class);
 
+    public final BooleanPath isOnboardingCompleted = createBoolean("isOnboardingCompleted");
+
     public final ListPath<DNBN.spring.domain.mapping.LikePlace, DNBN.spring.domain.mapping.QLikePlace> likePlaceList = this.<DNBN.spring.domain.mapping.LikePlace, DNBN.spring.domain.mapping.QLikePlace>createList("likePlaceList", DNBN.spring.domain.mapping.LikePlace.class, DNBN.spring.domain.mapping.QLikePlace.class, PathInits.DIRECT2);
 
     public final StringPath nickname = createString("nickname");

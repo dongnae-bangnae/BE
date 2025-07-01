@@ -27,8 +27,6 @@ public class LikePlace {
         return new LikePlace(member, region);
     }
 
-    protected LikePlace() {} // JPA 기본 생성자
-
     private LikePlace(Member member, Region region) {
         this.member = member;
         this.region = region;
