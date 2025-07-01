@@ -22,4 +22,15 @@ public class LikePlace {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "region_id")
     private Region region;
+
+    public static LikePlace of(Member member, Region region) {
+        return new LikePlace(member, region);
+    }
+
+    protected LikePlace() {} // JPA 기본 생성자
+
+    private LikePlace(Member member, Region region) {
+        this.member = member;
+        this.region = region;
+    }
 }

@@ -36,4 +36,12 @@ public class Member extends BaseEntity {
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
     private List<LikePlace> likePlaceList = new ArrayList<>();
+
+    private boolean isOnboardingCompleted;
+
+    public void updateOnboardingInfo(String nickname, String profileImage) {
+        this.nickname = nickname;
+        this.profileImage = profileImage;
+        this.isOnboardingCompleted = true;
+    }
 }
