@@ -1,5 +1,6 @@
 package DNBN.spring.web.controller;
 
+import DNBN.spring.service.MemberService.MemberQueryService;
 import DNBN.spring.web.dto.MemberResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletRequest;
@@ -12,6 +13,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @RequestMapping("/members")
 public class MemberRestController {
+
+    private final MemberQueryService memberQueryService;
+
     @GetMapping("/info")
     @Operation(summary = "유저 내 정보 조회 API - 인증 필요",
             description = "유저가 내 정보를 조회하는 API입니다."

@@ -76,11 +76,11 @@ public class JwtTokenProvider { // JWT 토큰을 생성하고, 검증하고, 인
         return null;
     }
 
-//    public Authentication extractAuthentication(HttpServletRequest request){ // HttpServletRequest 에서 토큰 값을 추출
-//        String accessToken = resolveToken(request);
-//        if(accessToken == null || !validateToken(accessToken)) {
-//            throw new MemberHandler(ErrorStatus.INVALID_TOKEN);
-//        }
-//        return getAuthentication(accessToken); // getAuthentication 메소드를 이용해서 Spring Security의 Authentication 객체로 변환
-//    }
+    public Authentication extractAuthentication(HttpServletRequest request){ // HttpServletRequest 에서 토큰 값을 추출
+        String accessToken = resolveToken(request);
+        if(accessToken == null || !validateToken(accessToken)) {
+            throw new MemberHandler(ErrorStatus.INVALID_TOKEN);
+        }
+        return getAuthentication(accessToken); // getAuthentication 메소드를 이용해서 Spring Security의 Authentication 객체로 변환
+    }
 }
