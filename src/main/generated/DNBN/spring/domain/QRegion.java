@@ -11,14 +11,14 @@ import com.querydsl.core.types.dsl.PathInits;
 
 
 /**
- * QMember is a Querydsl query type for Member
+ * QRegion is a Querydsl query type for Region
  */
 @Generated("com.querydsl.codegen.DefaultEntitySerializer")
-public class QMember extends EntityPathBase<Member> {
+public class QRegion extends EntityPathBase<Region> {
 
-    private static final long serialVersionUID = -1966817893L;
+    private static final long serialVersionUID = -1823843851L;
 
-    public static final QMember member = new QMember("member1");
+    public static final QRegion region = new QRegion("region");
 
     public final DNBN.spring.domain.common.QBaseEntity _super = new DNBN.spring.domain.common.QBaseEntity(this);
 
@@ -29,27 +29,21 @@ public class QMember extends EntityPathBase<Member> {
 
     public final ListPath<DNBN.spring.domain.mapping.LikePlace, DNBN.spring.domain.mapping.QLikePlace> likePlaceList = this.<DNBN.spring.domain.mapping.LikePlace, DNBN.spring.domain.mapping.QLikePlace>createList("likePlaceList", DNBN.spring.domain.mapping.LikePlace.class, DNBN.spring.domain.mapping.QLikePlace.class, PathInits.DIRECT2);
 
-    public final StringPath nickname = createString("nickname");
-
-    public final StringPath profileImage = createString("profileImage");
-
-    public final EnumPath<DNBN.spring.domain.enums.Provider> provider = createEnum("provider", DNBN.spring.domain.enums.Provider.class);
-
-    public final StringPath socialId = createString("socialId");
+    public final StringPath name = createString("name");
 
     //inherited
     public final DateTimePath<java.time.LocalDateTime> updatedAt = _super.updatedAt;
 
-    public QMember(String variable) {
-        super(Member.class, forVariable(variable));
+    public QRegion(String variable) {
+        super(Region.class, forVariable(variable));
     }
 
-    public QMember(Path<? extends Member> path) {
+    public QRegion(Path<? extends Region> path) {
         super(path.getType(), path.getMetadata());
     }
 
-    public QMember(PathMetadata metadata) {
-        super(Member.class, metadata);
+    public QRegion(PathMetadata metadata) {
+        super(Region.class, metadata);
     }
 
 }
