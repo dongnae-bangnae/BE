@@ -12,7 +12,7 @@ public class MemberResponseDTO {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    public class MemberInfoDTO {
+    public static class MemberInfoDTO {
         Long memberId;
         String nickname;
         String profileImage;
