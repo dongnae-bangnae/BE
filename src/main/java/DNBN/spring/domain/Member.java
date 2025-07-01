@@ -26,7 +26,6 @@ public class Member extends BaseEntity {
     @Column(nullable = false) // null 불가 컬럼
     private Provider provider; // KAKAO, NAVER, GOOGLE
 
-    @Column(nullable = true)
     private String nickname;
 
     private String profileImage;
