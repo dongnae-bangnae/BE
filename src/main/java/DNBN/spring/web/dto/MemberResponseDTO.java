@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 public class MemberResponseDTO {
     @Getter
     @Builder
@@ -14,6 +16,6 @@ public class MemberResponseDTO {
         Long memberId;
         String nickname;
         String profileImage;
-        List<RegionDTO> likePlaces;
+        List<RegionResponseDTO.RegioPreviewnDTO> likePlaces;
     }
 }
