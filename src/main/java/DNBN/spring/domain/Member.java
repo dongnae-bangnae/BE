@@ -2,10 +2,7 @@ package DNBN.spring.domain;
 
 import DNBN.spring.domain.common.BaseEntity;
 import DNBN.spring.domain.enums.Provider;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
@@ -22,14 +19,15 @@ public class Member extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false, unique = true)
     private String socialId;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Enumerated(EnumType.STRING) // 자바 enum 값을 문자열(String) 형태로 DB에 저장
+    @Column(nullable = false) // null 불가 컬럼
     private Provider provider; // KAKAO, NAVER, GOOGLE
 
+    @Column(nullable = true)
     private String nickname;
-    private String profileImage;
 
-    private boolean isOnboarded;
+    private String profileImage;
 }
