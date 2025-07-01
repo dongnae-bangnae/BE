@@ -1,5 +1,6 @@
 package DNBN.spring.web.controller;
 
+import DNBN.spring.apiPayload.ApiResponse;
 import DNBN.spring.service.MemberService.MemberQueryService;
 import DNBN.spring.web.dto.MemberResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
