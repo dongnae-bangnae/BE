@@ -2,10 +2,14 @@ package DNBN.spring.domain;
 
 import DNBN.spring.domain.common.BaseEntity;
 import DNBN.spring.domain.enums.Provider;
+import DNBN.spring.domain.mapping.LikePlace;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -29,4 +33,7 @@ public class Member extends BaseEntity {
     private String nickname;
 
     private String profileImage;
+
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+    private List<LikePlace> likePlaceList = new ArrayList<>();
 }

@@ -1,10 +1,12 @@
 package DNBN.spring.domain;
 
 import DNBN.spring.domain.common.BaseEntity;
+import DNBN.spring.domain.mapping.LikePlace;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
