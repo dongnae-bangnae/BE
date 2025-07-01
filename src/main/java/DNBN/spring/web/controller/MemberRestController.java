@@ -2,14 +2,14 @@ package DNBN.spring.web.controller;
 
 import DNBN.spring.apiPayload.ApiResponse;
 import DNBN.spring.service.MemberService.MemberQueryService;
+import DNBN.spring.web.dto.MemberRequestDTO;
 import DNBN.spring.web.dto.MemberResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -17,6 +17,12 @@ import org.springframework.web.bind.annotation.RestController;
 public class MemberRestController {
 
     private final MemberQueryService memberQueryService;
+
+    @PostMapping("/onboarding")
+    @Operation(summary = "유저 온보딩 API",description = "소셜 로그인 이후, 닉네임/프로필/선호 지역을 등록하는 온보딩 API입니다.")
+    public ApiResponse<MemberResponseDTO.OnboardingResultDTO> onboard(@RequestBody @Valid MemberRequestDTO.OnboardingDTO request) {
+        return ApiResponse.onSuccess(memberCommandService.loginMember(request));
+    }
 
     @GetMapping("/info")
     @Operation(summary = "유저 내 정보 조회 API - 인증 필요",

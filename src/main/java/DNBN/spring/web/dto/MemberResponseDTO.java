@@ -12,6 +12,17 @@ public class MemberResponseDTO {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
+    public static class OnboardingResultDTO {
+        private Long memberId;
+        private String nickname;
+        private List<Long> chosenRegionIds;
+        private Boolean isOnboardingCompleted;
+    }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class MemberInfoDTO {
         Long memberId;
         String nickname;

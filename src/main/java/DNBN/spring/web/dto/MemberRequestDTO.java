@@ -10,13 +10,13 @@ import java.util.List;
 public class MemberRequestDTO {
     @Getter
     @Setter
-    public static class OnboardingRequest {
+    public static class OnboardingDTO {
         @NotBlank(message = "닉네임은 필수입니다.")
         String nickname;
 
         String profileImageUrl;
 
         @NotEmpty(message = "좋아하는 동네는 최소 1개 이상 선택해야 합니다.")
-        List<Long> likePlaces; // regionId 리스트로 받음
+        List<Long> chosenRegionIds; // regionId 리스트로 받음
     }
 }
