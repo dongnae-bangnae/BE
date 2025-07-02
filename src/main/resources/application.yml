@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:mysql:${DB_URL}
+    url: ${DB_URL}
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -21,6 +21,18 @@ spring:
     web:
       pageable:
         one-indexed-parameters: true
+  security:
+    oauth2:
+      client:
+        registration:
+          kakao:
+            client-authentication-method: client_secret_post
+            client-id: ${KAKAO_CLIENT_ID}
+            client-secret: ${KAKAO_SECRET}
+            redirect-uri: ${KAKAO_REDIRECT_URL}
+            authorization-grant-type: authorization_code
+            scope: profile_nickname
+            client-name: Kakao
 jwt:
   token:
     secretKey: ${JWT_SECRETKEY}

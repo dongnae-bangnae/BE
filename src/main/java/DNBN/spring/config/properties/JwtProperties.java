@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 @Getter
 @Setter
 @ConfigurationProperties("jwt.token")
-public class JwtProperties {
+public class JwtProperties { // application.yaml에 토큰 관련 값들을 불러와서 코드 상의 조작을 해야할 때, 해당 설정값들을 가져오는 방식 중 하나 --> JwtProperties 클래스를 생성
     private String secretKey="";
     private Expiration expiration;
 
