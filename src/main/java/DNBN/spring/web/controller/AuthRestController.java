@@ -19,8 +19,8 @@ public class AuthRestController {
     private final MemberCommandService memberCommandService;
 
     @PostMapping("/logout")
-    @Operation(summary = "유저 로그아웃 API",
-            description = "멤버가 로그아웃하는 API입니다.",
+    @Operation(summary = "회원 로그아웃 API - JWT 인증 필요",
+            description = "JWT 인증된 멤버가 로그아웃하는 API입니다.",
             security = { @SecurityRequirement(name = "JWT TOKEN") }
     )
     public ApiResponse<Void> logout(@AuthenticationPrincipal MemberDetails memberDetails) {
