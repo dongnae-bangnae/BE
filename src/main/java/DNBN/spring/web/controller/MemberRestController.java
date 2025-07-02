@@ -41,4 +41,15 @@ public class MemberRestController {
     public ApiResponse<MemberResponseDTO.MemberInfoDTO> getMyInfo(HttpServletRequest request) {
         return ApiResponse.onSuccess(memberQueryService.getMemberInfo(request));
     }
+
+    @DeleteMapping
+    @Operation(summary = "회원 탈퇴 API",
+            description = "유저가 탈퇴하는 API입니다.",
+            security = { @SecurityRequirement(name = "JWT TOKEN") }
+    )
+    public ApiResponse<Void> deleteMember(@AuthenticationPrincipal MemberDetails memberDetails) {
+        memberCommandService.deleteMember(memberDetails.getMember().getId());
+        return ApiResponse.onSuccess(null);
+    }
+
 }

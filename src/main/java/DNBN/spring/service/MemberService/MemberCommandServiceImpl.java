@@ -72,4 +72,14 @@ public class MemberCommandServiceImpl implements MemberCommandService {
 
         log.info("사용자 {} 로그아웃 처리 완료", member.getId());
     }
+
+    @Override
+    @Transactional
+    public void deleteMember(Long memberId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new MemberHandler(ErrorStatus.MEMBER_NOT_FOUND));
+
+        // 멤버 테이블에서 멤버 삭제
+        memberRepository.delete(member);
+    }
 }
