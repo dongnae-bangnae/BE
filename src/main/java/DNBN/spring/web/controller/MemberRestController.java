@@ -24,8 +24,8 @@ public class MemberRestController {
 
     @PostMapping("/onboarding")
     @Operation(
-            summary = "유저 온보딩 API",
-            description = "JWT 인증된 유저가 닉네임, 프로필 이미지, 선호 지역을 등록하는 API입니다.",
+            summary = "회원 초기 정보 등록 (온보딩) API - JWT 인증 필요",
+            description = "JWT 인증된 멤버가 닉네임, 프로필 이미지, 선호 지역을 등록하는 API입니다.",
             security = @SecurityRequirement(name = "JWT TOKEN")
     )
     public ApiResponse<MemberResponseDTO.OnboardingResultDTO> onboard(@AuthenticationPrincipal MemberDetails memberDetails, @RequestBody @Valid MemberRequestDTO.OnboardingDTO request) {
@@ -34,11 +34,22 @@ public class MemberRestController {
     }
 
     @GetMapping("/info")
-    @Operation(summary = "유저 내 정보 조회 API - 인증 필요",
-            description = "유저가 내 정보를 조회하는 API입니다.",
+    @Operation(summary = "내 정보 조회 API - JWT 인증 필요",
+            description = "JWT 인증된 멤버가 자신의 정보를 조회하는 API입니다.",
             security = { @SecurityRequirement(name = "JWT TOKEN") } // ‘내 정보 조회’는 로그인한 사용자만이 접근할 수 있는 API여야 함 --> Swagger 어노테이션인 @Operation 어노테이션에 security 필드를 추가해서 token이 요청 필수값임을 명시
     )
     public ApiResponse<MemberResponseDTO.MemberInfoDTO> getMyInfo(HttpServletRequest request) {
         return ApiResponse.onSuccess(memberQueryService.getMemberInfo(request));
     }
+
+    @DeleteMapping
+    @Operation(summary = "회원 탈퇴 API - JWT 인증 필요",
+            description = "JWT 인증된 멤버가 자신의 계정을 탈퇴(삭제)하는 API입니다.",
+            security = { @SecurityRequirement(name = "JWT TOKEN") }
+    )
+    public ApiResponse<Void> deleteMember(@AuthenticationPrincipal MemberDetails memberDetails) {
+        memberCommandService.deleteMember(memberDetails.getMember().getId());
+        return ApiResponse.onSuccess(null);
+    }
+
 }

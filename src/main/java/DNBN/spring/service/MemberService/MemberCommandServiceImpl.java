@@ -13,11 +13,13 @@ import DNBN.spring.repository.RegionRepository.RegionRepository;
 import DNBN.spring.web.dto.MemberRequestDTO;
 import DNBN.spring.web.dto.MemberResponseDTO;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class MemberCommandServiceImpl implements MemberCommandService {
@@ -59,5 +61,25 @@ public class MemberCommandServiceImpl implements MemberCommandService {
     private Region findRegion(Long regionId) {
         return regionRepository.findById(regionId)
                 .orElseThrow(() -> new RegionHandler(ErrorStatus.REGION_NOT_FOUND));
+    }
+
+    @Override
+    public void logout(Long memberId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new MemberHandler(ErrorStatus.MEMBER_NOT_FOUND));
+
+        // JWT를 로컬(localStorage, 쿠키 등)에서 직접 제거해야 로그아웃
+
+        log.info("사용자 {} 로그아웃 처리 완료", member.getId());
+    }
+
+    @Override
+    @Transactional
+    public void deleteMember(Long memberId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new MemberHandler(ErrorStatus.MEMBER_NOT_FOUND));
+
+        // 멤버 테이블에서 멤버 삭제
+        memberRepository.delete(member);
     }
 }

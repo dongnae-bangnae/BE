@@ -5,4 +5,6 @@ import DNBN.spring.web.dto.MemberResponseDTO;
 
 public interface MemberCommandService {
     MemberResponseDTO.OnboardingResultDTO onboardingMember(Long memberId, MemberRequestDTO.OnboardingDTO request);
+    void logout(Long memberId);
+    void deleteMember(Long memberId);
 }
