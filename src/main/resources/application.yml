@@ -38,3 +38,15 @@ jwt:
     secretKey: ${JWT_SECRETKEY}
     expiration:
       access: 14400000
+cloud:
+  aws:
+    s3:
+      bucket: dnbn-bucket
+    region:
+      static: ap-northeast-2
+    stack:
+      auto: false
+    credentials:
+      accesskey: ${AWS_ACCESS_KEY}
+      secretkey: ${AWS_SECRET_KEY}
+
