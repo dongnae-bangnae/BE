@@ -1,4 +1,4 @@
-package DNBN.spring.aws.s3;
+package DNBN.spring.repository.UuidRepository;
 
 
 import DNBN.spring.domain.Uuid;
