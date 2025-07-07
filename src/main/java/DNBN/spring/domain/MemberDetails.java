@@ -2,6 +2,7 @@ package DNBN.spring.domain;
 
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
@@ -18,7 +19,8 @@ public class MemberDetails implements UserDetails {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         // 예시: "ROLE_USER" 권한을 부여
-        return Collections.singleton(() -> "ROLE_USER");
+//        return Collections.singleton(() -> "ROLE_USER"); // () -> "ROLE_USER" 대신 아래처럼 바꾸면 IDE 지원, 오타 방지, 디버깅에 유리
+        return Collections.singleton(new SimpleGrantedAuthority("ROLE_USER"));
     }
 
     @Override
