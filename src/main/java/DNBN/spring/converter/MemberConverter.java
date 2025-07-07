@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class MemberConverter {
-    public static MemberResponseDTO.OnboardingResultDTO toOnboardingResultDTO(Member member) {
+    public static MemberResponseDTO.OnboardingResultDTO toOnboardingResponseDTO(Member member) {
         return MemberResponseDTO.OnboardingResultDTO.builder()
                 .memberId(member.getId())
                 .nickname(member.getNickname())

@@ -55,7 +55,7 @@ public class MemberCommandServiceImpl implements MemberCommandService {
                         .collect(Collectors.toList())
         );
 
-        return MemberConverter.toOnboardingResultDTO(member);
+        return MemberConverter.toOnboardingResponseDTO(member);
     }
 
     private Region findRegion(Long regionId) {

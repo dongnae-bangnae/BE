@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
 import DNBN.spring.domain.MemberDetails;
+import DNBN.spring.converter.AuthConverter;
 
 @Service
 @RequiredArgsConstructor
@@ -48,8 +49,10 @@ public class AuthCommandServiceImpl implements AuthCommandService {
         );
 
         // 5. 응답 DTO로 포장하여 반환
-        return AuthResponseDTO.ReissueTokenResponseDTO.builder()
-                .accessToken(newAccessToken)
-                .build();
+//        return AuthResponseDTO.ReissueTokenResponseDTO.builder()
+//                .accessToken(newAccessToken)
+//                .build();
+        // 5. DTO 변환은 컨버터에 위임
+        return AuthConverter.toReissueTokenResponseDTO(newAccessToken);
     }
 }
