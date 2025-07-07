@@ -23,11 +23,11 @@ public class MemberConverter {
     }
 
     public static MemberResponseDTO.MemberInfoDTO toMemberInfoDTO(Member member) {
-        List<RegionResponseDTO.RegioPreviewnDTO> likePlaces = member.getLikePlaceList()
+        List<RegionResponseDTO.RegionPreviewnDTO> likePlaces = member.getLikePlaceList()
                 .stream()
                 .map(lp -> {
                     Region region = lp.getRegion();
-                    return RegionResponseDTO.RegioPreviewnDTO.builder()
+                    return RegionResponseDTO.RegionPreviewnDTO.builder()
                             .id(region.getId())
                             .name(region.getName())
                             .build();
