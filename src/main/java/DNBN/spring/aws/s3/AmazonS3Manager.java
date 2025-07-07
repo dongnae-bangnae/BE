@@ -37,8 +37,8 @@ public class AmazonS3Manager{
         return amazonS3.getUrl(amazonConfig.getBucket(), keyName).toString();
     }
 
-    public String generateReviewKeyName(Uuid uuid) {
-        return amazonConfig.getReviewPath() + '/' + uuid.getUuid();
+    public String generateMemberKeyName(Uuid uuid) {
+        return amazonConfig.getMemberPath() + '/' + uuid.getUuid(); // 멤버 프로필 사진
     }
 
     public void deleteFile(String keyName) {

@@ -43,6 +43,8 @@ cloud:
   aws:
     s3:
       bucket: dnbn-bucket
+      path:
+        member: profile
     region:
       static: ap-northeast-2
     stack:
