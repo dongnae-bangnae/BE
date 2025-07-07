@@ -31,14 +31,23 @@ public class JwtTokenProvider { // JWT 토큰을 생성하고, 검증하고, 인
         return Keys.hmacShaKeyFor(jwtProperties.getSecretKey().getBytes());
     }
 
-    public String generateToken(Authentication authentication) { // 인증 정보를 받아서, JWT Access Token을 생성하고 반환
-        String email = authentication.getName();
+    public String generateAccessToken(Authentication authentication) { // 인증 정보를 받아서, JWT Access Token을 생성하고 반환
+        String socialId = authentication.getName();
 
         return Jwts.builder()
-                .setSubject(email)
+                .setSubject(socialId)
                 .claim("role", authentication.getAuthorities().iterator().next().getAuthority())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + jwtProperties.getExpiration().getAccess()))
+                .signWith(getSigningKey(), SignatureAlgorithm.HS256)
+                .compact();
+    }
+
+    public String generateRefreshToken(String socialId) {
+        return Jwts.builder()
+                .setSubject(socialId)
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + jwtProperties.getExpiration().getRefresh()))
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
