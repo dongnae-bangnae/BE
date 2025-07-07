@@ -10,10 +10,18 @@ public class AuthResponseDTO {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    public class LoginResultDTO {
+    public static class LoginResultDTO {
         private String accessToken;
         private String refreshToken;
         private Long memberId;
         private Boolean isOnboardingCompleted;
+    }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class ReissueTokenResponseDTO {
+        private String accessToken;
     }
 }
