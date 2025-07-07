@@ -17,6 +17,6 @@ public class JwtProperties { // application.yaml에 토큰 관련 값들을 불�
     @Setter
     public static class Expiration{
         private Long access;
-        // TODO: refreshToken
+        private Long refresh;
     }
 }
