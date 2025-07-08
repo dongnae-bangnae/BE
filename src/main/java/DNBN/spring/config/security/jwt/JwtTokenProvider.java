@@ -31,14 +31,24 @@ public class JwtTokenProvider { // JWT 토큰을 생성하고, 검증하고, 인
         return Keys.hmacShaKeyFor(jwtProperties.getSecretKey().getBytes());
     }
 
-    public String generateToken(Authentication authentication) { // 인증 정보를 받아서, JWT Access Token을 생성하고 반환
-        String email = authentication.getName();
+    public String generateAccessToken(Authentication authentication) { // 인증 정보를 받아서, JWT Access Token을 생성하고 반환
+        String socialId = authentication.getName();
 
         return Jwts.builder()
-                .setSubject(email)
+                .setSubject(socialId)
                 .claim("role", authentication.getAuthorities().iterator().next().getAuthority())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + jwtProperties.getExpiration().getAccess()))
+                .signWith(getSigningKey(), SignatureAlgorithm.HS256)
+                .compact();
+    }
+
+    public String generateRefreshToken(String socialId) {
+        return Jwts.builder()
+                .setSubject(socialId)
+//                .claim("role", "ROLE_USER") // refreshToken은 단순히 "사용자 식별 정보"만 갖고 있는 재발급 전용 토큰이고, 실제 인증이나 권한 처리를 하지 않기 때문에 굳이 .claim("role", ...)를 포함할 필요가 없다
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + jwtProperties.getExpiration().getRefresh()))
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
@@ -81,8 +91,17 @@ public class JwtTokenProvider { // JWT 토큰을 생성하고, 검증하고, 인
     public Authentication extractAuthentication(HttpServletRequest request){ // HttpServletRequest 에서 토큰 값을 추출
         String accessToken = resolveToken(request);
         if(accessToken == null || !validateToken(accessToken)) {
-            throw new MemberHandler(ErrorStatus.INVALID_TOKEN);
+            throw new MemberHandler(ErrorStatus.INVALID_JWT_ACCESS_TOKEN);
         }
         return getAuthentication(accessToken); // getAuthentication 메소드를 이용해서 Spring Security의 Authentication 객체로 변환
+    }
+
+    public String getSubjectFromToken(String token) { // JWT 토큰에서 subject 클레임(socialId)을 꺼내오는 유틸 함수, 토큰의 유효성 검사 후 누구인지 식별할 때 주로 사용
+        return Jwts.parserBuilder()
+                .setSigningKey(getSigningKey())
+                .build()
+                .parseClaimsJws(token)
+                .getBody()
+                .getSubject();
     }
 }

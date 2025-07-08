@@ -36,17 +36,20 @@ spring:
 jwt:
   token:
     secretKey: ${JWT_SECRETKEY}
-    expiration:
-      access: 14400000
+    expiration: # (만료) 시간 설정은 ms단위
+      access: 14400000 # 4시간(보통 1시간~4시간 단위를 많이 채택)
+      refresh: 604800000 # 7일
 cloud:
   aws:
     s3:
       bucket: dnbn-bucket
+      path:
+        member: profile
     region:
       static: ap-northeast-2
     stack:
       auto: false
     credentials:
-      accesskey: ${AWS_ACCESS_KEY}
-      secretkey: ${AWS_SECRET_KEY}
+      accessKey: ${AWS_ACCESS_KEY}
+      secretKey: ${AWS_SECRET_KEY}
 

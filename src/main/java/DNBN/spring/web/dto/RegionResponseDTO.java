@@ -10,7 +10,7 @@ public class RegionResponseDTO {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class RegioPreviewnDTO {
+    public static class RegionPreviewnDTO {
         Long id;
         String name;
     }

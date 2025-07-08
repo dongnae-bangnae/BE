@@ -33,10 +33,12 @@ public enum ErrorStatus implements BaseErrorCode {
 
     PAGE_NOT_VALID(HttpStatus.BAD_REQUEST, "PAGE4001", "페이지는 1 이상이어야 합니다."),
 
-    INVALID_SOCIAL_TOKEN(HttpStatus.UNAUTHORIZED, "TOKEN4002", "유효하지 않은 소셜 토큰입니다."),
-
     //jwt 토큰
-    INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "TOKEN4001", "유효하지 않은 토큰입니다."),
+    INVALID_JWT_ACCESS_TOKEN(HttpStatus.UNAUTHORIZED, "TOKEN4001", "유효하지 않은 AccessToken입니다."),
+    INVALID_JWT_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "TOKEN4002", "유효하지 않은 RefreshToken입니다."),
+
+    INVALID_SOCIAL_TOKEN(HttpStatus.UNAUTHORIZED, "TOKEN4003", "유효하지 않은 SocialToken입니다."),
+
     INVALID_PASSWORD(HttpStatus.UNAUTHORIZED, "PW4001", "잘못된 비밀번호입니다.");
 
     private final HttpStatus httpStatus;

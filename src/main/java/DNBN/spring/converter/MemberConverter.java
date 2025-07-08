@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class MemberConverter {
-    public static MemberResponseDTO.OnboardingResultDTO toOnboardingResultDTO(Member member) {
+    public static MemberResponseDTO.OnboardingResultDTO toOnboardingResponseDTO(Member member) {
         return MemberResponseDTO.OnboardingResultDTO.builder()
                 .memberId(member.getId())
                 .nickname(member.getNickname())
@@ -23,11 +23,11 @@ public class MemberConverter {
     }
 
     public static MemberResponseDTO.MemberInfoDTO toMemberInfoDTO(Member member) {
-        List<RegionResponseDTO.RegioPreviewnDTO> likePlaces = member.getLikePlaceList()
+        List<RegionResponseDTO.RegionPreviewnDTO> likePlaces = member.getLikePlaceList()
                 .stream()
                 .map(lp -> {
                     Region region = lp.getRegion();
-                    return RegionResponseDTO.RegioPreviewnDTO.builder()
+                    return RegionResponseDTO.RegionPreviewnDTO.builder()
                             .id(region.getId())
                             .name(region.getName())
                             .build();

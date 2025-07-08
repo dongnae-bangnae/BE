@@ -30,8 +30,8 @@ public class AmazonConfig {
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
 
-    @Value("${cloud.aws.s3.path.review}")
-    private String reviewPath;
+    @Value("${cloud.aws.s3.path.member}")
+    private String memberPath;
 
     @PostConstruct
     public void init() { this.awsCredentials = new BasicAWSCredentials(accessKey, secretKey); }
