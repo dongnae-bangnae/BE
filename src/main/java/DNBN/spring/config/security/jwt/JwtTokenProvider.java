@@ -4,6 +4,9 @@ import DNBN.spring.apiPayload.code.status.ErrorStatus;
 import DNBN.spring.apiPayload.exception.handler.MemberHandler;
 import DNBN.spring.config.properties.Constants;
 import DNBN.spring.config.properties.JwtProperties;
+import DNBN.spring.domain.Member;
+import DNBN.spring.domain.MemberDetails;
+import DNBN.spring.repository.MemberRepository.MemberRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
@@ -14,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
@@ -26,6 +30,7 @@ import java.util.Date;
 public class JwtTokenProvider { // JWT 토큰을 생성하고, 검증하고, 인증 객체를 반환하는 역할을 수행
 
     private final JwtProperties jwtProperties;
+    private final MemberRepository memberRepository;
 
     private Key getSigningKey() {
         return Keys.hmacShaKeyFor(jwtProperties.getSecretKey().getBytes());
@@ -73,11 +78,15 @@ public class JwtTokenProvider { // JWT 토큰을 생성하고, 검증하고, 인
                 .parseClaimsJws(token)
                 .getBody();
 
-        String email = claims.getSubject();
-        String role = claims.get("role", String.class);
+        String socialId = claims.getSubject();
 
-        User principal = new User(email, "", Collections.singleton(() -> role));
-        return new UsernamePasswordAuthenticationToken(principal, token, principal.getAuthorities());
+        Member member = memberRepository.findBySocialId(socialId)
+//                .orElseThrow(() -> new MemberHandler(ErrorStatus.SOCIALID_NOT_FOUND));
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with socialId: " + socialId));
+
+        MemberDetails memberDetails = new MemberDetails(member);
+
+        return new UsernamePasswordAuthenticationToken(memberDetails, token, memberDetails.getAuthorities());
     }
 
     public static String resolveToken(HttpServletRequest request) {
