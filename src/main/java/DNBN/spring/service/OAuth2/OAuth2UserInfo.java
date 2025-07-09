@@ -5,7 +5,6 @@ import lombok.Getter;
 import java.util.Map;
 
 @Getter
-//public interface OAuth2MemberInfo {
 public abstract class OAuth2UserInfo {
     protected Map<String, Object> attributes;
 
@@ -14,8 +13,4 @@ public abstract class OAuth2UserInfo {
     }
 
     public abstract String getSocialId();
-    public abstract String getNickname();
-//    String getSocialId();
-//    String getNickname();
-//    String getProfileImage();
 }
