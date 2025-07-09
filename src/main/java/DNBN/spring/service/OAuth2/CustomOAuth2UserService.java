@@ -1,5 +1,7 @@
 package DNBN.spring.service.OAuth2;
 
+import DNBN.spring.apiPayload.code.status.ErrorStatus;
+import DNBN.spring.apiPayload.exception.handler.MemberHandler;
 import DNBN.spring.domain.Member;
 import DNBN.spring.domain.enums.Provider;
 import DNBN.spring.repository.MemberRepository.MemberRepository;
@@ -25,7 +27,8 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService { // Defau
         OAuth2UserInfo userInfo = OAuth2UserInfoFactory.getOAuth2UserInfo(provider, oAuth2User.getAttributes());
 
         if (userInfo.getSocialId() == null) {
-            throw new OAuth2AuthenticationException("소셜 로그인 ID가 없습니다.");
+//            throw new OAuth2AuthenticationException("소셜 로그인 ID가 없습니다.");
+            throw new MemberHandler(ErrorStatus.INVALID_SOCIAL_TOKEN);
         }
 
         // 3. 회원 조회 or 신규 회원 등록
