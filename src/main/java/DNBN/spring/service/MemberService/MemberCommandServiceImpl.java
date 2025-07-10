@@ -34,14 +34,24 @@ public class MemberCommandServiceImpl implements MemberCommandService {
         // 기존 회원이 존재하는지를 따짐
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberHandler(ErrorStatus.MEMBER_NOT_FOUND));
-        // 닉네임이 비었는지
-        if (request.getNickname() == null || request.getNickname().trim().isEmpty()) {
-            throw new MemberHandler(ErrorStatus.NICKNAME_NOT_EXIST);
+
+        // 온보딩 완료 여부 체크
+        if (member.isOnboardingCompleted()) {
+            throw new MemberHandler(ErrorStatus.MEMBER_ALREADY_EXISTS);
         }
+
         // 좋아하는 동네 개수 최소 1개 ~ 최대 3개
         int chosenRegionCount = request.getChosenRegionIds() == null ? 0 : request.getChosenRegionIds().size();
         if (chosenRegionCount < 1 || chosenRegionCount > 3) {
             throw new MemberHandler(ErrorStatus.INVALID_REGION_COUNT);
+        }
+
+        // 선택한 지역들이 모두 존재하는지 확인
+        for (Long regionId : request.getChosenRegionIds()) {
+            boolean exists = regionRepository.existsById(regionId);
+            if (!exists) {
+                throw new MemberHandler(ErrorStatus.REGION_NOT_FOUND);
+            }
         }
 
         member.updateOnboardingInfo(

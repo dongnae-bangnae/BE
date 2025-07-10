@@ -10,7 +10,7 @@ public class AuthResponseDTO {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class LoginResultDTO {
+    public static class LoginResultDTO { // 소셜 로그인
         private String accessToken;
         private String refreshToken;
         private Long memberId;
