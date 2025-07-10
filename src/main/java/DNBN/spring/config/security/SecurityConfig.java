@@ -43,7 +43,8 @@ public class SecurityConfig {
 //                "https://", // 프론트 도메인
 //                "https://", // 백엔드 도메인
                 "http://localhost:3000", // 로컬 프론트
-                "http://localhost:8080" // 로컬 백엔드
+                "http://localhost:8080", // 로컬 백엔드
+                "/swagger-ui/**", "/v3/api-docs/**"
         ));
         config.setAllowedHeaders(List.of("*"));
         config.setExposedHeaders(List.of("Authorization"));  // JWT 토큰 읽기 허용
