@@ -35,6 +35,7 @@ public class MemberConverter {
                 .collect(Collectors.toList());
 
         return MemberResponseDTO.MemberInfoDTO.builder()
+                .memberId(member.getId())
                 .nickname(member.getNickname())
                 .profileImage(member.getProfileImage())
                 .likePlaces(likePlaces)
