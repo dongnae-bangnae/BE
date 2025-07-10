@@ -13,6 +13,7 @@ import java.util.List;
 
 @Entity
 @Getter
+@Setter
 @DynamicInsert // insert 시 null인 필드를 제외하고 실제 값이 있는 컬럼만 포함하여 INSERT 문을 생성
 @DynamicUpdate // update 시 변경된 컬럼만 포함해서 SQL UPDATE 문을 동적으로 생성
 @Builder
@@ -41,9 +42,9 @@ public class Member extends BaseEntity {
 
     private boolean isOnboardingCompleted;
 
-    public void updateOnboardingInfo(String nickname) {
+    public void updateNicknameByOnboarding(String nickname) {
         this.nickname = nickname;
 //        this.profileImage = profileImage;
-        this.isOnboardingCompleted = true;
+//        this.isOnboardingCompleted = true;
     }
 }

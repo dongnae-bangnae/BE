@@ -1,6 +1,7 @@
 package DNBN.spring.converter;
 
 import DNBN.spring.domain.Member;
+import DNBN.spring.domain.ProfileImage;
 import DNBN.spring.domain.Region;
 import DNBN.spring.web.dto.MemberResponseDTO;
 import DNBN.spring.web.dto.RegionResponseDTO;
@@ -9,6 +10,14 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class MemberConverter {
+
+    public static ProfileImage toProfileImage(String imageUrl, Member member) {
+        return ProfileImage.builder()
+                .imageUrl(imageUrl)
+                .member(member)
+                .build();
+    }
+
     public static MemberResponseDTO.OnboardingResultDTO toOnboardingResponseDTO(Member member) {
         return MemberResponseDTO.OnboardingResultDTO.builder()
                 .memberId(member.getId())
