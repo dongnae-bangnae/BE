@@ -46,7 +46,7 @@ public class MemberConverter {
         return MemberResponseDTO.MemberInfoDTO.builder()
                 .memberId(member.getId())
                 .nickname(member.getNickname())
-                .profileImage(member.getProfileImage())
+                .profileImage(member.getProfileImage().getImageUrl())
                 .likePlaces(likePlaces)
                 .build();
     }
