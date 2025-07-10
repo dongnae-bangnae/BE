@@ -6,12 +6,16 @@ import DNBN.spring.domain.Member;
 import DNBN.spring.domain.enums.Provider;
 import DNBN.spring.repository.MemberRepository.MemberRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class CustomOAuth2UserService extends DefaultOAuth2UserService { // DefaultOAuth2UserService는 Spring Security에 기본적으로 제공되는 클래스
@@ -32,6 +36,10 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService { // Defau
         }
 
         // 3. 회원 조회 or 신규 회원 등록
+        String socialId = provider.toLowerCase() + "_" + userInfo.getSocialId();
+        log.info("🔑 카카오 최종 socialId: {}", socialId);
+        Optional<Member> existing = memberRepository.findBySocialId(socialId);
+        log.info("🔎 DB에 기존 회원 존재 여부: {}", existing.isPresent());
         Member member = memberRepository.findBySocialId(userInfo.getSocialId())
                 .orElseGet(() -> saveNewMember(userInfo, provider));
 
@@ -41,6 +49,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService { // Defau
     }
 
     private Member saveNewMember(OAuth2UserInfo userInfo, String provider) {
+        log.info("🆕 신규 유저로 저장 시도");
         String socialId = provider.toLowerCase() + "_" + userInfo.getSocialId(); // kakao_12345
         Member member = Member.builder()
 //                .socialId(userInfo.getSocialId())

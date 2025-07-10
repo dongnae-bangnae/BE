@@ -46,7 +46,7 @@ public class QLikePlace extends EntityPathBase<LikePlace> {
 
     public QLikePlace(Class<? extends LikePlace> type, PathMetadata metadata, PathInits inits) {
         super(type, metadata, inits);
-        this.member = inits.isInitialized("member") ? new DNBN.spring.domain.QMember(forProperty("member")) : null;
+        this.member = inits.isInitialized("member") ? new DNBN.spring.domain.QMember(forProperty("member"), inits.get("member")) : null;
         this.region = inits.isInitialized("region") ? new DNBN.spring.domain.QRegion(forProperty("region")) : null;
     }
 

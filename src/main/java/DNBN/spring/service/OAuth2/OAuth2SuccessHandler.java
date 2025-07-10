@@ -32,10 +32,12 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
 
-        log.info("✅ OAuth2 로그인 성공!");
+        log.info("✅ OAuth2 로그인 성공 핸들러 진입");
+        log.info("🔐 authentication.getPrincipal() 타입: {}", authentication.getPrincipal().getClass().getName());
 
         CustomOAuth2User oAuth2User = (CustomOAuth2User) authentication.getPrincipal();
         Member member = oAuth2User.getMember();
+        log.info("🙋‍♂️ 로그인한 유저 ID: {}, 온보딩 여부: {}", member.getId(), member.isOnboardingCompleted());
 
         // JWT 발급
 //        String accessToken = jwtTokenProvider.generateAccessToken(member.getSocialId()); // kakao_12345
