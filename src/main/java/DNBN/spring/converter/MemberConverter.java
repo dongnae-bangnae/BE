@@ -43,10 +43,16 @@ public class MemberConverter {
                 })
                 .collect(Collectors.toList());
 
+        // 이미지 null일 때도 조회할 수 있도록 -> dnbn 기본 이미지 들어올 경우 이 코드 필요없을지도...
+        String profileImageUrl = member.getProfileImage() != null
+                ? member.getProfileImage().getImageUrl()
+                : null;
+
         return MemberResponseDTO.MemberInfoDTO.builder()
                 .memberId(member.getId())
                 .nickname(member.getNickname())
-                .profileImage(member.getProfileImage().getImageUrl())
+//                .profileImage(member.getProfileImage().getImageUrl())
+                .profileImage(profileImageUrl)
                 .likePlaces(likePlaces)
                 .build();
     }

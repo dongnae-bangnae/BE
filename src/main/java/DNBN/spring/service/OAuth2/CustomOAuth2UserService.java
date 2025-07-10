@@ -23,8 +23,12 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService { // Defau
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
+        log.info("OAuth2 로그인 시도: clientRegistration = {}, accessToken = {}",
+                userRequest.getClientRegistration().getRegistrationId(),
+                userRequest.getAccessToken().getTokenValue());
 
         OAuth2User oAuth2User = super.loadUser(userRequest); // 소셜 API에서 사용자 정보 가져오기
+        log.info("🐤 Kakao attributes: {}", oAuth2User.getAttributes());
 
         // 2. provider 정보 (kakao, google, naver)
         String provider = userRequest.getClientRegistration().getRegistrationId(); // "kakao", "google" 등

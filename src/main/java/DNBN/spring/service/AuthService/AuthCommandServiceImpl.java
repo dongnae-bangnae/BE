@@ -30,7 +30,7 @@ public class AuthCommandServiceImpl implements AuthCommandService {
         String socialId = jwtTokenProvider.getSubjectFromToken(refreshToken);
 
         // 3. DB에서 해당 유저 조회 (예외 처리 포함)
-        Member member = memberRepository.findBySocialId(socialId) tn정
+        Member member = memberRepository.findBySocialId(socialId)
                 .orElseThrow(() -> new MemberHandler(ErrorStatus.MEMBER_NOT_FOUND));
 
         MemberDetails memberDetails = new MemberDetails(member);
