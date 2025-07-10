@@ -55,8 +55,8 @@ public class MemberCommandServiceImpl implements MemberCommandService {
         }
 
         member.updateOnboardingInfo(
-                request.getNickname(),
-                request.getProfileImageUrl()
+                request.getNickname()
+//                request.getProfileImage()
         );
 
         likePlaceRepository.saveAll( // 좋아하는 동네 연결

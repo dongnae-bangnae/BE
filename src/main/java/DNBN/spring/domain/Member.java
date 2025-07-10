@@ -32,16 +32,18 @@ public class Member extends BaseEntity {
 
     private String nickname;
 
-    private String profileImage;
+//    private String profileImage;
+    @OneToOne(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    private ProfileImage profileImage;
 
-    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL) // 연관된 자식 엔티티가 부모에서 제거되었을 때, DB에서도 자동 삭제되도록
     private List<LikePlace> likePlaceList = new ArrayList<>();
 
     private boolean isOnboardingCompleted;
 
-    public void updateOnboardingInfo(String nickname, String profileImage) {
+    public void updateOnboardingInfo(String nickname) {
         this.nickname = nickname;
-        this.profileImage = profileImage;
+//        this.profileImage = profileImage;
         this.isOnboardingCompleted = true;
     }
 }
