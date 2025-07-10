@@ -1,6 +1,7 @@
 package DNBN.spring.service.OAuth2;
 
 import DNBN.spring.apiPayload.code.status.ErrorStatus;
+import DNBN.spring.apiPayload.code.status.SuccessStatus;
 import DNBN.spring.apiPayload.exception.handler.MemberHandler;
 import DNBN.spring.domain.Member;
 import DNBN.spring.domain.enums.Provider;
@@ -42,8 +43,18 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService { // Defau
         // 3. 회원 조회 or 신규 회원 등록
         String socialId = provider.toLowerCase() + "_" + userInfo.getSocialId();
         log.info("🔑 카카오 최종 socialId: {}", socialId);
-        Optional<Member> existing = memberRepository.findBySocialId(socialId);
-        log.info("🔎 DB에 기존 회원 존재 여부: {}", existing.isPresent());
+
+//        Optional<Member> existing = memberRepository.findBySocialId(socialId);
+//        log.info("🔎 DB에 기존 회원 존재 여부: {}", existing.isPresent());
+//        Member member;
+//        if (existing.isPresent()) {
+//            member = existing.get();
+//            log.info("회원 로그인 성공: {}", SuccessStatus.MEMBER_LOGIN_SUCCESS.getMessage());
+//            // 필요시 기존 회원 업데이트 로직 추가 가능
+//        } else {
+//            member = saveNewMember(userInfo, provider);
+//            log.info("신규 회원 온보딩 필요: {}", SuccessStatus.MEMBER_NEEDS_ONBOARDING.getMessage());
+//        }
         Member member = memberRepository.findBySocialId(userInfo.getSocialId())
                 .orElseGet(() -> saveNewMember(userInfo, provider));
 
