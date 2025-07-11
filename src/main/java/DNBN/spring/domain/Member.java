@@ -22,7 +22,7 @@ import java.util.List;
 public class Member extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long memberId;
 
     @Column(nullable = false, unique = true)
     private String socialId;

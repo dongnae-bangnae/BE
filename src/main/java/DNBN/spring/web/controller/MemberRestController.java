@@ -73,7 +73,7 @@ public class MemberRestController {
             security = { @SecurityRequirement(name = "JWT TOKEN") }
     )
     public ApiResponse<Void> deleteMember(@AuthenticationPrincipal MemberDetails memberDetails) {
-        memberCommandService.deleteMember(memberDetails.getMember().getId());
+        memberCommandService.deleteMember(memberDetails.getMember().getMemberId());
         return ApiResponse.onSuccess(null);
     }
 
