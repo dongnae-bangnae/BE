@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 public class MemberConverter {
     public static MemberResponseDTO.OnboardingResultDTO toOnboardingResponseDTO(Member member) {
         return MemberResponseDTO.OnboardingResultDTO.builder()
-                .memberId(member.getId())
+                .memberId(member.getMemberId())
                 .nickname(member.getNickname())
                 .chosenRegionIds(
                         member.getLikePlaceList().stream()
@@ -35,7 +35,7 @@ public class MemberConverter {
                 .collect(Collectors.toList());
 
         return MemberResponseDTO.MemberInfoDTO.builder()
-                .memberId(member.getId())
+                .memberId(member.getMemberId())
                 .nickname(member.getNickname())
                 .profileImage(member.getProfileImage())
                 .likePlaces(likePlaces)
