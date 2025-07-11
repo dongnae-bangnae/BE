@@ -29,7 +29,7 @@ public class MemberRestController {
             security = @SecurityRequirement(name = "JWT TOKEN")
     )
     public ApiResponse<MemberResponseDTO.OnboardingResultDTO> onboard(@AuthenticationPrincipal MemberDetails memberDetails, @RequestBody @Valid MemberRequestDTO.OnboardingDTO request) {
-        Long memberId = memberDetails.getMember().getId();
+        Long memberId = memberDetails.getMember().getMemberId();
         return ApiResponse.onSuccess(memberCommandService.onboardingMember(memberId, request));
     }
 
@@ -48,7 +48,7 @@ public class MemberRestController {
             security = { @SecurityRequirement(name = "JWT TOKEN") }
     )
     public ApiResponse<Void> deleteMember(@AuthenticationPrincipal MemberDetails memberDetails) {
-        memberCommandService.deleteMember(memberDetails.getMember().getId());
+        memberCommandService.deleteMember(memberDetails.getMember().getMemberId());
         return ApiResponse.onSuccess(null);
     }
 
