@@ -41,8 +41,8 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService { // Defau
         }
 
         // 3. 회원 조회 or 신규 회원 등록
-        String socialId = provider.toLowerCase() + "_" + userInfo.getSocialId();
-        log.info("🔑 카카오 최종 socialId: {}", socialId);
+        String checkSocialId = provider.toLowerCase() + "_" + userInfo.getSocialId();
+        log.info("🔑 카카오 최종 socialId: {}", checkSocialId);
 
 //        Optional<Member> existing = memberRepository.findBySocialId(socialId);
 //        log.info("🔎 DB에 기존 회원 존재 여부: {}", existing.isPresent());
@@ -55,7 +55,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService { // Defau
 //            member = saveNewMember(userInfo, provider);
 //            log.info("신규 회원 온보딩 필요: {}", SuccessStatus.MEMBER_NEEDS_ONBOARDING.getMessage());
 //        }
-        Member member = memberRepository.findBySocialId(userInfo.getSocialId())
+        Member member = memberRepository.findBySocialId(checkSocialId)
                 .orElseGet(() -> saveNewMember(userInfo, provider));
 
         // 4. 반환할 OAuth2User 구현체 (권한 부여용)
