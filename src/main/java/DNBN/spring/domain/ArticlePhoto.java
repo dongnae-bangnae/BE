@@ -29,10 +29,6 @@ public class ArticlePhoto extends BaseEntity {
   private Place place;
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "member_id", nullable = false)
-  private Member member;
-
-  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "region_id", nullable = false)
   private Region region;
 
