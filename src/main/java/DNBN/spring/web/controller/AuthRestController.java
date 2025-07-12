@@ -29,7 +29,7 @@ public class AuthRestController {
             security = { @SecurityRequirement(name = "JWT TOKEN") }
     )
     public ApiResponse<Void> logout(@AuthenticationPrincipal MemberDetails memberDetails) {
-        memberCommandService.logout(memberDetails.getMember().getMemberId());
+        memberCommandService.logout(memberDetails.getMember().getId());
         return ApiResponse.onSuccess(null);
     }
 

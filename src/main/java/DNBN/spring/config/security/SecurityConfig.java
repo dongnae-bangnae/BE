@@ -39,7 +39,13 @@ public class SecurityConfig {
         CorsConfiguration config = new CorsConfiguration();
 
         // 동네방네 프론트, 백엔드 로컬, 운영 도메인 등 실제 사용하는 도메인 입력
-        config.addAllowedOriginPattern("*");
+        config.setAllowedOrigins(List.of(
+//                "https://", // 프론트 도메인
+//                "https://", // 백엔드 도메인
+                "http://localhost:3000", // 로컬 프론트
+                "http://localhost:8080" // 로컬 백엔드
+        ));
+//        config.addAllowedOriginPattern("*");
 //        config.setAllowedOrigins(List.of("*"));
         config.setAllowedHeaders(List.of("*"));
         config.setExposedHeaders(List.of("Authorization"));  // JWT 토큰 읽기 허용
@@ -87,7 +93,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(
                         (requests) -> requests
                                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                                .requestMatchers("/member/onboarding", "/swagger-ui/**", "/v3/api-docs/**", "/**").permitAll()
+                                .requestMatchers("/", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
 //                                .requestMatchers("/admin/**").hasRole("ADMIN") // pm이 ADMIN역할 기능 필요 X
                                 .anyRequest().authenticated()
                 )
