@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface ArticlePhotoRepository extends JpaRepository<ArticlePhoto, Long> {
     List<ArticlePhoto> findAllByArticle(Article article);
-    List<ArticlePhoto> findAllByMember(Member member);
+    List<ArticlePhoto> findAllByArticle_Member(Member member);
     List<ArticlePhoto> findAllByPlace(Place place);
     List<ArticlePhoto> findAllByRegion(Region region);
 }
