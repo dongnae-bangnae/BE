@@ -1,5 +1,6 @@
 package DNBN.spring.config.security;
 
+import DNBN.spring.apiPayload.exception.handler.CustomAuthenticationEntryPoint;
 import DNBN.spring.config.security.jwt.JwtAuthenticationFilter;
 import DNBN.spring.config.security.jwt.JwtTokenProvider;
 import DNBN.spring.service.OAuth2.CustomOAuth2UserService;
@@ -35,6 +36,7 @@ public class SecurityConfig {
     private final CustomOidcUserService customOidcUserService;
     private final OAuth2SuccessHandler oAuth2SuccessHandler;
     private final OAuth2FailureHandler oAuth2FailureHandler;
+    private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
 
     @Bean
     CorsConfigurationSource corsConfigurationSource() { // CORS 설정
@@ -109,6 +111,9 @@ public class SecurityConfig {
                         )
                         .successHandler(oAuth2SuccessHandler) // 온보딩 분기 등 커스텀 성공 핸들러
                         .failureHandler(oAuth2FailureHandler)
+                )
+                .exceptionHandling(exception -> exception
+                        .authenticationEntryPoint(customAuthenticationEntryPoint)
                 )
                 .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);
 
