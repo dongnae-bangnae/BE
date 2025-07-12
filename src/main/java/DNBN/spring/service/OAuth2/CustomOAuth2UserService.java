@@ -24,16 +24,13 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService { // Defau
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
-        log.info("OAuth2 로그인 시도: clientRegistration = {}, accessToken = {}",
-                userRequest.getClientRegistration().getRegistrationId(),
-                userRequest.getAccessToken().getTokenValue());
 
         OAuth2User oAuth2User = super.loadUser(userRequest); // 소셜 API에서 사용자 정보 가져오기
 
         // 2. provider 정보 (kakao, google, naver)
         String provider = userRequest.getClientRegistration().getRegistrationId(); // "kakao", "google" 등
         OAuth2UserInfo userInfo = OAuth2UserInfoFactory.getOAuth2UserInfo(provider, oAuth2User.getAttributes());
-        log.info("🌐 provider: {}, 🐤 attributes: {}", provider, oAuth2User.getAttributes());
+        log.info("🌐 provider: {}, 🐤 attributes: {}, accessToken = {}", provider, oAuth2User.getAttributes(), userRequest.getAccessToken().getTokenValue());
 
         if (userInfo.getSocialId() == null) {
 //            throw new OAuth2AuthenticationException("소셜 로그인 ID가 없습니다.");
@@ -64,7 +61,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService { // Defau
     }
 
     private Member saveNewMember(OAuth2UserInfo userInfo, String provider) {
-        log.info("🆕 신규 유저로 저장 시도");
+        log.info("🆕 {} 신규 유저로 저장 시도", provider);
         String socialId = provider.toLowerCase() + "_" + userInfo.getSocialId(); // kakao_12345
         Member member = Member.builder()
 //                .socialId(userInfo.getSocialId())

@@ -13,6 +13,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
@@ -26,7 +27,6 @@ import java.nio.charset.StandardCharsets;
 public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
     private final JwtTokenProvider jwtTokenProvider;
-    private final MemberRepository memberRepository;
     private final ObjectMapper objectMapper;
 
     @Override
@@ -36,6 +36,17 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         log.info("🔐 authentication.getPrincipal() 타입: {}", authentication.getPrincipal().getClass().getName());
 
         CustomOAuth2User oAuth2User = (CustomOAuth2User) authentication.getPrincipal();
+//        Object principal = authentication.getPrincipal();
+
+        // ✅ CustomOAuth2User 타입이 아니면 예외 던지기
+//        if (!(principal instanceof CustomOAuth2User)) {
+//            throw new OAuth2AuthenticationException(
+//                    "Expected CustomOAuth2User but got " + principal.getClass().getName()
+//            );
+//        }
+//
+//        CustomOAuth2User oAuth2User = (CustomOAuth2User) principal; // 이제 안전하게 다운캐스팅
+
         Member member = oAuth2User.getMember();
         log.info("🙋‍♂️ 로그인한 유저 ID: {}, 온보딩 여부: {}", member.getId(), member.isOnboardingCompleted());
 

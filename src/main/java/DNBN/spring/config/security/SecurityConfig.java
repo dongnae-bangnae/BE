@@ -3,6 +3,7 @@ package DNBN.spring.config.security;
 import DNBN.spring.config.security.jwt.JwtAuthenticationFilter;
 import DNBN.spring.config.security.jwt.JwtTokenProvider;
 import DNBN.spring.service.OAuth2.CustomOAuth2UserService;
+import DNBN.spring.service.OAuth2.CustomOidcUserService;
 import DNBN.spring.service.OAuth2.OAuth2FailureHandler;
 import DNBN.spring.service.OAuth2.OAuth2SuccessHandler;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +32,7 @@ public class SecurityConfig {
 
     private final JwtTokenProvider jwtTokenProvider;
     private final CustomOAuth2UserService customOAuth2UserService;
+    private final CustomOidcUserService customOidcUserService;
     private final OAuth2SuccessHandler oAuth2SuccessHandler;
     private final OAuth2FailureHandler oAuth2FailureHandler;
 
@@ -102,9 +104,10 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .oauth2Login(oauth2 -> oauth2
                         .userInfoEndpoint(userInfo -> userInfo
+                                .oidcUserService(customOidcUserService)
                                 .userService(customOAuth2UserService)
                         )
-                        .successHandler(oAuth2SuccessHandler)  // 온보딩 분기 등 커스텀 성공 핸들러
+                        .successHandler(oAuth2SuccessHandler) // 온보딩 분기 등 커스텀 성공 핸들러
                         .failureHandler(oAuth2FailureHandler)
                 )
                 .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);
