@@ -13,7 +13,7 @@ import lombok.*;
 public class LikePlace {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long likePlaceId;
+    private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")

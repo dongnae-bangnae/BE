@@ -99,7 +99,7 @@ public class MemberCommandServiceImpl implements MemberCommandService {
 
         // JWT를 로컬(localStorage, 쿠키 등)에서 직접 제거해야 로그아웃
 
-        log.info("사용자 {} 로그아웃 처리 완료", member.getMemberId());
+        log.info("사용자 {} 로그아웃 처리 완료", member.getId());
     }
 
     @Override

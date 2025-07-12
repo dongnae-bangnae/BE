@@ -12,7 +12,7 @@ import lombok.*;
 public class ProfileImage extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long profileImageId;
+    private Long id;
 
     private String imageUrl;
 

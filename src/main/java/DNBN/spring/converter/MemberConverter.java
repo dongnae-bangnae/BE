@@ -20,12 +20,12 @@ public class MemberConverter {
 
     public static MemberResponseDTO.OnboardingResultDTO toOnboardingResponseDTO(Member member) {
         return MemberResponseDTO.OnboardingResultDTO.builder()
-                .memberId(member.getMemberId())
+                .memberId(member.getId())
                 .nickname(member.getNickname())
                 .chosenRegionIds(
                         member.getLikePlaceList().stream()
                                 .map(lp -> lp.getRegion().getId())
-                                .toList()
+                                .toList ()
                 )
                 .isOnboardingCompleted(member.isOnboardingCompleted())
                 .build();
@@ -49,7 +49,7 @@ public class MemberConverter {
                 : null;
 
         return MemberResponseDTO.MemberInfoDTO.builder()
-                .memberId(member.getMemberId())
+                .memberId(member.getId())
                 .nickname(member.getNickname())
 //                .profileImage(member.getProfileImage().getImageUrl())
                 .profileImage(profileImageUrl)

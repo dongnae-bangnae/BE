@@ -47,7 +47,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         AuthResponseDTO.LoginResultDTO result = AuthResponseDTO.LoginResultDTO.builder()
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
-                .memberId(member.getMemberId())
+                .memberId(member.getId())
                 .isOnboardingCompleted(member.isOnboardingCompleted())
                 .build();
 

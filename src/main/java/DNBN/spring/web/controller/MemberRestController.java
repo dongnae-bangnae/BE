@@ -53,7 +53,7 @@ public class MemberRestController {
             @RequestPart("request") @Valid MemberRequestDTO.OnboardingDTO request,
             @RequestPart(value = "profileImage", required = false) MultipartFile profileImage
     ) {
-        Long memberId = memberDetails.getMember().getMemberId();
+        Long memberId = memberDetails.getMember().getId();
         Member member = memberCommandService.onboardingMember(memberId, request, profileImage);
         return ApiResponse.onSuccess(MemberConverter.toOnboardingResponseDTO(member));
     }
@@ -73,7 +73,7 @@ public class MemberRestController {
             security = { @SecurityRequirement(name = "JWT TOKEN") }
     )
     public ApiResponse<Void> deleteMember(@AuthenticationPrincipal MemberDetails memberDetails) {
-        memberCommandService.deleteMember(memberDetails.getMember().getMemberId());
+        memberCommandService.deleteMember(memberDetails.getMember().getId());
         return ApiResponse.onSuccess(null);
     }
 
