@@ -38,7 +38,7 @@ public class MemberConverter {
                     Region region = lp.getRegion();
                     return RegionResponseDTO.RegionPreviewnDTO.builder()
                             .id(region.getId())
-                            .name(region.getName())
+                            .name(region.getDistrict())
                             .build();
                 })
                 .collect(Collectors.toList());
