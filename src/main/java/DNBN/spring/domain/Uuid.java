@@ -12,7 +12,7 @@ import DNBN.spring.domain.common.BaseEntity;
 public class Uuid extends BaseEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long uuidId;
 
     @Column(unique = true)
     private String uuid;

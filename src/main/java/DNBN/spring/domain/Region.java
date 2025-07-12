@@ -16,7 +16,7 @@ import java.util.List;
 public class Region extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long regionId;
 
     private String name;
 
