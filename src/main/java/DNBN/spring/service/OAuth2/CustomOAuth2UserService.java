@@ -29,11 +29,11 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService { // Defau
                 userRequest.getAccessToken().getTokenValue());
 
         OAuth2User oAuth2User = super.loadUser(userRequest); // 소셜 API에서 사용자 정보 가져오기
-        log.info("🐤 Kakao attributes: {}", oAuth2User.getAttributes());
 
         // 2. provider 정보 (kakao, google, naver)
         String provider = userRequest.getClientRegistration().getRegistrationId(); // "kakao", "google" 등
         OAuth2UserInfo userInfo = OAuth2UserInfoFactory.getOAuth2UserInfo(provider, oAuth2User.getAttributes());
+        log.info("🌐 provider: {}, 🐤 attributes: {}", provider, oAuth2User.getAttributes());
 
         if (userInfo.getSocialId() == null) {
 //            throw new OAuth2AuthenticationException("소셜 로그인 ID가 없습니다.");
@@ -42,7 +42,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService { // Defau
 
         // 3. 회원 조회 or 신규 회원 등록
         String checkSocialId = provider.toLowerCase() + "_" + userInfo.getSocialId();
-        log.info("🔑 카카오 최종 socialId: {}", checkSocialId);
+        log.info("🔑 최종 socialId: {}", checkSocialId);
 
 //        Optional<Member> existing = memberRepository.findBySocialId(socialId);
 //        log.info("🔎 DB에 기존 회원 존재 여부: {}", existing.isPresent());

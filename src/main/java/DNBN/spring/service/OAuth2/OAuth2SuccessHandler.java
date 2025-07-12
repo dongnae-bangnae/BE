@@ -57,7 +57,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
         ApiResponse<AuthResponseDTO.LoginResultDTO> apiResponse;
         if (member.isOnboardingCompleted()) {
-            apiResponse = ApiResponse.of(SuccessStatus.MEMBER_LOGIN_SUCCESS, result);
+            apiResponse = ApiResponse.of(SuccessStatus.MEMBER_ALREADY_LOGIN, result);
         } else {
             apiResponse = ApiResponse.of(SuccessStatus.MEMBER_NEEDS_ONBOARDING, result);
         }
