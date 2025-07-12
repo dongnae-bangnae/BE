@@ -45,7 +45,7 @@ public class CustomOAuth2User implements OAuth2User, OidcUser {
 
     @Override
     public OidcIdToken getIdToken() {
-        return null; // 필요시 userRequest.getIdToken() 전달
+        return null; // 필요시 userRequest.getIdToken() 전달, 우린 google에서 식별 가능한 값으로 sub를 받기 때문에 null 반환해도 정상적으로 동작함
     }
 
     @Override

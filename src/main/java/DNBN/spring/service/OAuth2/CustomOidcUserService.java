@@ -21,14 +21,14 @@ public class CustomOidcUserService extends OidcUserService {
 
     @Override
     public OidcUser loadUser(OidcUserRequest userRequest) throws OAuth2AuthenticationException {
-        OidcUser oidcUser = super.loadUser(userRequest);
 
-        String provider = userRequest.getClientRegistration().getRegistrationId();
+        OidcUser oidcUser = super.loadUser(userRequest);  // 1. 소셜 API에서 사용자 정보 가져오기
+
+        String provider = userRequest.getClientRegistration().getRegistrationId(); // 2. provider 정보 (kakao, google, naver)
         OAuth2UserInfo userInfo = OAuth2UserInfoFactory.getOAuth2UserInfo(provider, oidcUser.getAttributes());
         log.info("🌐 provider: {}, 🐤 attributes: {}, accessToken = {}", provider, oidcUser.getAttributes(), userRequest.getAccessToken().getTokenValue());
 
         if (userInfo.getSocialId() == null) {
-            // 커스텀 예외 던지기
             throw new MemberHandler(ErrorStatus.INVALID_SOCIAL_TOKEN);
         }
 
@@ -36,9 +36,9 @@ public class CustomOidcUserService extends OidcUserService {
         log.info("🔑 최종 socialId: {}", checkSocialId);
 
         Member member = memberRepository.findBySocialId(checkSocialId)
-                .orElseGet(() -> saveNewMember(userInfo, provider));
+                .orElseGet(() -> saveNewMember(userInfo, provider)); // 3. 회원 조회 or 신규 회원 등록
 
-        return new CustomOAuth2User(member, oidcUser.getAttributes());
+        return new CustomOAuth2User(member, oidcUser.getAttributes()); // 4. 반환할 OAuth2User 구현체 (권한 부여용)
     }
 
     private Member saveNewMember(OAuth2UserInfo userInfo, String provider) {

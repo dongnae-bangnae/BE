@@ -36,23 +36,12 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         log.info("🔐 authentication.getPrincipal() 타입: {}", authentication.getPrincipal().getClass().getName());
 
         CustomOAuth2User oAuth2User = (CustomOAuth2User) authentication.getPrincipal();
-//        Object principal = authentication.getPrincipal();
-
-        // ✅ CustomOAuth2User 타입이 아니면 예외 던지기
-//        if (!(principal instanceof CustomOAuth2User)) {
-//            throw new OAuth2AuthenticationException(
-//                    "Expected CustomOAuth2User but got " + principal.getClass().getName()
-//            );
-//        }
-//
-//        CustomOAuth2User oAuth2User = (CustomOAuth2User) principal; // 이제 안전하게 다운캐스팅
 
         Member member = oAuth2User.getMember();
         log.info("🙋‍♂️ 로그인한 유저 ID: {}, 온보딩 여부: {}", member.getId(), member.isOnboardingCompleted());
 
         // JWT 발급
-//        String accessToken = jwtTokenProvider.generateAccessToken(member.getSocialId()); // kakao_12345
-        String accessToken = jwtTokenProvider.generateAccessToken(authentication); // subject = socialId
+        String accessToken = jwtTokenProvider.generateAccessToken(authentication); // kakao_12345
         String refreshToken = jwtTokenProvider.generateRefreshToken(member.getSocialId());
 
         AuthResponseDTO.LoginResultDTO result = AuthResponseDTO.LoginResultDTO.builder()

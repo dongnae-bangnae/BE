@@ -49,8 +49,6 @@ public class SecurityConfig {
                 "http://localhost:3000", // 로컬 프론트
                 "http://localhost:8080" // 로컬 백엔드
         ));
-//        config.addAllowedOriginPattern("*");
-//        config.setAllowedOrigins(List.of("*"));
         config.setAllowedHeaders(List.of("*"));
         config.setExposedHeaders(List.of("Authorization"));  // JWT 토큰 읽기 허용
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
@@ -62,30 +60,6 @@ public class SecurityConfig {
         return source;
     }
 
-    //    @Bean
-//    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-//        http
-//                .sessionManagement(session ->
-//                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-//                )
-//                .authorizeHttpRequests((requests) -> requests // HTTP 요청에 대한 접근 제어를 설정
-//                        .requestMatchers("/", "/home", "/signup", "/members/signup", "/css/**").permitAll() // 특정 URL 패턴에 대한 접근 권한을 설정
-//                        .requestMatchers("/admin/**").hasRole("ADMIN") // 'ADMIN' 역할을 가진 사용자만 접근 가능하도록 제한
-//                        .anyRequest().authenticated() // 그 외 모든 요청에 대해 인증을 요구
-//                )
-//                .formLogin((form) -> form
-//                        .loginPage("/login") // 커스텀 로그인 페이지를 /login 경로로 지정
-//                        .defaultSuccessUrl("/home", true) // 로그인 성공 시 /home으로 리다이렉트
-//                        .permitAll() // 로그인 페이지는 모든 사용자가 접근 가능하도록 설정
-//                )
-//                .logout((logout) -> logout
-//                        .logoutUrl("/logout") // /logout 경로로 로그아웃을 처리
-//                        .logoutSuccessUrl("/login?logout") // 로그아웃 성공 시 /login?logout으로 리다이렉트
-//                        .permitAll()
-//                );
-//
-//        return http.build();
-//    }
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http

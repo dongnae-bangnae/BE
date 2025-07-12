@@ -23,7 +23,7 @@ public class Region extends BaseEntity {
     private String province; // ex: 서울
 
     @Column(length = 20, nullable = false)
-    private String city;     // ex: 강남구
+    private String city; // ex: 강남구
 
     @Column(length = 50, nullable = false)
     private String district; // ex: 개포1동

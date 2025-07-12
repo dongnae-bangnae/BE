@@ -22,7 +22,6 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.setContentType("application/json;charset=UTF-8");
 
-//        ErrorReasonDTO reason = ErrorReasonDTO.of(ErrorStatus.INVALID_JWT_ACCESS_TOKEN);
         ErrorReasonDTO reason = ErrorReasonDTO.builder()
                 .httpStatus(ErrorStatus.INVALID_JWT_ACCESS_TOKEN.getHttpStatus())
                 .isSuccess(false)
