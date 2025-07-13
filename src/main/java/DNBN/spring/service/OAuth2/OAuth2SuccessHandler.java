@@ -13,6 +13,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
@@ -26,7 +27,6 @@ import java.nio.charset.StandardCharsets;
 public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
     private final JwtTokenProvider jwtTokenProvider;
-    private final MemberRepository memberRepository;
     private final ObjectMapper objectMapper;
 
     @Override
@@ -36,12 +36,12 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         log.info("🔐 authentication.getPrincipal() 타입: {}", authentication.getPrincipal().getClass().getName());
 
         CustomOAuth2User oAuth2User = (CustomOAuth2User) authentication.getPrincipal();
+
         Member member = oAuth2User.getMember();
         log.info("🙋‍♂️ 로그인한 유저 ID: {}, 온보딩 여부: {}", member.getId(), member.isOnboardingCompleted());
 
         // JWT 발급
-//        String accessToken = jwtTokenProvider.generateAccessToken(member.getSocialId()); // kakao_12345
-        String accessToken = jwtTokenProvider.generateAccessToken(authentication); // subject = socialId
+        String accessToken = jwtTokenProvider.generateAccessToken(authentication); // kakao_12345
         String refreshToken = jwtTokenProvider.generateRefreshToken(member.getSocialId());
 
         AuthResponseDTO.LoginResultDTO result = AuthResponseDTO.LoginResultDTO.builder()

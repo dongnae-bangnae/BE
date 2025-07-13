@@ -80,8 +80,7 @@ public class JwtTokenProvider { // JWT 토큰을 생성하고, 검증하고, 인
         String socialId = claims.getSubject();
 
         Member member = memberRepository.findBySocialId(socialId)
-//                .orElseThrow(() -> new MemberHandler(ErrorStatus.SOCIALID_NOT_FOUND));
-                .orElseThrow(() -> new UsernameNotFoundException("User not found with socialId: " + socialId));
+                .orElseThrow(() -> new MemberHandler(ErrorStatus.SOCIALID_NOT_FOUND));
 
         MemberDetails memberDetails = new MemberDetails(member);
 

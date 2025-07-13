@@ -1,5 +1,7 @@
 package DNBN.spring.config.security;
 
+import DNBN.spring.apiPayload.code.status.ErrorStatus;
+import DNBN.spring.apiPayload.exception.handler.MemberHandler;
 import DNBN.spring.domain.Member;
 import DNBN.spring.domain.MemberDetails;
 import DNBN.spring.repository.MemberRepository.MemberRepository;
@@ -17,7 +19,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String socialId) throws UsernameNotFoundException {
         Member member = memberRepository.findBySocialId(socialId)
-                .orElseThrow(() -> new UsernameNotFoundException("해당 소셜 ID의 유저가 존재하지 않습니다: " + socialId));
+                .orElseThrow(() -> new MemberHandler(ErrorStatus.SOCIALID_NOT_FOUND));
 
 //        return org.springframework.security.core.userdetails.User
 //                .withUsername(member.getSocialId())
