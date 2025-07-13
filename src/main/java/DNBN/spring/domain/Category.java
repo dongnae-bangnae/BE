@@ -2,8 +2,12 @@ package DNBN.spring.domain;
 
 import DNBN.spring.domain.common.BaseEntity;
 import DNBN.spring.domain.enums.Color;
+import DNBN.spring.domain.mapping.SavePlace;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
 import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
@@ -44,4 +48,7 @@ public class Category extends BaseEntity {
   private Color color;
 
   private LocalDateTime deletedAt;
+
+  @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true)
+  private List<SavePlace> savedPlaces = new ArrayList<>();
 }
