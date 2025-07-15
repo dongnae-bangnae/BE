@@ -8,6 +8,6 @@ import java.util.Optional;
 
 public interface PlaceRepository extends JpaRepository<Place, Long> {
     List<Place> findAllByRegion(Region region);
-    Optional<Place> findByLatitudeAndLongitude(Long lat, Long lng);
+    Optional<Place> findByLatitudeAndLongitude(Double lat, Double lng);
 }
 
