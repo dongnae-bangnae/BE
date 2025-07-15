@@ -28,9 +28,9 @@ public class Place extends BaseEntity {
   @JoinColumn(name = "region_id", nullable = false)
   private Region region;
 
-  private Long latitude;
+  private Double latitude;
 
-  private Long longitude;
+  private Double longitude;
 
   @Column(nullable = false, length = 50)
   private String title;
