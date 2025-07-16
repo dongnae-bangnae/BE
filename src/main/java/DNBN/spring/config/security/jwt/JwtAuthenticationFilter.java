@@ -6,6 +6,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.StringUtils;
@@ -13,10 +14,21 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
+@Slf4j
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter { // 필터 역할: 클라이언트가 서버에게 전달되기 전에 인증 과정
 
     private final JwtTokenProvider jwtTokenProvider;
+
+//    private static final Set<String> NO_FILTER_URIS = Set.of("/auth/reissue", ""); // /auth/reissue 외에도 필요하면
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        log.info("🔥 [JWT 필터 제외 검사]: {}", request.getRequestURI());
+        return request.getRequestURI().equals("/auth/reissue");
+//        return NO_FILTER_URIS.contains(request.getRequestURI()); // /auth/reissue 외에도 필요하면
+//        return super.shouldNotFilter(request);
+    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, // HttpServletRequest로 받아온 요청 객체에서 순수한 토큰을 추출
