@@ -41,6 +41,7 @@ public class JwtTokenProvider { // JWT 토큰을 생성하고, 검증하고, 인
         return Jwts.builder()
                 .setSubject(socialId)
                 .claim("role", authentication.getAuthorities().iterator().next().getAuthority())
+                .claim("tokenType", "access")
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + jwtProperties.getExpiration().getAccess()))
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
@@ -51,6 +52,7 @@ public class JwtTokenProvider { // JWT 토큰을 생성하고, 검증하고, 인
         return Jwts.builder()
                 .setSubject(socialId)
 //                .claim("role", "ROLE_USER") // refreshToken은 단순히 "사용자 식별 정보"만 갖고 있는 재발급 전용 토큰이고, 실제 인증이나 권한 처리를 하지 않기 때문에 굳이 .claim("role", ...)를 포함할 필요가 없다
+                .claim("tokenType", "refresh")
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + jwtProperties.getExpiration().getRefresh()))
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
