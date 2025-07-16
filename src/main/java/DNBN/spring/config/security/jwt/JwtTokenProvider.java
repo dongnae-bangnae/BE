@@ -72,6 +72,20 @@ public class JwtTokenProvider { // JWT 토큰을 생성하고, 검증하고, 인
         }
     }
 
+    public boolean isAccessToken(String token) { // JwtAuthenticationFilter에서 사용
+        try {
+            Claims claims = Jwts.parserBuilder()
+                    .setSigningKey(getSigningKey())
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+
+            return "access".equals(claims.get("tokenType", String.class));
+        } catch (JwtException | IllegalArgumentException e) {
+            return false;
+        }
+    }
+
     public boolean isRefreshToken(String token) { // 토큰 재발급 API에서 사용
         try {
             Claims claims = Jwts.parserBuilder()
