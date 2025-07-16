@@ -46,7 +46,7 @@ public class Category extends BaseEntity {
   @Enumerated(EnumType.STRING)
   @Column(nullable = false, length = 10)
   private Color color;
-
+  @Column(name = "deleted_at")
   private LocalDateTime deletedAt;
 
   @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -56,7 +56,7 @@ public class Category extends BaseEntity {
     this.name = name;
     this.color = color;
   }
-
+  @PreRemove
   public void softDelete() {
     this.deletedAt = LocalDateTime.now();
   }

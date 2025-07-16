@@ -13,8 +13,8 @@ public class ArticleLikeQueryService {
     private final ArticleLikeRepository articleLikeRepository;
 
     public LikeStatusResponseDTO getLikeStatus(Long articleId, Long memberId) {
-        ArticleLikeId likeId = new ArticleLikeId(articleId, memberId);
-        boolean exists = articleLikeRepository.existsById(likeId);
-        return new LikeStatusResponseDTO(exists);
+        long likesCount = articleLikeRepository.countByArticle_ArticleId(articleId);
+
+        return new LikeStatusResponseDTO(articleId, likesCount);
     }
 }

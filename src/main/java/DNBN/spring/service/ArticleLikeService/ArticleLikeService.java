@@ -12,6 +12,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import static DNBN.spring.domain.QArticle.article;
+import static DNBN.spring.domain.QMember.member;
+import static org.springframework.data.jpa.domain.AbstractPersistable_.id;
 
 @Service
 @RequiredArgsConstructor
@@ -29,17 +31,17 @@ public class ArticleLikeService {
         if (articleLikeRepository.existsById(likeId)) {
             throw new GeneralException(ErrorStatus.ALREADY_LIKED);
         }
-
+        ArticleLikeId id = new ArticleLikeId(article.getArticleId(), memberId);
         ArticleLike articleLike = ArticleLike.builder()
+                .id(id)
                 .article(article)
                 .member(memberRepository.getReferenceById(memberId))
                 .build();
 
         articleLikeRepository.save(articleLike);
 
-        long likesCount = articleLikeRepository.countByArticle(article);
-        long spamCount = 0;
-        return LikeResponseDTO.of(articleId, likesCount, spamCount);
+        long likesCount = articleLikeRepository.countByArticle_ArticleId(articleId);
+        return LikeResponseDTO.of(articleId, likesCount);
     }
 
     public LikeResponseDTO unlikeArticle(Long articleId, Long memberId) {
@@ -49,8 +51,7 @@ public class ArticleLikeService {
 
         articleLikeRepository.delete(articleLike);
         Article article = articleLike.getArticle();
-        long likesCount = articleLikeRepository.countByArticle(article);
-        long spamCount = 0;
-        return LikeResponseDTO.of(articleId, likesCount, spamCount);
+        long likesCount = articleLikeRepository.countByArticle_ArticleId(articleId);
+        return LikeResponseDTO.of(articleId, likesCount);
     }
 }

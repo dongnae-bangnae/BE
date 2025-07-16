@@ -8,13 +8,11 @@ import lombok.Getter;
 public class SpamResponseDTO {
     private Long articleId;
     private long spamsCount;
-    private long spamCount;
 
-    public static SpamResponseDTO of(Long articleId, long spamsCount, long spamCount) {
+    public static SpamResponseDTO of(Long articleId, long spamsCount) {
         return SpamResponseDTO.builder()
                 .articleId(articleId)
                 .spamsCount(spamsCount)
-                .spamCount(spamCount)
                 .build();
     }
 }

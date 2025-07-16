@@ -33,5 +33,22 @@ public class ArticleLike {
 
     @Column(name = "created_at", nullable = false, columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime createdAt;
+
+    @PrePersist
+    public void prePersist() {
+        if (this.id == null && this.article != null && this.member != null) {
+            this.id = new ArticleLikeId(article.getArticleId(), member.getId());
+        }
+        if (this.createdAt == null) {
+            this.createdAt = LocalDateTime.now();
+        }
+    }
+    public static ArticleLike of(Article article, Member member) {
+        return ArticleLike.builder()
+                .article(article)
+                .member(member)
+                .createdAt(LocalDateTime.now())
+                .build();
+    }
 }
 

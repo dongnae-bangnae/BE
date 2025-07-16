@@ -6,5 +6,6 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class SpamStatusResponseDTO {
-    private boolean spamed;
+    private Long articleId;
+    private long spamsCount;
 }

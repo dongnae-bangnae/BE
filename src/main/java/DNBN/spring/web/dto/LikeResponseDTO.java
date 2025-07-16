@@ -9,13 +9,11 @@ import lombok.Getter;
 public class LikeResponseDTO {
     private Long articleId;
     private long likesCount;
-    private long spamCount;
 
-    public static LikeResponseDTO of(Long articleId, long likesCount, long spamCount) {
+    public static LikeResponseDTO of(Long articleId, long likesCount) {
         return LikeResponseDTO.builder()
                 .articleId(articleId)
                 .likesCount(likesCount)
-                .spamCount(spamCount)
                 .build();
     }
 }

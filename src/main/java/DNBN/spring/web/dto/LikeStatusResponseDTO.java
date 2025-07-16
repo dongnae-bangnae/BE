@@ -6,5 +6,6 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class LikeStatusResponseDTO {
-    private boolean liked;
+    private Long articleId;
+    private long likesCount;
 }

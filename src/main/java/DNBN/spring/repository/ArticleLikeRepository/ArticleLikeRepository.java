@@ -14,6 +14,5 @@ public interface ArticleLikeRepository extends JpaRepository<ArticleLike, Long> 
     boolean existsById(ArticleLikeId id);
 
     Optional<ArticleLike> findById(ArticleLikeId id);
-
-    long countByArticle(Article article);
+    long countByArticle_ArticleId(Long articleId);
 }

@@ -14,11 +14,13 @@ import DNBN.spring.repository.PlaceRepository.PlaceRepository;
 import DNBN.spring.repository.RegionRepository.RegionRepository;
 import DNBN.spring.web.dto.CategoryRequestDTO;
 import DNBN.spring.web.dto.CategoryResponseDTO;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class CategoryService {
     private final PlaceRepository placeRepository;
     private final RegionRepository regionRepository;
@@ -64,7 +66,6 @@ public class CategoryService {
 
     public void delete(Long memberId, Long categoryId) {
         Category category = getOwnedCategory(memberId, categoryId);
-        // 게시글 연결 여부 확인하고 예외 던질 수 있음
         category.softDelete();
     }
 
