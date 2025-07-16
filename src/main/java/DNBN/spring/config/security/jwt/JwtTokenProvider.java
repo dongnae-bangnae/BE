@@ -59,13 +59,31 @@ public class JwtTokenProvider { // JWT 토큰을 생성하고, 검증하고, 인
                 .compact();
     }
 
-    public boolean validateToken(String token) { // 해당 JWT 토큰이 유효한지 검증
+    public boolean validateToken(String token) { // 해당 JWT 토큰이 유효한지(서명과 시간) 검증
         // 파싱이 된다면 유효한 토큰이고, 토큰이 만료되었거나 (앞서 저희가 걸었던 4시간 제한을 넘어갔다거나) 혹은 위조, 형식 오류가 생기면 예외가 발생하여 false를 반환
         try {
             Jwts.parserBuilder()
                     .setSigningKey(getSigningKey())
                     .build()
                     .parseClaimsJws(token);
+            return true;
+        } catch (JwtException | IllegalArgumentException e) {
+            return false;
+        }
+    }
+
+    public boolean isRefreshToken(String token) { // 토큰 재발급 API에서 사용
+        try {
+            Claims claims = Jwts.parserBuilder()
+                    .setSigningKey(getSigningKey())
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+
+            String tokenType = claims.get("tokenType", String.class);
+            if (!"refresh".equals(tokenType)) { // access인지 refresh인지 체크
+                return false;  // AccessToken이면 false
+            }
             return true;
         } catch (JwtException | IllegalArgumentException e) {
             return false;
