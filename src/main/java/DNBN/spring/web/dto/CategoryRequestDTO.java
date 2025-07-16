@@ -9,5 +9,8 @@ public record CategoryRequestDTO(
         String name,
 
         @NotBlank(message = "색상은 필수입니다.")
-        String color
+        String color,
+        Long placeId,
+        Long regionId
+
 ) { }

@@ -5,9 +5,13 @@ import DNBN.spring.apiPayload.exception.DuplicateCategoryException;
 import DNBN.spring.apiPayload.exception.handler.CategoryHandler;
 import DNBN.spring.domain.Category;
 import DNBN.spring.domain.Member;
+import DNBN.spring.domain.Place;
+import DNBN.spring.domain.Region;
 import DNBN.spring.domain.enums.Color;
 import DNBN.spring.repository.CategoryRepository.CategoryRepository;
 import DNBN.spring.repository.MemberRepository.MemberRepository;
+import DNBN.spring.repository.PlaceRepository.PlaceRepository;
+import DNBN.spring.repository.RegionRepository.RegionRepository;
 import DNBN.spring.web.dto.CategoryRequestDTO;
 import DNBN.spring.web.dto.CategoryResponseDTO;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +20,8 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class CategoryService {
+    private final PlaceRepository placeRepository;
+    private final RegionRepository regionRepository;
     private final CategoryRepository categoryRepository;
     private final MemberRepository memberRepository;
 
@@ -25,17 +31,30 @@ public class CategoryService {
             throw new CategoryHandler(ErrorStatus.CATEGORY_DUPLICATE_NAME);
         }
 
+        Place place = null;
+        if (dto.placeId() != null) {
+            place = placeRepository.findById(dto.placeId())
+                    .orElseThrow(() -> new CategoryHandler(ErrorStatus.PLACE_NOT_FOUND));
+        }
+
+        Region region = null;
+        if (dto.regionId() != null) {
+            region = regionRepository.findById(dto.regionId())
+                    .orElseThrow(() -> new CategoryHandler(ErrorStatus.REGION_NOT_FOUND));
+        }
+
         Category category = Category.builder()
                 .name(dto.name())
                 .color(Color.from(dto.color()))
                 .member(member)
-                .place(null)
-                .region(null)
+                .place(place)
+                .region(region)
                 .build();
 
         categoryRepository.save(category);
         return new CategoryResponseDTO(category.getCategoryId(), category.getName(), category.getColor().name());
     }
+
 
     public CategoryResponseDTO update(Long memberId, Long categoryId, CategoryRequestDTO dto) {
         Category category = getOwnedCategory(memberId, categoryId);
