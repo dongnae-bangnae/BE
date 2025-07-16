@@ -4,11 +4,14 @@ import DNBN.spring.apiPayload.code.status.ErrorStatus;
 import DNBN.spring.apiPayload.exception.GeneralException;
 import DNBN.spring.domain.Article;
 import DNBN.spring.domain.ArticleLike;
+import DNBN.spring.domain.ArticleLikeId;
 import DNBN.spring.repository.ArticleRepository.ArticleRepository;
 import DNBN.spring.repository.MemberRepository.MemberRepository;
 import DNBN.spring.web.dto.LikeResponseDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import static DNBN.spring.domain.QArticle.article;
 
 @Service
 @RequiredArgsConstructor
@@ -21,7 +24,9 @@ public class ArticleLikeService {
         Article article = articleRepository.findById(articleId)
                 .orElseThrow(() -> new GeneralException(ErrorStatus.ARTICLE_NOT_FOUND));
 
-        if (articleLikeRepository.existsByArticleIdAndMemberId(articleId, memberId)) {
+        ArticleLikeId likeId = new ArticleLikeId(articleId, memberId);
+
+        if (articleLikeRepository.existsById(likeId)) {
             throw new GeneralException(ErrorStatus.ALREADY_LIKED);
         }
 
@@ -32,17 +37,19 @@ public class ArticleLikeService {
 
         articleLikeRepository.save(articleLike);
 
-        long likesCount = articleLikeRepository.countByArticleId(articleId);
+        long likesCount = articleLikeRepository.countByArticle(article);
         long spamCount = 0;
         return LikeResponseDTO.of(articleId, likesCount, spamCount);
     }
 
     public LikeResponseDTO unlikeArticle(Long articleId, Long memberId) {
-        ArticleLike articleLike = articleLikeRepository.findByArticleIdAndMemberId(articleId, memberId)
+        ArticleLikeId likeId = new ArticleLikeId(articleId, memberId);
+        ArticleLike articleLike = articleLikeRepository.findById(likeId)
                 .orElseThrow(() -> new GeneralException(ErrorStatus.NOT_LIKED));
 
         articleLikeRepository.delete(articleLike);
-        long likesCount = articleLikeRepository.countByArticleId(articleId);
+        Article article = articleLike.getArticle();
+        long likesCount = articleLikeRepository.countByArticle(article);
         long spamCount = 0;
         return LikeResponseDTO.of(articleId, likesCount, spamCount);
     }
