@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.*;
 @SecurityRequirement(name = "JWT TOKEN")
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/articles")
+@RequestMapping("/api/articles")
 public class ArticleSpamController {
 
     private final ArticleSpamService articleSpamService;

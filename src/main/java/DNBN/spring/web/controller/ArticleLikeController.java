@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.*;
 @SecurityRequirement(name = "JWT TOKEN")
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/articles")
+@RequestMapping("/api/articles")
 public class ArticleLikeController {
 
     private final ArticleLikeService articleLikeService;

@@ -51,4 +51,13 @@ public class Category extends BaseEntity {
 
   @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<SavePlace> savedPlaces = new ArrayList<>();
+
+  public void update(String name, Color color) {
+    this.name = name;
+    this.color = color;
+  }
+
+  public void softDelete() {
+    this.deletedAt = LocalDateTime.now();
+  }
 }
