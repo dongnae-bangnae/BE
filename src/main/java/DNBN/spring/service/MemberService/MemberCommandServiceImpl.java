@@ -115,4 +115,13 @@ public class MemberCommandServiceImpl implements MemberCommandService {
         // 멤버 테이블에서 멤버 삭제
         memberRepository.delete(member);
     }
+
+    @Override
+    public void changeMemberNickname(Long memberId, String newNickname) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new MemberHandler(ErrorStatus.MEMBER_NOT_FOUND));
+
+//        member.setNickname(newNickname);
+        member.updateNickname(newNickname); // 도메인 주도 설계(Domain-Driven Design) 원칙에 부합하도록
+    }
 }

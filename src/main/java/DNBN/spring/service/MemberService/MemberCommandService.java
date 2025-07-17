@@ -8,4 +8,5 @@ public interface MemberCommandService {
     Member onboardingMember(Long memberId, MemberRequestDTO.OnboardingDTO request, MultipartFile profileImage);
     void logout(Long memberId);
     void deleteMember(Long memberId);
+    void changeMemberNickname(Long memberId, String newNickname);
 }

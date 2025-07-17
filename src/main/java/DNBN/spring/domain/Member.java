@@ -42,9 +42,7 @@ public class Member extends BaseEntity {
 
     private boolean isOnboardingCompleted;
 
-    public void updateNicknameByOnboarding(String nickname) {
+    public void updateNickname(String nickname) {
         this.nickname = nickname;
-//        this.profileImage = profileImage;
-//        this.isOnboardingCompleted = true;
     }
 }
