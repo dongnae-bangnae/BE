@@ -29,7 +29,7 @@ public class Region extends BaseEntity {
     private String district; // ex: 개포1동
 
     @OneToMany(mappedBy = "region", cascade = CascadeType.ALL)
-    private List<LikeRegion> LikeRegionList = new ArrayList<>();
+    private List<LikeRegion> likeRegionList = new ArrayList<>();
 
     public String getFullName() {
         return province + " " + city + " " + district;

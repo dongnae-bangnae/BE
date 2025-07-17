@@ -38,7 +38,7 @@ public class Member extends BaseEntity {
     private ProfileImage profileImage;
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL) // 연관된 자식 엔티티가 부모에서 제거되었을 때, DB에서도 자동 삭제되도록
-    private List<LikeRegion> LikeRegionList = new ArrayList<>();
+    private List<LikeRegion> likeRegionList = new ArrayList<>();
 
     private boolean isOnboardingCompleted;
 
