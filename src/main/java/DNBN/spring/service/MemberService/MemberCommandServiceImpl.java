@@ -45,7 +45,7 @@ public class MemberCommandServiceImpl implements MemberCommandService {
 
         // 온보딩 완료 여부 체크
         if (member.isOnboardingCompleted()) {
-            throw new MemberHandler(ErrorStatus.MEMBER_ALREADY_EXISTS);
+            throw new MemberHandler(ErrorStatus.ONBOARDING_NOT_COMPLETED);
         }
 
         // 닉네임 null 혹은 빈 문자열 체크
@@ -117,9 +117,18 @@ public class MemberCommandServiceImpl implements MemberCommandService {
     }
 
     @Override
+    @Transactional
     public void changeMemberNickname(Long memberId, String newNickname) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberHandler(ErrorStatus.MEMBER_NOT_FOUND));
+
+        if (!member.isOnboardingCompleted()) {
+            throw new MemberHandler(ErrorStatus.ONBOARDING_NOT_COMPLETED);
+        }
+
+        if (newNickname == null || newNickname.trim().isEmpty()) {
+            throw new MemberHandler(ErrorStatus.NICKNAME_NOT_EXIST);
+        }
 
 //        member.setNickname(newNickname);
         member.updateNickname(newNickname); // 도메인 주도 설계(Domain-Driven Design) 원칙에 부합하도록

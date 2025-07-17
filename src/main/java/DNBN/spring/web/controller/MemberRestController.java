@@ -77,8 +77,8 @@ public class MemberRestController {
             @RequestBody @Valid MemberRequestDTO.NicknameUpdateDTO nicknameUpdate
     ) {
         Long memberId = memberDetails.getMember().getId();
-        MemberResponseDTO.MemberInfoDTO updatedMember = memberCommandService.changeMemberNickname(memberId, nicknameUpdate.getNickname());
-        return ApiResponse.onSuccess(updatedMember);
+        memberCommandService.changeMemberNickname(memberId, nicknameUpdate.getNickname());
+        return ApiResponse.onSuccess(null);
 //        return ApiResponse.onSuccess(memberCommandervice.changeMemberNickname(request));
     }
 }
