@@ -48,10 +48,6 @@ public class AuthCommandServiceImpl implements AuthCommandService {
                 )
         );
 
-        // 5. 응답 DTO로 포장하여 반환
-//        return AuthResponseDTO.ReissueTokenResponseDTO.builder()
-//                .accessToken(newAccessToken)
-//                .build();
         // 5. DTO 변환은 컨버터에 위임
         return AuthConverter.toReissueTokenResponseDTO(newAccessToken);
     }
