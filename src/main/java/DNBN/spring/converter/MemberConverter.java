@@ -32,7 +32,7 @@ public class MemberConverter {
     }
 
     public static MemberResponseDTO.MemberInfoDTO toMemberInfoDTO(Member member) {
-        List<RegionResponseDTO.RegionPreviewnDTO> LikeRegions = member.getLikeRegionList()
+        List<RegionResponseDTO.RegionPreviewnDTO> likeRegions = member.getLikeRegionList()
                 .stream()
                 .map(lp -> {
                     Region region = lp.getRegion();
@@ -53,7 +53,7 @@ public class MemberConverter {
                 .nickname(member.getNickname())
 //                .profileImage(member.getProfileImage().getImageUrl())
                 .profileImage(profileImageUrl)
-                .LikeRegions(LikeRegions)
+                .likeRegions(likeRegions)
                 .build();
     }
 }

@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 public class MemberCommandServiceImpl implements MemberCommandService {
 
     private final MemberRepository memberRepository;
-    private final LikeRegionRepository LikeRegionRepository;
+    private final LikeRegionRepository likeRegionRepository;
     private final RegionRepository regionRepository;
     private final AmazonS3Manager s3Manager;
     private final UuidRepository uuidRepository;
@@ -79,7 +79,7 @@ public class MemberCommandServiceImpl implements MemberCommandService {
             profileImageRepository.save(MemberConverter.toProfileImage(pictureUrl, member));
         }
 
-        LikeRegionRepository.saveAll( // 좋아하는 동네 연결
+        likeRegionRepository.saveAll( // 좋아하는 동네 연결
                 request.getChosenRegionIds().stream() // 프론트에서 넘겨준 값
                         .map(regionId -> LikeRegion.of(member, findRegion(regionId))) // 각 regionId에 대해 LikeRegion.of(member, region)를 호출해서 LikeRegion 객체들 생성
                         .collect(Collectors.toList()) // 방금 만든 LikeRegion 객체들을 한 번에 DB에 저장

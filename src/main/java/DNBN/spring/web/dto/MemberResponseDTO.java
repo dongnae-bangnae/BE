@@ -27,6 +27,6 @@ public class MemberResponseDTO {
         Long memberId;
         String nickname;
         String profileImage;
-        List<RegionResponseDTO.RegionPreviewnDTO> LikeRegions;
+        List<RegionResponseDTO.RegionPreviewnDTO> likeRegions;
     }
 }
