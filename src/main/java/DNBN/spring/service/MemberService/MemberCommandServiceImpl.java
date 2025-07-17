@@ -49,6 +49,11 @@ public class MemberCommandServiceImpl implements MemberCommandService {
             throw new MemberHandler(ErrorStatus.MEMBER_ALREADY_EXISTS);
         }
 
+        // 닉네임 null 혹은 빈 문자열 체크
+        if (request.getNickname() == null || request.getNickname().trim().isEmpty()) {
+            throw new MemberHandler(ErrorStatus.NICKNAME_NOT_EXIST);
+        }
+
         // 좋아하는 동네 개수 최소 1개 ~ 최대 3개
         int chosenRegionCount = request.getChosenRegionIds() == null ? 0 : request.getChosenRegionIds().size();
         if (chosenRegionCount < 1 || chosenRegionCount > 3) {
