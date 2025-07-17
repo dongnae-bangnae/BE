@@ -1,7 +1,6 @@
 package DNBN.spring.service.OAuth2;
 
 import DNBN.spring.apiPayload.code.status.ErrorStatus;
-import DNBN.spring.apiPayload.code.status.SuccessStatus;
 import DNBN.spring.apiPayload.exception.handler.MemberHandler;
 import DNBN.spring.domain.Member;
 import DNBN.spring.domain.enums.Provider;

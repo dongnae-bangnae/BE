@@ -15,7 +15,6 @@ import DNBN.spring.repository.ProfileImageRepository.ProfileImageRepository;
 import DNBN.spring.repository.RegionRepository.RegionRepository;
 import DNBN.spring.repository.UuidRepository.UuidRepository;
 import DNBN.spring.web.dto.MemberRequestDTO;
-import DNBN.spring.web.dto.MemberResponseDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

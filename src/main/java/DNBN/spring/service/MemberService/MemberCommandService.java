@@ -2,7 +2,6 @@ package DNBN.spring.service.MemberService;
 
 import DNBN.spring.domain.Member;
 import DNBN.spring.web.dto.MemberRequestDTO;
-import DNBN.spring.web.dto.MemberResponseDTO;
 import org.springframework.web.multipart.MultipartFile;
 
 public interface MemberCommandService {

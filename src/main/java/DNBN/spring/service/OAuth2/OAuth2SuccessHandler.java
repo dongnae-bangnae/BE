@@ -4,7 +4,6 @@ import DNBN.spring.apiPayload.ApiResponse;
 import DNBN.spring.apiPayload.code.status.SuccessStatus;
 import DNBN.spring.config.security.jwt.JwtTokenProvider;
 import DNBN.spring.domain.Member;
-import DNBN.spring.repository.MemberRepository.MemberRepository;
 import DNBN.spring.web.dto.AuthResponseDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
