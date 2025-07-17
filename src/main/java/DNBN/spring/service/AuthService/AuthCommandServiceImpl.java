@@ -21,8 +21,8 @@ public class AuthCommandServiceImpl implements AuthCommandService {
 
     @Override
     public AuthResponseDTO.ReissueTokenResponseDTO reissue(String refreshToken) {
-        // 1. RefreshToken 유효성 검사
-        if (!jwtTokenProvider.validateToken(refreshToken)) {
+        // 1. RefreshToken 유효성 검사 (서명 및 토큰 타입까지 확인)
+        if (!jwtTokenProvider.isRefreshToken(refreshToken)) {
             throw new MemberHandler(ErrorStatus.INVALID_JWT_REFRESH_TOKEN);
         }
 
