@@ -8,8 +8,8 @@ import DNBN.spring.converter.MemberConverter;
 import DNBN.spring.domain.Member;
 import DNBN.spring.domain.Region;
 import DNBN.spring.domain.Uuid;
-import DNBN.spring.domain.mapping.LikePlace;
-import DNBN.spring.repository.LikePlaceRepository.LikePlaceRepository;
+import DNBN.spring.domain.mapping.LikeRegion;
+import DNBN.spring.repository.LikeRegionRepository.LikeRegionRepository;
 import DNBN.spring.repository.MemberRepository.MemberRepository;
 import DNBN.spring.repository.ProfileImageRepository.ProfileImageRepository;
 import DNBN.spring.repository.RegionRepository.RegionRepository;
@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 public class MemberCommandServiceImpl implements MemberCommandService {
 
     private final MemberRepository memberRepository;
-    private final LikePlaceRepository likePlaceRepository;
+    private final LikeRegionRepository LikeRegionRepository;
     private final RegionRepository regionRepository;
     private final AmazonS3Manager s3Manager;
     private final UuidRepository uuidRepository;
@@ -79,10 +79,10 @@ public class MemberCommandServiceImpl implements MemberCommandService {
             profileImageRepository.save(MemberConverter.toProfileImage(pictureUrl, member));
         }
 
-        likePlaceRepository.saveAll( // 좋아하는 동네 연결
+        LikeRegionRepository.saveAll( // 좋아하는 동네 연결
                 request.getChosenRegionIds().stream() // 프론트에서 넘겨준 값
-                        .map(regionId -> LikePlace.of(member, findRegion(regionId))) // 각 regionId에 대해 LikePlace.of(member, region)를 호출해서 LikePlace 객체들 생성
-                        .collect(Collectors.toList()) // 방금 만든 LikePlace 객체들을 한 번에 DB에 저장
+                        .map(regionId -> LikeRegion.of(member, findRegion(regionId))) // 각 regionId에 대해 LikeRegion.of(member, region)를 호출해서 LikeRegion 객체들 생성
+                        .collect(Collectors.toList()) // 방금 만든 LikeRegion 객체들을 한 번에 DB에 저장
         );
 
         member.setOnboardingCompleted(true);

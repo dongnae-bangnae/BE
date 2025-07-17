@@ -2,7 +2,7 @@ package DNBN.spring.domain;
 
 import DNBN.spring.domain.common.BaseEntity;
 import DNBN.spring.domain.enums.Provider;
-import DNBN.spring.domain.mapping.LikePlace;
+import DNBN.spring.domain.mapping.LikeRegion;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
@@ -38,7 +38,7 @@ public class Member extends BaseEntity {
     private ProfileImage profileImage;
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL) // 연관된 자식 엔티티가 부모에서 제거되었을 때, DB에서도 자동 삭제되도록
-    private List<LikePlace> likePlaceList = new ArrayList<>();
+    private List<LikeRegion> LikeRegionList = new ArrayList<>();
 
     private boolean isOnboardingCompleted;
 

@@ -10,7 +10,8 @@ import lombok.*;
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-public class LikePlace {
+@Table(name = "like_region")
+public class LikeRegion {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -23,11 +24,11 @@ public class LikePlace {
     @JoinColumn(name = "region_id")
     private Region region;
 
-    public static LikePlace of(Member member, Region region) {
-        return new LikePlace(member, region);
+    public static LikeRegion of(Member member, Region region) {
+        return new LikeRegion(member, region);
     }
 
-    private LikePlace(Member member, Region region) {
+    private LikeRegion(Member member, Region region) {
         this.member = member;
         this.region = region;
     }
