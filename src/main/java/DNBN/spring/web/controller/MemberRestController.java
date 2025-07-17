@@ -53,8 +53,14 @@ public class MemberRestController {
             description = "JWT 인증된 멤버가 자신의 정보를 조회하는 API입니다.",
             security = { @SecurityRequirement(name = "JWT TOKEN") } // ‘내 정보 조회’는 로그인한 사용자만이 접근할 수 있는 API여야 함 --> Swagger 어노테이션인 @Operation 어노테이션에 security 필드를 추가해서 token이 요청 필수값임을 명시
     )
-    public ApiResponse<MemberResponseDTO.MemberInfoDTO> getMyInfo(HttpServletRequest request) {
-        return ApiResponse.onSuccess(memberQueryService.getMemberInfo(request));
+    public ApiResponse<MemberResponseDTO.MemberInfoDTO> getMyInfo(
+            @AuthenticationPrincipal MemberDetails memberDetails
+//            HttpServletRequest request
+    ) {
+        Long memberId = memberDetails.getMember().getId();
+        MemberResponseDTO.MemberInfoDTO info = memberQueryService.getMemberInfo(memberId);
+        return ApiResponse.onSuccess(info);
+//        return ApiResponse.onSuccess(memberQueryService.getMemberInfo(request));
     }
 
     @DeleteMapping
