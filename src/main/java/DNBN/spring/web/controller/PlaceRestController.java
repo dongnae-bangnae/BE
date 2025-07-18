@@ -27,7 +27,7 @@ public class PlaceRestController {
     private final JwtTokenProvider jwtTokenProvider;
     private final MemberRepository memberRepository;
 
-    @Operation(summary = "장소를 카테고리에 저장", description = "장소를 사용자의 카테고리에 저장합니다.")
+    @Operation(summary = "장소 카테고리에 저장", description = "장소를 사용자의 카테고리에 저장합니다.")
     @PostMapping("/{placeId}/categories")
     public ResponseEntity<ApiResponse<PlaceResponseDTO.SavePlaceResultDTO>> savePlaceToCategory(
             HttpServletRequest request,

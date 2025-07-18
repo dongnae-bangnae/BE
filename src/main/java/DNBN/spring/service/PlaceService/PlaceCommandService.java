@@ -4,5 +4,5 @@ import DNBN.spring.web.dto.PlaceRequestDTO;
 import DNBN.spring.web.dto.PlaceResponseDTO;
 
 public interface PlaceCommandService {
-    PlaceResponseDTO savePlaceToCategory(Long memberId, Long placeId, PlaceRequestDTO request);
+    PlaceResponseDTO.SavePlaceResultDTO savePlaceToCategory(Long memberId, Long placeId, PlaceRequestDTO.SavePlaceDTO request);
 }
