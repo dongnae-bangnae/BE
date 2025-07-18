@@ -18,7 +18,10 @@ public enum SuccessStatus implements BaseCode {
     MEMBER_ONBOARDING_SUCCESS(HttpStatus.OK, "MEMBER2003", "온보딩 정보를 저장했습니다."),
     MEMBER_INFO_RETRIEVED(HttpStatus.OK, "MEMBER2004", "유저 정보를 성공적으로 조회했습니다."),
     MEMBER_LOGOUT_SUCCESS(HttpStatus.OK, "MEMBER2005", "로그아웃이 완료되었습니다."),
-    MEMBER_DELETE_SUCCESS(HttpStatus.OK, "MEMBER2006", "회원 탈퇴가 완료되었습니다.");
+    MEMBER_DELETE_SUCCESS(HttpStatus.OK, "MEMBER2006", "회원 탈퇴가 완료되었습니다."),
+
+    // 장소 저장 관련 응답
+    SAVED_PLACE_CREATE_SUCCESS(HttpStatus.OK, "SAVE_PLACE2001", "장소가 카테고리에 성공적으로 저장되었습니다.");
 
     private final HttpStatus httpStatus;
     private final String code;

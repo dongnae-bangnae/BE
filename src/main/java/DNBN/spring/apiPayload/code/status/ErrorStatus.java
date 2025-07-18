@@ -40,7 +40,10 @@ public enum ErrorStatus implements BaseErrorCode {
 
     INVALID_SOCIAL_TOKEN(HttpStatus.UNAUTHORIZED, "TOKEN4003", "유효하지 않은 SocialToken입니다."),
 
-    INVALID_PASSWORD(HttpStatus.UNAUTHORIZED, "PW4001", "잘못된 비밀번호입니다.");
+    INVALID_PASSWORD(HttpStatus.UNAUTHORIZED, "PW4001", "잘못된 비밀번호입니다."),
+
+    // 장소 저장 에러
+    CATEGORY_ALREADY_SAVED_FOR_PLACE(HttpStatus.CONFLICT, "SAVE_PLACE4001", "이미 해당 장소가 이 카테고리에 저장되어 있습니다.");
 
     private final HttpStatus httpStatus;
     private final String code;
