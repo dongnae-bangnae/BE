@@ -71,7 +71,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(
                         (requests) -> requests
                                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                                .requestMatchers("/", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                                .requestMatchers("/", "/auth/reissue", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
 //                                .requestMatchers("/admin/**").hasRole("ADMIN") // pm이 ADMIN역할 기능 필요 X
                                 .anyRequest().authenticated()
                 )
@@ -80,8 +80,8 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .oauth2Login(oauth2 -> oauth2
                         .userInfoEndpoint(userInfo -> userInfo
-                                .oidcUserService(customOidcUserService)
-                                .userService(customOAuth2UserService)
+                                .oidcUserService(customOidcUserService) // 구글
+                                .userService(customOAuth2UserService) // 카카오, 네이버
                         )
                         .successHandler(oAuth2SuccessHandler) // 온보딩 분기 등 커스텀 성공 핸들러
                         .failureHandler(oAuth2FailureHandler)
@@ -89,7 +89,9 @@ public class SecurityConfig {
                 .exceptionHandling(exception -> exception
                         .authenticationEntryPoint(customAuthenticationEntryPoint)
                 )
-                .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);
+//                .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+
 
         return http.build();
     }
@@ -99,4 +101,9 @@ public class SecurityConfig {
 //    public PasswordEncoder passwordEncoder() { // 비밀번호를 암호화하여 저장하기 위해
 //        return new BCryptPasswordEncoder();
 //    }
+
+    @Bean
+    public JwtAuthenticationFilter jwtAuthenticationFilter() {
+        return new JwtAuthenticationFilter(jwtTokenProvider);
+    }
 }

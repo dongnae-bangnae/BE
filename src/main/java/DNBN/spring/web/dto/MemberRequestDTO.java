@@ -21,4 +21,11 @@ public class MemberRequestDTO {
         @Schema(description = "좋아하는 동네 ID 리스트", example = "[1, 2]")
         List<Long> chosenRegionIds; // regionId 리스트로 받음
     }
+
+    @Getter
+    @Setter
+    public static class NicknameUpdateDTO {
+        @NotBlank(message = "닉네임은 필수입니다.")
+        String nickname;
+    }
 }
