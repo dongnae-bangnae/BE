@@ -51,4 +51,5 @@ public class Article extends BaseEntity {
   private Long spamCount = 0L;
 
   private LocalDateTime deletedAt;
+
 }
