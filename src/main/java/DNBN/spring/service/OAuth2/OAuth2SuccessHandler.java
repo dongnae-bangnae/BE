@@ -4,10 +4,10 @@ import DNBN.spring.apiPayload.ApiResponse;
 import DNBN.spring.apiPayload.code.status.SuccessStatus;
 import DNBN.spring.config.security.jwt.JwtTokenProvider;
 import DNBN.spring.domain.Member;
-import DNBN.spring.repository.MemberRepository.MemberRepository;
 import DNBN.spring.web.dto.AuthResponseDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -51,10 +51,17 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
                 .isOnboardingCompleted(member.isOnboardingCompleted())
                 .build();
 
+        // 리다이렉트 + 쿼리파라미터 방식: 프론트엔드가 토큰 읽을 수 있도록 전달 -> url에 토큰 노출
 //        String redirectUri = member.isOnboardingCompleted()
 //                ? "https://dnbn.com/home"
 //                : "https://dnbn.com/onboarding";
 
+//        redirectUri += "?accessToken=" + URLEncoder.encode(accessToken, StandardCharsets.UTF_8)
+//                + "&refreshToken=" + URLEncoder.encode(refreshToken, StandardCharsets.UTF_8);
+//
+//        response.sendRedirect(redirectUri);
+
+        // JSON 응답 방식 (SPA 등 API 호출용)
         ApiResponse<AuthResponseDTO.LoginResultDTO> apiResponse;
         if (member.isOnboardingCompleted()) {
             apiResponse = ApiResponse.of(SuccessStatus.MEMBER_ALREADY_LOGIN, result);
@@ -62,15 +69,41 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
             apiResponse = ApiResponse.of(SuccessStatus.MEMBER_NEEDS_ONBOARDING, result);
         }
 
-        // JSON 응답 방식 (SPA 등 API 호출용)
         response.setContentType("application/json;charset=UTF-8");
         response.setStatus(HttpServletResponse.SC_OK);
         response.getWriter().write(objectMapper.writeValueAsString(apiResponse));
 
-        // 리다이렉트 + 쿼리파라미터 방식: 프론트엔드가 토큰 읽을 수 있도록 전달 -> url에 토큰 노출
-//        redirectUri += "?accessToken=" + URLEncoder.encode(accessToken, StandardCharsets.UTF_8)
-//                + "&refreshToken=" + URLEncoder.encode(refreshToken, StandardCharsets.UTF_8);
-//
-//        response.sendRedirect(redirectUri);
+        /*
+        // 쿠키로 프론트에게 내려주기
+        boolean isOnboardingCompleted = member.isOnboardingCompleted();
+        SuccessStatus status = isOnboardingCompleted
+                ? SuccessStatus.MEMBER_ALREADY_LOGIN
+                : SuccessStatus.MEMBER_NEEDS_ONBOARDING;
+
+        // 1. 민감 정보: HttpOnly + Secure 쿠키
+        addCookie(response, "accessToken", accessToken, true, 60 * 60 * 4); // 4시간
+        addCookie(response, "refreshToken", refreshToken, true, 60 * 60 * 24 * 7); // 7일
+        addCookie(response, "memberId", String.valueOf(member.getId()), true, 60 * 60 * 4);
+        addCookie(response, "isOnboardingCompleted", String.valueOf(isOnboardingCompleted), true, 60 * 60 * 4);
+
+        // 2. 상태 정보: HttpOnly = false (JS에서 읽게)
+        addCookie(response, "isSuccess", "true", false, 60);
+        addCookie(response, "code", status.getCode(), false, 60);
+        addCookie(response, "message", URLEncoder.encode(status.getMessage(), StandardCharsets.UTF_8), false, 60);
+
+        // 3. 리다이렉트 (브릿지 페이지)
+        response.sendRedirect("https://dnbn.com/auth-bridge");
+        */
     }
+
+    /*
+    private void addCookie(HttpServletResponse response, String name, String value, boolean httpOnly, int maxAgeInSeconds) {
+        Cookie cookie = new Cookie(name, value);
+        cookie.setHttpOnly(httpOnly);
+        cookie.setSecure(true); // 운영환경에서는 true (HTTPS)
+        cookie.setPath("/");
+        cookie.setMaxAge(maxAgeInSeconds);
+        response.addCookie(cookie);
+    }
+    */
 }

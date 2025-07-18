@@ -1,7 +1,7 @@
 package DNBN.spring.domain;
 
 import DNBN.spring.domain.common.BaseEntity;
-import DNBN.spring.domain.mapping.LikePlace;
+import DNBN.spring.domain.mapping.LikeRegion;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -29,7 +29,7 @@ public class Region extends BaseEntity {
     private String district; // ex: 개포1동
 
     @OneToMany(mappedBy = "region", cascade = CascadeType.ALL)
-    private List<LikePlace> likePlaceList = new ArrayList<>();
+    private List<LikeRegion> likeRegionList = new ArrayList<>();
 
     public String getFullName() {
         return province + " " + city + " " + district;

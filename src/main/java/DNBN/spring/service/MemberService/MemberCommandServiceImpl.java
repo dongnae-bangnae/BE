@@ -8,14 +8,13 @@ import DNBN.spring.converter.MemberConverter;
 import DNBN.spring.domain.Member;
 import DNBN.spring.domain.Region;
 import DNBN.spring.domain.Uuid;
-import DNBN.spring.domain.mapping.LikePlace;
-import DNBN.spring.repository.LikePlaceRepository.LikePlaceRepository;
+import DNBN.spring.domain.mapping.LikeRegion;
+import DNBN.spring.repository.LikeRegionRepository.LikeRegionRepository;
 import DNBN.spring.repository.MemberRepository.MemberRepository;
 import DNBN.spring.repository.ProfileImageRepository.ProfileImageRepository;
 import DNBN.spring.repository.RegionRepository.RegionRepository;
 import DNBN.spring.repository.UuidRepository.UuidRepository;
 import DNBN.spring.web.dto.MemberRequestDTO;
-import DNBN.spring.web.dto.MemberResponseDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -31,7 +30,7 @@ import java.util.stream.Collectors;
 public class MemberCommandServiceImpl implements MemberCommandService {
 
     private final MemberRepository memberRepository;
-    private final LikePlaceRepository likePlaceRepository;
+    private final LikeRegionRepository likeRegionRepository;
     private final RegionRepository regionRepository;
     private final AmazonS3Manager s3Manager;
     private final UuidRepository uuidRepository;
@@ -46,7 +45,12 @@ public class MemberCommandServiceImpl implements MemberCommandService {
 
         // 온보딩 완료 여부 체크
         if (member.isOnboardingCompleted()) {
-            throw new MemberHandler(ErrorStatus.MEMBER_ALREADY_EXISTS);
+            throw new MemberHandler(ErrorStatus.ONBOARDING_NOT_COMPLETED);
+        }
+
+        // 닉네임 null 혹은 빈 문자열 체크
+        if (request.getNickname() == null || request.getNickname().trim().isEmpty()) {
+            throw new MemberHandler(ErrorStatus.NICKNAME_NOT_EXIST);
         }
 
         // 좋아하는 동네 개수 최소 1개 ~ 최대 3개
@@ -75,10 +79,10 @@ public class MemberCommandServiceImpl implements MemberCommandService {
             profileImageRepository.save(MemberConverter.toProfileImage(pictureUrl, member));
         }
 
-        likePlaceRepository.saveAll( // 좋아하는 동네 연결
+        likeRegionRepository.saveAll( // 좋아하는 동네 연결
                 request.getChosenRegionIds().stream() // 프론트에서 넘겨준 값
-                        .map(regionId -> LikePlace.of(member, findRegion(regionId))) // 각 regionId에 대해 LikePlace.of(member, region)를 호출해서 LikePlace 객체들 생성
-                        .collect(Collectors.toList()) // 방금 만든 LikePlace 객체들을 한 번에 DB에 저장
+                        .map(regionId -> LikeRegion.of(member, findRegion(regionId))) // 각 regionId에 대해 LikeRegion.of(member, region)를 호출해서 LikeRegion 객체들 생성
+                        .collect(Collectors.toList()) // 방금 만든 LikeRegion 객체들을 한 번에 DB에 저장
         );
 
         member.setOnboardingCompleted(true);
@@ -110,5 +114,23 @@ public class MemberCommandServiceImpl implements MemberCommandService {
 
         // 멤버 테이블에서 멤버 삭제
         memberRepository.delete(member);
+    }
+
+    @Override
+    @Transactional
+    public void changeMemberNickname(Long memberId, String newNickname) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new MemberHandler(ErrorStatus.MEMBER_NOT_FOUND));
+
+        if (!member.isOnboardingCompleted()) {
+            throw new MemberHandler(ErrorStatus.ONBOARDING_NOT_COMPLETED);
+        }
+
+        if (newNickname == null || newNickname.trim().isEmpty()) {
+            throw new MemberHandler(ErrorStatus.NICKNAME_NOT_EXIST);
+        }
+
+//        member.setNickname(newNickname);
+        member.updateNickname(newNickname); // 도메인 주도 설계(Domain-Driven Design) 원칙에 부합하도록
     }
 }
