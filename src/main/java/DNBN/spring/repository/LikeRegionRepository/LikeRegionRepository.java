@@ -10,4 +10,5 @@ import java.util.List;
 public interface LikeRegionRepository extends JpaRepository<LikeRegion, Long> {
     List<LikeRegion> findAllByMember(Member member);
     List<LikeRegion> findAllByRegion(Region region);
+    void deleteByMember(Member member);
 }

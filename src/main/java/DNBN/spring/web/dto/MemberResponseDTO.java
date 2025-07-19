@@ -29,4 +29,17 @@ public class MemberResponseDTO {
         String profileImage;
         List<RegionResponseDTO.RegionPreviewnDTO> likeRegions;
     }
+
+    @Getter
+    @Builder
+    public static class ChosenRegionsDTO {
+        private List<RegionInfo> chosenRegions;
+
+        @Getter
+        @Builder
+        public static class RegionInfo {
+            Long regionId;
+            String district;
+        }
+    }
 }
