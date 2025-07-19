@@ -87,4 +87,19 @@ public class MemberRestController {
         return ApiResponse.onSuccess(null);
 //        return ApiResponse.onSuccess(memberCommandervice.changeMemberNickname(request));
     }
+
+    @PatchMapping("/regions")
+    @Operation(
+            summary = "관심 동네 변경 API - JWT 인증 필요",
+            description = "JWT 인증된 멤버가 자신의 관심 동네를 수정하는 API입니다.",
+            security = @SecurityRequirement(name = "JWT TOKEN")
+    )
+    public ApiResponse<MemberResponseDTO.ChosenRegionsDTO> updateRegions(
+            @AuthenticationPrincipal MemberDetails memberDetails,
+            @RequestBody @Valid MemberRequestDTO.RegionUpdateDTO request) {
+
+        Long memberId = memberDetails.getMember().getId();
+        MemberResponseDTO.ChosenRegionsDTO response = memberCommandService.updateRegions(memberId, request.getRegionIds());
+        return ApiResponse.onSuccess(response);
+    }
 }

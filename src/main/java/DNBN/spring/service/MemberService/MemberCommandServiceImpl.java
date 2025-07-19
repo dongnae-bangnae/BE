@@ -15,12 +15,14 @@ import DNBN.spring.repository.ProfileImageRepository.ProfileImageRepository;
 import DNBN.spring.repository.RegionRepository.RegionRepository;
 import DNBN.spring.repository.UuidRepository.UuidRepository;
 import DNBN.spring.web.dto.MemberRequestDTO;
+import DNBN.spring.web.dto.MemberResponseDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -133,4 +135,40 @@ public class MemberCommandServiceImpl implements MemberCommandService {
 //        member.setNickname(newNickname);
         member.updateNickname(newNickname); // 도메인 주도 설계(Domain-Driven Design) 원칙에 부합하도록
     }
+
+    @Override
+    @Transactional
+    public MemberResponseDTO.ChosenRegionsDTO updateRegions(Long memberId, List<Long> regionIds) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new MemberHandler(ErrorStatus.MEMBER_NOT_FOUND));
+
+        if (regionIds.size() < 1 || regionIds.size() > 3) {
+            throw new MemberHandler(ErrorStatus.INVALID_REGION_COUNT);
+        }
+
+        // 모든 지역 ID가 존재하는지 확인
+        List<Region> regions = regionIds.stream()
+                .map(id -> regionRepository.findById(id)
+                        .orElseThrow(() -> new RegionHandler(ErrorStatus.REGION_NOT_FOUND)))
+                .toList();
+
+        // 기존 관심 동네 삭제
+        likeRegionRepository.deleteByMember(member);
+
+        // 새 관심 동네 저장
+        List<LikeRegion> newLikeRegions = regions.stream()
+                .map(region -> LikeRegion.of(member, region))
+                .toList();
+        likeRegionRepository.saveAll(newLikeRegions);
+
+        return MemberResponseDTO.ChosenRegionsDTO.builder()
+                .chosenRegions(regions.stream()
+                        .map(region -> MemberResponseDTO.ChosenRegionsDTO.RegionInfo.builder()
+                                .regionId(region.getId())
+                                .district(region.getDistrict())
+                                .build())
+                        .toList())
+                .build();
+    }
+
 }
