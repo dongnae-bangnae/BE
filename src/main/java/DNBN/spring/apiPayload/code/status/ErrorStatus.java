@@ -29,9 +29,9 @@ public enum ErrorStatus implements BaseErrorCode {
 
     // articlePhoto & S3
     ARTICLE_PHOTO_MAIN_IMAGE_REQUIRED(HttpStatus.BAD_REQUEST, "ARTICLEPHOTO4002", "대표 이미지는 필수입니다."),
-    ARTICLE_PHOTO_IMAGE_COUNT_EXCEEDED(HttpStatus.BAD_REQUEST, "ARTICLEPHOTO4003", "이미지는 최대 10장까지 등록할 수 있습니다."),
-    ARTICLE_PHOTO_IMAGE_TOO_LARGE(HttpStatus.BAD_REQUEST, "ARTICLEPHOTO4004", "이미지 파일 크기가 너무 큽니다. (최대 10MB)"),
-    ARTICLE_PHOTO_IMAGE_INVALID_TYPE(HttpStatus.BAD_REQUEST, "ARTICLEPHOTO4005", "지원하지 않는 이미지 파일 형식입니다."),
+    ARTICLE_PHOTO_IMAGE_INVALID_TYPE(HttpStatus.UNSUPPORTED_MEDIA_TYPE, "ARTICLEPHOTO4005", "지원하지 않는 이미지 파일 형식입니다."),
+    ARTICLE_PHOTO_IMAGE_COUNT_EXCEEDED(HttpStatus.PAYLOAD_TOO_LARGE, "ARTICLEPHOTO4003", "이미지는 최대 10장까지 등록할 수 있습니다."),
+    ARTICLE_PHOTO_IMAGE_TOO_LARGE(HttpStatus.PAYLOAD_TOO_LARGE, "ARTICLEPHOTO4004", "이미지 파일 크기가 너무 큽니다. (최대 10MB)"),
     ARTICLE_PHOTO_S3_UPLOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "ARTICLEPHOTO5001", "이미지 업로드에 실패했습니다. 잠시 후 다시 시도해 주세요."),
 
     // For test
