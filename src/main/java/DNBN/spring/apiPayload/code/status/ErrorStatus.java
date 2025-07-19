@@ -45,7 +45,6 @@ public enum ErrorStatus implements BaseErrorCode {
     // 장소 저장 에러
     CATEGORY_ALREADY_SAVED_FOR_PLACE(HttpStatus.CONFLICT, "SAVE_PLACE4001", "이미 해당 장소가 이 카테고리에 저장되어 있습니다."),
 
-
     //like
     POST_NOT_FOUND(HttpStatus.NOT_FOUND, "POST404", "해당 게시물을 찾을 수 없습니다."),
     ALREADY_LIKED(HttpStatus.CONFLICT, "LIKE4001", "이미 좋아요를 누르셨습니다."),
