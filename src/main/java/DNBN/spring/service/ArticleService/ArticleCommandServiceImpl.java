@@ -112,6 +112,7 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
         articleRepository.save(article);
 
         List<ArticlePhoto> photos = new ArrayList<>();
+        List<String> uploadedKeys = new ArrayList<>(); // 업로드된 S3 key 추적
         try {
             // 대표 이미지 S3 업로드 및 UUID 저장
             if (mainImage != null && !mainImage.isEmpty()) {
@@ -120,6 +121,7 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
                 if (mainImageKey == null || mainImageKey.isBlank()) {
                     throw new ArticlePhotoHandler(ErrorStatus.ARTICLE_PHOTO_S3_UPLOAD_FAILED);
                 }
+                uploadedKeys.add(mainImageKey); // 업로드 성공 시 key 저장
                 ArticlePhoto mainPhoto = ArticlePhoto.builder()
                         .article(article)
                         .place(place)
@@ -140,6 +142,7 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
                         if (imageKey == null || imageKey.isBlank()) {
                             throw new ArticlePhotoHandler(ErrorStatus.ARTICLE_PHOTO_S3_UPLOAD_FAILED);
                         }
+                        uploadedKeys.add(imageKey); // 업로드 성공 시 key 저장
                         ArticlePhoto photo = ArticlePhoto.builder()
                                 .article(article)
                                 .place(place)
@@ -154,6 +157,14 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
             }
         } catch (Exception e) {
             log.error("S3 업로드 실패", e);
+            // 업로드된 파일이 있다면 S3에서 삭제
+            for (String key : uploadedKeys) {
+                try {
+                    s3Manager.deleteFile(key);
+                } catch (Exception ex) {
+                    log.error("S3 롤백(파일 삭제) 실패: {}", key, ex);
+                }
+            }
             throw new ArticlePhotoHandler(ErrorStatus.ARTICLE_PHOTO_S3_UPLOAD_FAILED);
         }
         return new ArticleWithPhotos(article, photos);
