@@ -66,6 +66,10 @@ spring:
             token-uri: https://oauth2.googleapis.com/token
             user-info-uri: https://www.googleapis.com/oauth2/v3/userinfo
             user-name-attribute: sub
+  servlet:
+    multipart:
+      maxFileSize: 10MB # 파일 하나의 최대 크기
+      maxRequestSize: 100MB  # 한 번에 최대 업로드 가능 용량
 jwt:
   token:
     secretKey: ${JWT_SECRETKEY}
@@ -78,6 +82,7 @@ cloud:
       bucket: dnbn-bucket
       path:
         member: profile
+        articlePhoto: article/photo
     region:
       static: ap-northeast-2
     stack:
@@ -85,4 +90,3 @@ cloud:
     credentials:
       accessKey: ${AWS_ACCESS_KEY}
       secretKey: ${AWS_SECRET_KEY}
-

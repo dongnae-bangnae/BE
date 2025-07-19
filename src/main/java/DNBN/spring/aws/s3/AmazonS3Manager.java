@@ -41,6 +41,10 @@ public class AmazonS3Manager{
         return amazonConfig.getMemberPath() + '/' + uuid.getUuid(); // 멤버 프로필 사진
     }
 
+    public String generateArticlePhotoKeyName(String uuid) {
+        return amazonConfig.getArticlePhotoPath() + '/' + uuid;
+    }
+
     public void deleteFile(String keyName) {
         amazonS3.deleteObject(amazonConfig.getBucket(), keyName);
     }
