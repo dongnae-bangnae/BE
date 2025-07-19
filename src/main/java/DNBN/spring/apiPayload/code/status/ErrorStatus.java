@@ -40,7 +40,7 @@ public enum ErrorStatus implements BaseErrorCode {
 
     INVALID_SOCIAL_TOKEN(HttpStatus.UNAUTHORIZED, "TOKEN4003", "유효하지 않은 SocialToken입니다."),
 
-    INVALID_PASSWORD(HttpStatus.UNAUTHORIZED, "PW40001", "잘못된 비밀번호입니다.");
+    INVALID_PASSWORD(HttpStatus.UNAUTHORIZED, "PW40001", "잘못된 비밀번호입니다."),
 
     //like
     POST_NOT_FOUND(HttpStatus.NOT_FOUND, "POST404", "해당 게시물을 찾을 수 없습니다."),
