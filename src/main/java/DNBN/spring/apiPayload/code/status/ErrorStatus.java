@@ -24,6 +24,12 @@ public enum ErrorStatus implements BaseErrorCode {
     
     // article
     ARTICLE_NOT_FOUND(HttpStatus.NOT_FOUND, "ARTICLE4001", "게시글이 없습니다."),
+    // articlePhoto & S3
+    ARTICLE_PHOTO_MAIN_IMAGE_REQUIRED(HttpStatus.BAD_REQUEST, "ARTICLEPHOTO4002", "대표 이미지는 필수입니다."),
+    ARTICLE_PHOTO_IMAGE_COUNT_EXCEEDED(HttpStatus.BAD_REQUEST, "ARTICLEPHOTO4003", "이미지는 최대 10장까지 등록할 수 있습니다."),
+    ARTICLE_PHOTO_IMAGE_TOO_LARGE(HttpStatus.BAD_REQUEST, "ARTICLEPHOTO4004", "이미지 파일 크기가 너무 큽니다. (최대 10MB)"),
+    ARTICLE_PHOTO_IMAGE_INVALID_TYPE(HttpStatus.BAD_REQUEST, "ARTICLEPHOTO4005", "지원하지 않는 이미지 파일 형식입니다."),
+    ARTICLE_PHOTO_S3_UPLOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "ARTICLEPHOTO5001", "이미지 업로드에 실패했습니다. 잠시 후 다시 시도해 주세요."),
 
     // For test
     TEMP_EXCEPTION(HttpStatus.BAD_REQUEST, "TEMP4001", "이거는 테스트"),
@@ -57,7 +63,9 @@ public enum ErrorStatus implements BaseErrorCode {
     CATEGORY_DUPLICATE_NAME(HttpStatus.CONFLICT, "CATEGORY_409_DUPLICATE_NAME", "이미 존재하는 카테고리 이름입니다."),
     CATEGORY_ASSOCIATED_ARTICLES(HttpStatus.CONFLICT, "CATEGORY_409_ASSOCIATED_ARTICLES", "해당 카테고리에 연결된 게시물이 있어 삭제할 수 없습니다."),
 
-    PLACE_NOT_FOUND(HttpStatus.NOT_FOUND, "PLACE4001", "해당 장소를 찾을 수 없습니다.");
+    PLACE_NOT_FOUND(HttpStatus.NOT_FOUND, "PLACE4001", "해당 장소를 찾을 수 없습니다."),
+    ;
+
     private final HttpStatus httpStatus;
     private final String code;
     private final String message;

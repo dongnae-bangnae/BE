@@ -1,6 +1,8 @@
 package DNBN.spring.service.ArticleService;
 
 import DNBN.spring.apiPayload.code.status.ErrorStatus;
+import DNBN.spring.apiPayload.exception.handler.ArticleHandler;
+import DNBN.spring.apiPayload.exception.handler.ArticlePhotoHandler;
 import DNBN.spring.apiPayload.exception.handler.CategoryHandler;
 import DNBN.spring.apiPayload.exception.handler.MemberHandler;
 import DNBN.spring.apiPayload.exception.handler.PlaceHandler;
@@ -51,8 +53,43 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
         Region region = regionRepository.findById(request.regionId())
                 .orElseThrow(() -> new RegionHandler(ErrorStatus.REGION_NOT_FOUND));
 
-        // TODO: 추가적인 규칙 검증
-        
+        // 대표 이미지 필수 여부 검증
+         if (mainImage == null || mainImage.isEmpty()) {
+             throw new ArticlePhotoHandler(ErrorStatus.ARTICLE_PHOTO_MAIN_IMAGE_REQUIRED);
+         }
+
+        // 이미지 개수 제한 (최대 10장)
+        int imageCount = (!mainImage.isEmpty() ? 1 : 0)
+                + (imageFiles != null ? (int) imageFiles.stream().filter(f -> f != null
+            && !f.isEmpty()).count() : 0);
+        if (imageCount > 10) {
+            throw new ArticlePhotoHandler(ErrorStatus.ARTICLE_PHOTO_IMAGE_COUNT_EXCEEDED);
+        }
+
+        // 이미지 파일 크기/타입 제한
+        if (!mainImage.isEmpty()) {
+            if (mainImage.getSize() > 10 * 1024 * 1024) {
+                throw new ArticlePhotoHandler(ErrorStatus.ARTICLE_PHOTO_IMAGE_TOO_LARGE);
+            }
+            String contentType = mainImage.getContentType();
+            if (contentType == null || !contentType.startsWith("image/")) {
+                throw new ArticlePhotoHandler(ErrorStatus.ARTICLE_PHOTO_IMAGE_INVALID_TYPE);
+            }
+        }
+        if (imageFiles != null) {
+            for (MultipartFile file : imageFiles) {
+                if (file != null && !file.isEmpty()) {
+                    if (file.getSize() > 10 * 1024 * 1024) {
+                        throw new ArticlePhotoHandler(ErrorStatus.ARTICLE_PHOTO_IMAGE_TOO_LARGE);
+                    }
+                    String contentType = file.getContentType();
+                    if (contentType == null || !contentType.startsWith("image/")) {
+                        throw new ArticlePhotoHandler(ErrorStatus.ARTICLE_PHOTO_IMAGE_INVALID_TYPE);
+                    }
+                }
+            }
+        }
+
         Article article = Article.builder()
                 .member(member)
                 .category(category)
@@ -67,38 +104,49 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
         articleRepository.save(article);
 
         List<ArticlePhoto> photos = new ArrayList<>();
-        // 대표 이미지 S3 업로드 및 UUID 저장
-        if (mainImage != null && !mainImage.isEmpty()) {
-            String uuid = java.util.UUID.randomUUID().toString();
-            String mainImageKey = s3Manager.uploadFile(s3Manager.generateArticlePhotoKeyName(uuid), mainImage);
-            ArticlePhoto mainPhoto = ArticlePhoto.builder()
-                    .article(article)
-                    .place(place)
-                    .region(region)
-                    .fileKey(mainImageKey)
-                    .orderIndex(0)
-                    .isMain(true) // 대표 이미지로 설정
-                    .build();
-            photos.add(articlePhotoRepository.save(mainPhoto));
-        }
-        // 추가 이미지 S3 업로드 및 UUID 저장
-        if (imageFiles != null) {
-            int idx = 1;
-            for (MultipartFile file : imageFiles) {
-                if (file != null && !file.isEmpty()) {
-                    String uuid = java.util.UUID.randomUUID().toString();
-                    String imageKey = s3Manager.uploadFile(s3Manager.generateArticlePhotoKeyName(uuid), file);
-                    ArticlePhoto photo = ArticlePhoto.builder()
-                            .article(article)
-                            .place(place)
-                            .region(region)
-                            .fileKey(imageKey)
-                            .orderIndex(idx++)
-                            .isMain(false) // 일반 이미지로 설정
-                            .build();
-                    photos.add(articlePhotoRepository.save(photo));
+        try {
+            // 대표 이미지 S3 업로드 및 UUID 저장
+            if (mainImage != null && !mainImage.isEmpty()) {
+                String uuid = java.util.UUID.randomUUID().toString();
+                String mainImageKey = s3Manager.uploadFile(s3Manager.generateArticlePhotoKeyName(uuid), mainImage);
+                if (mainImageKey == null || mainImageKey.isBlank()) {
+                    throw new ArticlePhotoHandler(ErrorStatus.ARTICLE_PHOTO_S3_UPLOAD_FAILED);
+                }
+                ArticlePhoto mainPhoto = ArticlePhoto.builder()
+                        .article(article)
+                        .place(place)
+                        .region(region)
+                        .fileKey(mainImageKey)
+                        .orderIndex(0)
+                        .isMain(true)
+                        .build();
+                photos.add(articlePhotoRepository.save(mainPhoto));
+            }
+            // 추가 이미지 S3 업로드 및 UUID 저장
+            if (imageFiles != null) {
+                int idx = 1;
+                for (MultipartFile file : imageFiles) {
+                    if (file != null && !file.isEmpty()) {
+                        String uuid = java.util.UUID.randomUUID().toString();
+                        String imageKey = s3Manager.uploadFile(s3Manager.generateArticlePhotoKeyName(uuid), file);
+                        if (imageKey == null || imageKey.isBlank()) {
+                            throw new ArticlePhotoHandler(ErrorStatus.ARTICLE_PHOTO_S3_UPLOAD_FAILED);
+                        }
+                        ArticlePhoto photo = ArticlePhoto.builder()
+                                .article(article)
+                                .place(place)
+                                .region(region)
+                                .fileKey(imageKey)
+                                .orderIndex(idx++)
+                                .isMain(false)
+                                .build();
+                        photos.add(articlePhotoRepository.save(photo));
+                    }
                 }
             }
+        } catch (Exception e) {
+            log.error("S3 업로드 실패", e);
+            throw new ArticlePhotoHandler(ErrorStatus.ARTICLE_PHOTO_S3_UPLOAD_FAILED);
         }
         return new ArticleWithPhotos(article, photos);
     }
