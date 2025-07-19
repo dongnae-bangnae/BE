@@ -53,6 +53,14 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
         Region region = regionRepository.findById(request.regionId())
                 .orElseThrow(() -> new RegionHandler(ErrorStatus.REGION_NOT_FOUND));
 
+        // 게시물 제목/내용 길이 제한 (제목 2~100자, 내용 10~5000자)
+        if (request.title() == null || request.title().length() < 2 || request.title().length() > 100) {
+            throw new ArticleHandler(ErrorStatus.ARTICLE_TITLE_LENGTH_INVALID);
+        }
+        if (request.content() == null || request.content().length() < 10 || request.content().length() > 5000) {
+            throw new ArticleHandler(ErrorStatus.ARTICLE_CONTENT_LENGTH_INVALID);
+        }
+
         // 대표 이미지 필수 여부 검증
          if (mainImage == null || mainImage.isEmpty()) {
              throw new ArticlePhotoHandler(ErrorStatus.ARTICLE_PHOTO_MAIN_IMAGE_REQUIRED);

@@ -24,6 +24,9 @@ public enum ErrorStatus implements BaseErrorCode {
     
     // article
     ARTICLE_NOT_FOUND(HttpStatus.NOT_FOUND, "ARTICLE4001", "게시글이 없습니다."),
+    ARTICLE_TITLE_LENGTH_INVALID(HttpStatus.BAD_REQUEST, "ARTICLE4002", "제목은 2~100자여야 합니다."),
+    ARTICLE_CONTENT_LENGTH_INVALID(HttpStatus.BAD_REQUEST, "ARTICLE4003", "내용은 10~5000자여야 합니다."),
+
     // articlePhoto & S3
     ARTICLE_PHOTO_MAIN_IMAGE_REQUIRED(HttpStatus.BAD_REQUEST, "ARTICLEPHOTO4002", "대표 이미지는 필수입니다."),
     ARTICLE_PHOTO_IMAGE_COUNT_EXCEEDED(HttpStatus.BAD_REQUEST, "ARTICLEPHOTO4003", "이미지는 최대 10장까지 등록할 수 있습니다."),
