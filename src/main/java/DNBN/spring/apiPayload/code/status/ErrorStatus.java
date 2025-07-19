@@ -22,8 +22,17 @@ public enum ErrorStatus implements BaseErrorCode {
     INVALID_REGION_COUNT(HttpStatus.BAD_REQUEST, "MEMBER4004", "좋아하는 동네는 최소 1개, 최대 3개까지 선택할 수 있습니다."),
     SOCIALID_NOT_FOUND(HttpStatus.BAD_REQUEST, "MEMBER4005", "socialId가 없습니다."),
     
-    // 예시,,,
+    // article
     ARTICLE_NOT_FOUND(HttpStatus.NOT_FOUND, "ARTICLE4001", "게시글이 없습니다."),
+    ARTICLE_TITLE_LENGTH_INVALID(HttpStatus.BAD_REQUEST, "ARTICLE4002", "제목은 2~100자여야 합니다."),
+    ARTICLE_CONTENT_LENGTH_INVALID(HttpStatus.BAD_REQUEST, "ARTICLE4003", "내용은 10~5000자여야 합니다."),
+
+    // articlePhoto & S3
+    ARTICLE_PHOTO_MAIN_IMAGE_REQUIRED(HttpStatus.BAD_REQUEST, "ARTICLEPHOTO4002", "대표 이미지는 필수입니다."),
+    ARTICLE_PHOTO_IMAGE_INVALID_TYPE(HttpStatus.UNSUPPORTED_MEDIA_TYPE, "ARTICLEPHOTO4005", "지원하지 않는 이미지 파일 형식입니다."),
+    ARTICLE_PHOTO_IMAGE_COUNT_EXCEEDED(HttpStatus.PAYLOAD_TOO_LARGE, "ARTICLEPHOTO4003", "이미지는 최대 10장까지 등록할 수 있습니다."),
+    ARTICLE_PHOTO_IMAGE_TOO_LARGE(HttpStatus.PAYLOAD_TOO_LARGE, "ARTICLEPHOTO4004", "이미지 파일 크기가 너무 큽니다. (최대 10MB)"),
+    ARTICLE_PHOTO_S3_UPLOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "ARTICLEPHOTO5001", "이미지 업로드에 실패했습니다. 잠시 후 다시 시도해 주세요."),
 
     // For test
     TEMP_EXCEPTION(HttpStatus.BAD_REQUEST, "TEMP4001", "이거는 테스트"),
@@ -45,7 +54,6 @@ public enum ErrorStatus implements BaseErrorCode {
     // 장소 저장 에러
     CATEGORY_ALREADY_SAVED_FOR_PLACE(HttpStatus.CONFLICT, "SAVE_PLACE4001", "이미 해당 장소가 이 카테고리에 저장되어 있습니다."),
 
-
     //like
     POST_NOT_FOUND(HttpStatus.NOT_FOUND, "POST404", "해당 게시물을 찾을 수 없습니다."),
     ALREADY_LIKED(HttpStatus.CONFLICT, "LIKE4001", "이미 좋아요를 누르셨습니다."),
@@ -61,7 +69,9 @@ public enum ErrorStatus implements BaseErrorCode {
     CATEGORY_DUPLICATE_NAME(HttpStatus.CONFLICT, "CATEGORY_409_DUPLICATE_NAME", "이미 존재하는 카테고리 이름입니다."),
     CATEGORY_ASSOCIATED_ARTICLES(HttpStatus.CONFLICT, "CATEGORY_409_ASSOCIATED_ARTICLES", "해당 카테고리에 연결된 게시물이 있어 삭제할 수 없습니다."),
 
-    PLACE_NOT_FOUND(HttpStatus.NOT_FOUND, "PLACE4001", "해당 장소를 찾을 수 없습니다.");
+    PLACE_NOT_FOUND(HttpStatus.NOT_FOUND, "PLACE4001", "해당 장소를 찾을 수 없습니다."),
+    ;
+
     private final HttpStatus httpStatus;
     private final String code;
     private final String message;
