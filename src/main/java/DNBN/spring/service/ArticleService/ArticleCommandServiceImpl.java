@@ -33,6 +33,13 @@ import org.springframework.web.multipart.MultipartFile;
 @Service
 @RequiredArgsConstructor
 public class ArticleCommandServiceImpl implements ArticleCommandService {
+    private static final int MAX_IMAGE_COUNT = 10;
+    private static final long MAX_IMAGE_SIZE = 10 * 1024 * 1024; // 10MB
+    private static final int TITLE_MIN_LENGTH = 2;
+    private static final int TITLE_MAX_LENGTH = 100;
+    private static final int CONTENT_MIN_LENGTH = 10;
+    private static final int CONTENT_MAX_LENGTH = 5000;
+
     private final ArticleRepository articleRepository;
     private final ArticlePhotoRepository articlePhotoRepository;
     private final MemberRepository memberRepository;
@@ -54,29 +61,28 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
                 .orElseThrow(() -> new RegionHandler(ErrorStatus.REGION_NOT_FOUND));
 
         // 게시물 제목/내용 길이 제한 (제목 2~100자, 내용 10~5000자)
-        if (request.title() == null || request.title().length() < 2 || request.title().length() > 100) {
+        if (request.title() == null || request.title().length() < TITLE_MIN_LENGTH || request.title().length() > TITLE_MAX_LENGTH) {
             throw new ArticleHandler(ErrorStatus.ARTICLE_TITLE_LENGTH_INVALID);
         }
-        if (request.content() == null || request.content().length() < 10 || request.content().length() > 5000) {
+        if (request.content() == null || request.content().length() < CONTENT_MIN_LENGTH || request.content().length() > CONTENT_MAX_LENGTH) {
             throw new ArticleHandler(ErrorStatus.ARTICLE_CONTENT_LENGTH_INVALID);
         }
 
         // 대표 이미지 필수 여부 검증
-         if (mainImage == null || mainImage.isEmpty()) {
-             throw new ArticlePhotoHandler(ErrorStatus.ARTICLE_PHOTO_MAIN_IMAGE_REQUIRED);
-         }
+        if (mainImage == null || mainImage.isEmpty()) {
+            throw new ArticlePhotoHandler(ErrorStatus.ARTICLE_PHOTO_MAIN_IMAGE_REQUIRED);
+        }
 
         // 이미지 개수 제한 (최대 10장)
         int imageCount = (!mainImage.isEmpty() ? 1 : 0)
-                + (imageFiles != null ? (int) imageFiles.stream().filter(f -> f != null
-            && !f.isEmpty()).count() : 0);
-        if (imageCount > 10) {
+                + (imageFiles != null ? (int) imageFiles.stream().filter(f -> f != null && !f.isEmpty()).count() : 0);
+        if (imageCount > MAX_IMAGE_COUNT) {
             throw new ArticlePhotoHandler(ErrorStatus.ARTICLE_PHOTO_IMAGE_COUNT_EXCEEDED);
         }
 
         // 이미지 파일 크기/타입 제한
         if (!mainImage.isEmpty()) {
-            if (mainImage.getSize() > 10 * 1024 * 1024) {
+            if (mainImage.getSize() > MAX_IMAGE_SIZE) {
                 throw new ArticlePhotoHandler(ErrorStatus.ARTICLE_PHOTO_IMAGE_TOO_LARGE);
             }
             String contentType = mainImage.getContentType();
@@ -87,7 +93,7 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
         if (imageFiles != null) {
             for (MultipartFile file : imageFiles) {
                 if (file != null && !file.isEmpty()) {
-                    if (file.getSize() > 10 * 1024 * 1024) {
+                    if (file.getSize() > MAX_IMAGE_SIZE) {
                         throw new ArticlePhotoHandler(ErrorStatus.ARTICLE_PHOTO_IMAGE_TOO_LARGE);
                     }
                     String contentType = file.getContentType();
