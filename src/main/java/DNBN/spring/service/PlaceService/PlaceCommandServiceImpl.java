@@ -2,6 +2,9 @@ package DNBN.spring.service.PlaceService;
 
 import DNBN.spring.apiPayload.code.status.ErrorStatus;
 import DNBN.spring.apiPayload.exception.GeneralException;
+import DNBN.spring.apiPayload.exception.handler.CategoryHandler;
+import DNBN.spring.apiPayload.exception.handler.MemberHandler;
+import DNBN.spring.apiPayload.exception.handler.PlaceHandler;
 import DNBN.spring.domain.Category;
 import DNBN.spring.domain.Member;
 import DNBN.spring.domain.Place;
@@ -30,20 +33,20 @@ public class PlaceCommandServiceImpl implements PlaceCommandService {
     public PlaceResponseDTO.SavePlaceResultDTO savePlaceToCategory(Long memberId, Long placeId, PlaceRequestDTO.SavePlaceDTO request) {
         // 1. 장소 조회
         Place place = placeRepository.findById(placeId)
-                .orElseThrow(() -> new GeneralException(ErrorStatus.PLACE_NOT_FOUND));
+                .orElseThrow(() -> new PlaceHandler(ErrorStatus.PLACE_NOT_FOUND));
 
         // 2. 멤버 조회
         Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new GeneralException(ErrorStatus.MEMBER_NOT_FOUND));
+                .orElseThrow(() -> new MemberHandler(ErrorStatus.MEMBER_NOT_FOUND));
 
         // 3. 사용자 본인 카테고리인지 확인
         Category category = categoryRepository
                 .findByCategoryIdAndMemberAndDeletedAtIsNull(request.getCategoryId(), member)
-                .orElseThrow(() -> new GeneralException(ErrorStatus._FORBIDDEN));
+                .orElseThrow(() -> new CategoryHandler(ErrorStatus._FORBIDDEN));
 
         // 4. 중복 저장 여부 확인
         if (savePlaceRepository.existsByPlaceAndCategory(place, category)) {
-            throw new GeneralException(ErrorStatus.CATEGORY_ALREADY_SAVED_FOR_PLACE);
+            throw new PlaceHandler(ErrorStatus.CATEGORY_ALREADY_SAVED_FOR_PLACE);
         }
 
         // 5. 저장
