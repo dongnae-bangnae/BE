@@ -17,13 +17,14 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 
 @Slf4j
-@RestControllerAdvice(annotations = {RestController.class})
+@RestControllerAdvice
 public class ExceptionAdvice extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler
@@ -62,6 +63,26 @@ public class ExceptionAdvice extends ResponseEntityExceptionHandler {
     public ResponseEntity onThrowException(GeneralException generalException, HttpServletRequest request) {
         ErrorReasonDTO errorReasonHttpStatus = generalException.getErrorReasonHttpStatus();
         return handleExceptionInternal(generalException,errorReasonHttpStatus,null,request);
+    }
+
+    @Override
+    protected ResponseEntity<Object> handleMaxUploadSizeExceededException(
+            MaxUploadSizeExceededException e, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
+        String requestUri = "";
+        if (request instanceof ServletWebRequest servletWebRequest) {
+            requestUri = servletWebRequest.getRequest().getRequestURI();
+        }
+        log.error("\uD83D\uDCBE [이미지 업로드 용량 초과]: {} | 요청 URI: {}", e.getMessage(), requestUri);
+        ResponseEntity<Object> response = handleExceptionInternalFalse(
+                e,
+                ErrorStatus.ARTICLE_PHOTO_IMAGE_TOO_LARGE,
+                HttpHeaders.EMPTY,
+                ErrorStatus.ARTICLE_PHOTO_IMAGE_TOO_LARGE.getHttpStatus(),
+                request,
+                e.getMessage()
+        );
+        log.error("\uD83D\uDCBE [이미지 업로드 용량 초과 응답]: status={}, body={}", response.getStatusCode(), response.getBody());
+        return response;
     }
 
     private ResponseEntity<Object> handleExceptionInternal(Exception e, ErrorReasonDTO reason,
