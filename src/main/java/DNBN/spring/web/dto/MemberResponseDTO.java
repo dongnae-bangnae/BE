@@ -1,9 +1,6 @@
 package DNBN.spring.web.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.List;
 
@@ -42,4 +39,14 @@ public class MemberResponseDTO {
             String district;
         }
     }
+
+    @Getter
+    @Setter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class ProfileImageUpdateResultDTO {
+        private String profileImageUrl;
+    }
+
 }

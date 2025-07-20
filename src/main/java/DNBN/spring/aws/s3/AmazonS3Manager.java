@@ -41,6 +41,17 @@ public class AmazonS3Manager{
         return amazonConfig.getMemberPath() + '/' + uuid.getUuid(); // 멤버 프로필 사진
     }
 
+    public String extractS3KeyFromUrl(String imageUrl) {
+        String bucketUrlPrefix = "https://" + amazonConfig.getBucket() + ".s3." + amazonConfig.getRegion() + ".amazonaws.com/";
+
+        if (imageUrl != null && imageUrl.startsWith(bucketUrlPrefix)) {
+            return imageUrl.substring(bucketUrlPrefix.length());
+        } else {
+            throw new IllegalArgumentException("S3 URL에서 key를 추출할 수 없습니다: " + imageUrl);
+        }
+    }
+
+
     public void deleteFile(String keyName) {
         amazonS3.deleteObject(amazonConfig.getBucket(), keyName);
     }

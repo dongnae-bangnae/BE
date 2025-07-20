@@ -13,4 +13,5 @@ public interface MemberCommandService {
     void deleteMember(Long memberId);
     void changeMemberNickname(Long memberId, String newNickname);
     MemberResponseDTO.ChosenRegionsDTO updateRegions(Long memberId, List<Long> regionIds);
+    MemberResponseDTO.ProfileImageUpdateResultDTO updateProfileImage(Long memberId, MultipartFile profileImage);
 }
