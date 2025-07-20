@@ -68,7 +68,11 @@ public class ExceptionAdvice extends ResponseEntityExceptionHandler {
     @Override
     protected ResponseEntity<Object> handleMaxUploadSizeExceededException(
             MaxUploadSizeExceededException e, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
-//        log.error("[handleMaxUploadSizeExceededException] 진입: {}", e.getMessage(), e);
+        String requestUri = "";
+        if (request instanceof ServletWebRequest servletWebRequest) {
+            requestUri = servletWebRequest.getRequest().getRequestURI();
+        }
+        log.error("\uD83D\uDCBE [이미지 업로드 용량 초과]: {} | 요청 URI: {}", e.getMessage(), requestUri);
         ResponseEntity<Object> response = handleExceptionInternalFalse(
                 e,
                 ErrorStatus.ARTICLE_PHOTO_IMAGE_TOO_LARGE,
@@ -77,7 +81,7 @@ public class ExceptionAdvice extends ResponseEntityExceptionHandler {
                 request,
                 e.getMessage()
         );
-        log.error("[handleMaxUploadSizeExceededException] 응답: status={}, body={}", response.getStatusCode(), response.getBody());
+        log.error("\uD83D\uDCBE [이미지 업로드 용량 초과 응답]: status={}, body={}", response.getStatusCode(), response.getBody());
         return response;
     }
 
