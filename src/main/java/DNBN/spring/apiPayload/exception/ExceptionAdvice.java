@@ -72,16 +72,29 @@ public class ExceptionAdvice extends ResponseEntityExceptionHandler {
         if (request instanceof ServletWebRequest servletWebRequest) {
             requestUri = servletWebRequest.getRequest().getRequestURI();
         }
-        log.error("\uD83D\uDCBE [이미지 업로드 용량 초과]: {} | 요청 URI: {}", e.getMessage(), requestUri);
+
+        log.error("📦 [이미지 업로드 용량 초과]: {} | 요청 URI: {}", e.getMessage(), requestUri);
+
+        ErrorStatus errorStatus;
+
+        if (requestUri.contains("/member/profile-image")) {
+            errorStatus = ErrorStatus.IMAGE_FILE_TOO_LARGE; // 멤버 프로필 이미지 업로드 실패 시
+        } else if (requestUri.contains("/article") || requestUri.contains("/articles")) {
+            errorStatus = ErrorStatus.ARTICLE_PHOTO_IMAGE_TOO_LARGE; // 게시글 이미지 업로드 실패 시
+        } else {
+            errorStatus = ErrorStatus._BAD_REQUEST; // 그 외 요청
+        }
+
         ResponseEntity<Object> response = handleExceptionInternalFalse(
                 e,
-                ErrorStatus.ARTICLE_PHOTO_IMAGE_TOO_LARGE,
+                errorStatus,
                 HttpHeaders.EMPTY,
-                ErrorStatus.ARTICLE_PHOTO_IMAGE_TOO_LARGE.getHttpStatus(),
+                errorStatus.getHttpStatus(),
                 request,
                 e.getMessage()
         );
-        log.error("\uD83D\uDCBE [이미지 업로드 용량 초과 응답]: status={}, body={}", response.getStatusCode(), response.getBody());
+
+        log.error("📦 [이미지 업로드 용량 초과 응답]: status={}, body={}", response.getStatusCode(), response.getBody());
         return response;
     }
 
