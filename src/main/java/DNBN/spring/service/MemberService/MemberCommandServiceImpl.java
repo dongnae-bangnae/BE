@@ -171,4 +171,49 @@ public class MemberCommandServiceImpl implements MemberCommandService {
                 .build();
     }
 
+    @Override
+    @Transactional
+    public MemberResponseDTO.ProfileImageUpdateResultDTO updateProfileImage(Long memberId, MultipartFile profileImage) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new MemberHandler(ErrorStatus.MEMBER_NOT_FOUND));
+
+        if (profileImage == null || profileImage.isEmpty()) {
+            throw new MemberHandler(ErrorStatus._BAD_REQUEST);
+        }
+
+        // 파일 형식 검사
+        String contentType = profileImage.getContentType();
+        if (contentType == null || !contentType.startsWith("image/")) {
+            throw new MemberHandler(ErrorStatus.INVALID_IMAGE_TYPE);
+        }
+
+        // 파일 용량 제한 (10MB)
+        long maxFileSize = 10 * 1024 * 1024;
+        if (profileImage.getSize() > maxFileSize) {
+            throw new MemberHandler(ErrorStatus.IMAGE_FILE_TOO_LARGE);
+        }
+
+        // UUID 생성 후 저장
+        String uuidStr = UUID.randomUUID().toString();
+        Uuid uuid = uuidRepository.save(Uuid.builder().uuid(uuidStr).build());
+
+        // S3 업로드
+        String profileImageUrl = s3Manager.uploadFile(s3Manager.generateMemberKeyName(uuid), profileImage);
+
+        if (member.getProfileImage() != null) {
+            // 기존 이미지의 키 추출 및 삭제
+            String oldKey = s3Manager.extractS3KeyFromUrl(member.getProfileImage().getImageUrl());
+            s3Manager.deleteFile(oldKey);
+
+            // update: 기존 엔티티에 새로운 URL만 set
+            member.getProfileImage().updateImageUrl(profileImageUrl);
+        } else {
+            // 새 이미지 insert
+            profileImageRepository.save(MemberConverter.toProfileImage(profileImageUrl, member));
+        }
+
+        return MemberResponseDTO.ProfileImageUpdateResultDTO.builder()
+                .profileImageUrl(profileImageUrl)
+                .build();
+    }
 }

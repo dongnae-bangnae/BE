@@ -102,4 +102,23 @@ public class MemberRestController {
         MemberResponseDTO.ChosenRegionsDTO response = memberCommandService.updateRegions(memberId, request.getRegionIds());
         return ApiResponse.onSuccess(response);
     }
+
+    @PatchMapping(
+            value = "/profile-image",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
+    )
+    @Operation(
+            summary = "프로필 이미지 변경 API - JWT 인증 필요",
+            description = "JWT 인증된 사용자가 프로필 이미지를 변경합니다.",
+            security = { @SecurityRequirement(name = "JWT TOKEN") }
+    )
+    public ApiResponse<MemberResponseDTO.ProfileImageUpdateResultDTO> updateProfileImage(
+            @AuthenticationPrincipal MemberDetails memberDetails,
+            @RequestPart("profileImage") MultipartFile profileImage
+    ) {
+        Long memberId = memberDetails.getMember().getId();
+        MemberResponseDTO.ProfileImageUpdateResultDTO result = memberCommandService.updateProfileImage(memberId, profileImage);
+        return ApiResponse.onSuccess(result);
+    }
+
 }
