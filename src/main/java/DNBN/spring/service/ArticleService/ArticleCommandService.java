@@ -15,4 +15,7 @@ public interface ArticleCommandService {
         public final Article article;
         public final List<ArticlePhoto> photos;
     }
+
+    // articleList
+
 }
