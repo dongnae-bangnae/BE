@@ -22,7 +22,7 @@ public class ArticleQueryServiceImpl implements ArticleQueryService {
 
     @Override
     public Page<Article> getArticleListByRegion(List<Long> regionIds, Integer page) {
-        Pageable pageable = PageRequest.of(page, 10, Sort.by(Sort.Direction.DESC, "createdAt"));
+        Pageable pageable = PageRequest.of(page - 1, 10, Sort.by(Sort.Direction.DESC, "createdAt"));
         return articleRepository.findAllByRegion_IdIn(regionIds, pageable);
     }
 }
