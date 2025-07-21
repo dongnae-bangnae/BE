@@ -1,6 +1,7 @@
 package DNBN.spring.web.controller;
 
 import DNBN.spring.apiPayload.ApiResponse;
+import DNBN.spring.config.security.SecurityUtils;
 import DNBN.spring.converter.ArticleConverter;
 import DNBN.spring.domain.Article;
 import DNBN.spring.repository.ArticleRepository.ArticleRepository;
@@ -35,15 +36,14 @@ public class HomeController {
             description = "관심 동네 기반으로 새 게시물 리스트가 반환됩니다." +
                     "페이지 번호와 관심 동네 아이디들을 입력하세요.")
     @Parameters({
-            @Parameter(name = "regionIds", description = "관심동네의 아이디 리스트, 예: regionIds=1,2,3"),
             @Parameter(name = "page", description = "페이지 번호 (1부터 시작)", schema = @Schema(defaultValue = "1", minimum = "1"))
     })
     public ApiResponse<PostResponseDTO.PostPreViewListDTO> getNewArticleList(
-            @RequestParam List<Long> regionIds,
             // @ValidPage
             @RequestParam(name = "page", defaultValue = "1") Integer page
             ) {
-        Page<Article> articlePreviewList = articleQueryService.getArticleListByRegion(regionIds, page);
+        Long memberId = SecurityUtils.getCurrentMemberId();
+        Page<Article> articlePreviewList = articleQueryService.getArticleListByRegion(memberId, page);
         return ApiResponse.onSuccess(ArticleConverter.articlePreViewListDTO(articlePreviewList));
     }
 }

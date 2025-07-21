@@ -16,6 +16,10 @@ public class MemberDetails implements UserDetails {
         this.member = member;
     }
 
+    public Long getMemberId() {
+        return member.getId();
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         // 예시: "ROLE_USER" 권한을 부여
