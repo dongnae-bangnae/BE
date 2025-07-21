@@ -32,7 +32,8 @@ public class HomeController {
     @GetMapping("/articles")
     @Operation(
             summary = "홈 화면 새 글 리스트 조회 API - JWT 인증 필요",
-            description = "query string으로 페이지 번호를 입력하세요")
+            description = "관심 동네 기반으로 새 게시물 리스트가 반환됩니다." +
+                    "페이지 번호와 관심 동네 아이디들을 입력하세요.")
     @Parameters({
             @Parameter(name = "regionIds", description = "관심동네의 아이디 리스트, 예: regionIds=1,2,3"),
             @Parameter(name = "page", description = "페이지 번호 (1부터 시작)", schema = @Schema(defaultValue = "1", minimum = "1"))
