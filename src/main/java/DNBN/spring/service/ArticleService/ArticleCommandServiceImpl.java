@@ -175,4 +175,18 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
         }
         return new ArticleWithPhotos(article, photos);
     }
+
+    @Override
+    @Transactional
+    public void deleteArticle(Long memberId, Long articleId) {
+        Article article = articleRepository.findById(articleId)
+                .orElseThrow(() -> new ArticleHandler(ErrorStatus.ARTICLE_NOT_FOUND));
+        if (!article.getMember().getId().equals(memberId)) {
+            throw new ArticleHandler(ErrorStatus.ARTICLE_FORBIDDEN);
+        }
+        if (article.getDeletedAt() != null) {
+            throw new ArticleHandler(ErrorStatus.ARTICLE_ALREADY_DELETED);
+        }
+        article.delete(); // dirty checking
+    }
 }

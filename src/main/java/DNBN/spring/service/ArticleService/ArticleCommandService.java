@@ -10,6 +10,8 @@ import org.springframework.web.multipart.MultipartFile;
 public interface ArticleCommandService {
     ArticleWithPhotos createArticle(Long memberId, ArticleRequestDTO request, MultipartFile mainImage, List<MultipartFile> imageFiles);
 
+    void deleteArticle(Long memberId, Long articleId);
+
     @AllArgsConstructor
     class ArticleWithPhotos {
         public final Article article;

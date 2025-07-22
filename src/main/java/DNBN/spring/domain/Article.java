@@ -56,4 +56,8 @@ public class Article extends BaseEntity {
   @Column(nullable = false)
   private LocalDate date;
 
+  public void delete() {
+        this.deletedAt = java.time.LocalDateTime.now();
+    }
+
 }
