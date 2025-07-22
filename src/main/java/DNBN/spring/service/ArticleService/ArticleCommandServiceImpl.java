@@ -32,6 +32,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class ArticleCommandServiceImpl implements ArticleCommandService {
     private static final int MAX_IMAGE_COUNT = 10;
     private static final long MAX_IMAGE_SIZE = 10 * 1024 * 1024; // 10MB
@@ -49,7 +50,6 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
     private final AmazonS3Manager s3Manager;
 
     @Override
-    @Transactional
     public ArticleWithPhotos createArticle(Long memberId, ArticleRequestDTO request, MultipartFile mainImage, List<MultipartFile> imageFiles) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberHandler(ErrorStatus.MEMBER_NOT_FOUND));
@@ -174,5 +174,18 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
             throw new ArticlePhotoHandler(ErrorStatus.ARTICLE_PHOTO_S3_UPLOAD_FAILED);
         }
         return new ArticleWithPhotos(article, photos);
+    }
+
+    @Override
+    public void deleteArticle(Long memberId, Long articleId) {
+        Article article = articleRepository.findById(articleId)
+                .orElseThrow(() -> new ArticleHandler(ErrorStatus.ARTICLE_NOT_FOUND));
+        if (!article.getMember().getId().equals(memberId)) {
+            throw new ArticleHandler(ErrorStatus.ARTICLE_FORBIDDEN);
+        }
+        if (article.getDeletedAt() != null) {
+            throw new ArticleHandler(ErrorStatus.ARTICLE_ALREADY_DELETED);
+        }
+        article.delete(); // dirty checking
     }
 }

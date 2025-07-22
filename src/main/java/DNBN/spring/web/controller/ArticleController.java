@@ -12,6 +12,8 @@ import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -41,5 +43,20 @@ public class ArticleController {
         ArticleCommandService.ArticleWithPhotos result = articleCommandService.createArticle(memberId, dto, mainImage, imageFiles);
         ArticleResponseDTO response = ArticleConverter.toArticleResponseDTO(result.article, result.photos);
         return ApiResponse.onSuccess(response);
+    }
+
+    @DeleteMapping("/{articleId}")
+    @Operation(
+        summary = "게시물 삭제",
+        description = "게시물을 삭제합니다. JWT 인증 필요.",
+        security = @SecurityRequirement(name = "JWT TOKEN")
+    )
+    public ApiResponse<Void> deleteArticle(
+            @AuthenticationPrincipal MemberDetails memberDetails,
+            @PathVariable Long articleId
+    ) {
+        Long memberId = memberDetails.getMember().getId();
+        articleCommandService.deleteArticle(memberId, articleId);
+        return ApiResponse.onSuccess(null);
     }
 }
