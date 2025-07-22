@@ -62,6 +62,6 @@ jobs:
           application_name: dnbn-dev  # 반드시 EB 콘솔 이름 확인
           environment_name: Dnbn-dev-env
           version_label: github-action-${{ steps.current-time.outputs.formattedTime }}
-          region: ap-northeast-1
+          region: ap-northeast-2
           deployment_package: deploy/deploy.zip
           wait_for_deployment: false
