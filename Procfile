@@ -1,1 +1,1 @@
-web: java -jar -Dserver.port=8080 application.jar
+web: appstart
