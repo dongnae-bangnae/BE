@@ -6,6 +6,7 @@ import DNBN.spring.domain.MemberDetails;
 import DNBN.spring.service.ArticleService.ArticleCommandService;
 import DNBN.spring.web.dto.ArticleRequestDTO;
 import DNBN.spring.web.dto.ArticleResponseDTO;
+import DNBN.spring.web.dto.ArticleWithLocationRequestDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
@@ -36,6 +37,24 @@ public class ArticleController {
     public ApiResponse<ArticleResponseDTO> createArticle(
             @AuthenticationPrincipal MemberDetails memberDetails,
             @RequestPart("request") @Valid ArticleRequestDTO dto,
+            @RequestPart(value = "mainImage", required = false) MultipartFile mainImage,
+            @RequestPart(value = "imageFiles", required = false) List<MultipartFile> imageFiles
+    ) {
+        Long memberId = memberDetails.getMember().getId();
+        ArticleCommandService.ArticleWithPhotos result = articleCommandService.createArticle(memberId, dto, mainImage, imageFiles);
+        ArticleResponseDTO response = ArticleConverter.toArticleResponseDTO(result.article, result.photos);
+        return ApiResponse.onSuccess(response);
+    }
+
+    @PostMapping(value = "/with-location", consumes = {"multipart/form-data"})
+    @Operation(
+            summary = "게시물 생성 (미등록 장소)",
+            description = "핀(장소)이 등록되지 않은 경우, 위도/경도로 장소를 지정해 게시물을 등록합니다. JWT 인증 필요.",
+            security = @SecurityRequirement(name = "JWT TOKEN")
+    )
+    public ApiResponse<ArticleResponseDTO> createArticleWithLocation(
+            @AuthenticationPrincipal MemberDetails memberDetails,
+            @RequestPart("request") @Valid ArticleWithLocationRequestDTO dto,
             @RequestPart(value = "mainImage", required = false) MultipartFile mainImage,
             @RequestPart(value = "imageFiles", required = false) List<MultipartFile> imageFiles
     ) {
