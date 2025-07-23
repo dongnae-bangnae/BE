@@ -74,7 +74,7 @@ tasks.named('test') {
 def querydslDir = 'src/main/generated'
 
 sourceSets {
-	main.java.srcDirs += querydslDir
+	main.java.srcDirs += [ querydslDir ]
 }
 
 tasks.withType(JavaCompile) {
@@ -83,8 +83,4 @@ tasks.withType(JavaCompile) {
 
 clean.doLast {
 	file(querydslDir).deleteDir()
-}
-
-jar {
-	enabled = false
 }
