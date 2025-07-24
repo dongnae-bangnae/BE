@@ -25,11 +25,11 @@ public enum SuccessStatus implements BaseCode {
     SAVED_PLACE_CREATE_SUCCESS(HttpStatus.OK, "SAVE_PLACE2001", "장소가 카테고리에 성공적으로 저장되었습니다."),
 
     // 댓글
-    COMMENT_CREATE_SUCCESS(HttpStatus.OK, "COMMENT_CREATE_SUCCESS", "댓글이 정상적으로 작성되었습니다.")
-    ;
+    COMMENT_CREATE_SUCCESS(HttpStatus.OK, "COMMENT_CREATE_SUCCESS", "댓글이 정상적으로 작성되었습니다."),
 
     // 동네 검색
-    REGION_SEARCH_SUCCESS(HttpStatus.OK, "REGION2001", "지역 검색 결과입니다.");
+    REGION_SEARCH_SUCCESS(HttpStatus.OK, "REGION2001", "지역 검색 결과입니다.")
+    ;
 
     private final HttpStatus httpStatus;
     private final String code;
