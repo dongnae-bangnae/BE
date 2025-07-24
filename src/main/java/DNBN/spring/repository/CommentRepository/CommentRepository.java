@@ -10,8 +10,5 @@ import java.util.List;
 
 public interface CommentRepository extends JpaRepository<Comment, Long> {
     List<Comment> findAllByArticle(Article article);
-    List<Comment> findAllByMember(Member member);
-    List<Comment> findAllByPlace(Place place);
-    List<Comment> findAllByRegion(Region region);
 }
 

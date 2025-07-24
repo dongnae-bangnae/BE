@@ -72,7 +72,12 @@ public enum ErrorStatus implements BaseErrorCode {
     CATEGORY_INVALID_NAME(HttpStatus.BAD_REQUEST, "CATEGORY_400_INVALID_NAME", "카테고리 이름이 유효하지 않습니다."),
     CATEGORY_NOT_FOUND(HttpStatus.NOT_FOUND, "CATEGORY_404_NOT_FOUND", "해당 카테고리를 찾을 수 없습니다."),
     CATEGORY_DUPLICATE_NAME(HttpStatus.CONFLICT, "CATEGORY_409_DUPLICATE_NAME", "이미 존재하는 카테고리 이름입니다."),
-    CATEGORY_ASSOCIATED_ARTICLES(HttpStatus.CONFLICT, "CATEGORY_409_ASSOCIATED_ARTICLES", "해당 카테고리에 연결된 게시물이 있어 삭제할 수 없습니다.");
+    CATEGORY_ASSOCIATED_ARTICLES(HttpStatus.CONFLICT, "CATEGORY_409_ASSOCIATED_ARTICLES", "해당 카테고리에 연결된 게시물이 있어 삭제할 수 없습니다."),
+
+    // 댓글
+    COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "COMMENT4001", "댓글을 찾을 수 없습니다."),
+    COMMENT_CONTENT_LENGTH_INVALID(HttpStatus.BAD_REQUEST, "COMMENT4002", "댓글 내용은 1~1000자여야 합니다."),
+    COMMENT_FORBIDDEN(HttpStatus.FORBIDDEN, "COMMENT4003", "해당 댓글에 대한 권한이 없습니다.");
 
     private final HttpStatus httpStatus;
     private final String code;
