@@ -32,20 +32,21 @@ public class Category extends BaseEntity {
   @JoinColumn(name = "member_id", nullable = false)
   private Member member;
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "place_id", nullable = false)
-  private Place place;
-
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "region_id", nullable = false)
-  private Region region;
-
   @Column(nullable = false, length = 100)
   private String name;
 
   @Enumerated(EnumType.STRING)
   @Column(nullable = false, length = 10)
   private Color color;
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "region_id", nullable = true)
+  private Region region;
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "place_id", nullable = true)
+  private Place place;
+
   @Column(name = "deleted_at")
   private LocalDateTime deletedAt;
 
