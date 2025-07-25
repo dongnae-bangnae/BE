@@ -56,6 +56,10 @@ public class Article extends BaseEntity {
   @Column(nullable = false)
   private LocalDate date;
 
+  public void delete() {
+        this.deletedAt = java.time.LocalDateTime.now();
+    }
+
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "challengeId")
   private Challenge challenge;

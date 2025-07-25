@@ -6,7 +6,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public enum Color {
-  ORANGE, YELLOW, GREEN, BLUE, PURPLE, CORAL, PINK;
+  RED, ORANGE, YELLOW, GREEN, SKYBLUE, INDIGO, PURPLE, BLACK;
 
   private static final Map<String, Color> BY_NAME =
       Arrays.stream(values())

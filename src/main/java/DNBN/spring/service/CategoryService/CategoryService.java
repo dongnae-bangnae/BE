@@ -33,24 +33,10 @@ public class CategoryService {
             throw new CategoryHandler(ErrorStatus.CATEGORY_DUPLICATE_NAME);
         }
 
-        Place place = null;
-        if (dto.placeId() != null) {
-            place = placeRepository.findById(dto.placeId())
-                    .orElseThrow(() -> new CategoryHandler(ErrorStatus.PLACE_NOT_FOUND));
-        }
-
-        Region region = null;
-        if (dto.regionId() != null) {
-            region = regionRepository.findById(dto.regionId())
-                    .orElseThrow(() -> new CategoryHandler(ErrorStatus.REGION_NOT_FOUND));
-        }
-
         Category category = Category.builder()
                 .name(dto.name())
                 .color(Color.from(dto.color()))
                 .member(member)
-                .place(place)
-                .region(region)
                 .build();
 
         categoryRepository.save(category);
