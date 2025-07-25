@@ -1,0 +1,42 @@
+package DNBN.spring.web.controller;
+
+import DNBN.spring.apiPayload.ApiResponse;
+import DNBN.spring.apiPayload.code.status.SuccessStatus;
+import DNBN.spring.domain.MemberDetails;
+import DNBN.spring.service.CommentService.CommentCommandService;
+import DNBN.spring.web.dto.CommentRequestDTO;
+import DNBN.spring.web.dto.CommentResponseDTO;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequiredArgsConstructor
+@RequestMapping("/api/articles/{articleId}/comments")
+@SecurityRequirement(name = "JWT TOKEN")
+public class CommentController {
+    private final CommentCommandService commentCommandService;
+
+    @PostMapping
+    @Operation(
+        summary = "댓글 생성",
+        description = "게시물에 댓글을 작성합니다. JWT 인증 필요.",
+        security = @SecurityRequirement(name = "JWT TOKEN")
+    )
+    public ApiResponse<CommentResponseDTO> createComment(
+            @AuthenticationPrincipal MemberDetails memberDetails,
+            @PathVariable Long articleId,
+            @RequestBody @Valid CommentRequestDTO request
+    ) {
+        Long memberId = memberDetails.getMember().getId();
+        CommentResponseDTO response = commentCommandService.createComment(memberId, articleId, request);
+        return ApiResponse.of(SuccessStatus.COMMENT_CREATE_SUCCESS, response);
+    }
+}

@@ -22,8 +22,14 @@ public enum SuccessStatus implements BaseCode {
     MEMBER_PROFILE_IMAGE_UPDATED(HttpStatus.OK, "MEMBER2007", "프로필 이미지가 성공적으로 변경되었습니다."),
 
     // 장소 저장 관련 응답
-    SAVED_PLACE_CREATE_SUCCESS(HttpStatus.OK, "SAVE_PLACE2001", "장소가 카테고리에 성공적으로 저장되었습니다.");
+    SAVED_PLACE_CREATE_SUCCESS(HttpStatus.OK, "SAVE_PLACE2001", "장소가 카테고리에 성공적으로 저장되었습니다."),
 
+    // 댓글
+    COMMENT_CREATE_SUCCESS(HttpStatus.OK, "COMMENT_CREATE_SUCCESS", "댓글이 정상적으로 작성되었습니다."),
+
+    // 동네 검색
+    REGION_SEARCH_SUCCESS(HttpStatus.OK, "REGION2001", "지역 검색 결과입니다.")
+    ;
 
     private final HttpStatus httpStatus;
     private final String code;
