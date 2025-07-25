@@ -6,6 +6,7 @@ import DNBN.spring.converter.ArticleConverter;
 import DNBN.spring.domain.Article;
 import DNBN.spring.repository.ArticleRepository.ArticleRepository;
 import DNBN.spring.service.ArticleService.ArticleQueryService;
+import DNBN.spring.web.dto.response.ChallengeResponseDTO;
 import DNBN.spring.web.dto.response.PostResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -34,7 +35,7 @@ public class HomeController {
     @Operation(
             summary = "홈 화면 새 글 리스트 조회 API - JWT 인증 필요",
             description = "관심 동네 기반으로 새 게시물 리스트가 반환됩니다." +
-                    "페이지 번호와 관심 동네 아이디들을 입력하세요.")
+                    "페이지 번호를 입력하세요.")
     @Parameters({
             @Parameter(name = "page", description = "페이지 번호 (1부터 시작)", schema = @Schema(defaultValue = "1", minimum = "1"))
     })
@@ -44,6 +45,15 @@ public class HomeController {
             ) {
         Long memberId = SecurityUtils.getCurrentMemberId();
         Page<Article> articlePreviewList = articleQueryService.getArticleListByRegion(memberId, page);
+
         return ApiResponse.onSuccess(ArticleConverter.articlePreViewListDTO(articlePreviewList));
     }
+
+//    @GetMapping("/challenges/{challengeId}")
+//    @Operation(
+//            summary = "챌린지 상세 정보 조회 API - JWT 인증 필요",
+//            description = "챌린지 상세 정보 조회입니다." )
+//    public ApiResponse<ChallengeResponseDTO.ChallengeResponseDTOBuilder>() {
+//        return null;
+//    }
 }
