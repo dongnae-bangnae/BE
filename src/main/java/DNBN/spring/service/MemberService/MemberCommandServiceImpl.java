@@ -16,8 +16,10 @@ import DNBN.spring.repository.RegionRepository.RegionRepository;
 import DNBN.spring.repository.UuidRepository.UuidRepository;
 import DNBN.spring.web.dto.MemberRequestDTO;
 import DNBN.spring.web.dto.MemberResponseDTO;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -99,13 +101,34 @@ public class MemberCommandServiceImpl implements MemberCommandService {
     }
 
     @Override
-    public void logout(Long memberId) {
+    public void logout(HttpServletResponse response, Long memberId) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberHandler(ErrorStatus.MEMBER_NOT_FOUND));
 
         // JWT를 로컬(localStorage, 쿠키 등)에서 직접 제거해야 로그아웃
+        ResponseCookie deleteAccessTokenCookie = ResponseCookie.from("accessToken", "")
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .domain("dnbn.site")
+                .maxAge(0)
+                .sameSite("Lax")
+                .build();
 
-        log.info("사용자 {} 로그아웃 처리 완료", member.getId());
+        // refreshToken 쿠키 삭제 (즉시 만료 설정)
+        ResponseCookie deleteRefreshTokenCookie = ResponseCookie.from("refreshToken", "")
+                .httpOnly(true)
+                .secure(true) // HTTPS 환경이라면 true
+                .path("/")
+                .domain("dnbn.site") // 운영 도메인과 맞춰서 설정
+                .maxAge(0) // 즉시 만료
+                .sameSite("Lax")
+                .build();
+
+        response.addHeader("Set-Cookie", deleteAccessTokenCookie.toString());
+        response.addHeader("Set-Cookie", deleteRefreshTokenCookie.toString());
+
+        log.info("사용자 {} 로그아웃 처리 및 refreshToken 쿠키 삭제 완료", member.getId());
     }
 
     @Override

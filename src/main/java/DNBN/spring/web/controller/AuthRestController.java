@@ -34,8 +34,8 @@ public class AuthRestController {
             description = "JWT 인증된 멤버가 로그아웃하는 API입니다.",
             security = { @SecurityRequirement(name = "JWT TOKEN") }
     )
-    public ApiResponse<Void> logout(@AuthenticationPrincipal MemberDetails memberDetails) {
-        memberCommandService.logout(memberDetails.getMember().getId());
+    public ApiResponse<Void> logout(@AuthenticationPrincipal MemberDetails memberDetails, HttpServletResponse response) {
+        memberCommandService.logout(response, memberDetails.getMember().getId());
         return ApiResponse.onSuccess(null);
     }
 
