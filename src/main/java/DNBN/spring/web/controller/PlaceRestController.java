@@ -47,7 +47,7 @@ public class PlaceRestController {
     public ResponseEntity<ApiResponse<PlaceResponseDTO.SavedPlaceListDTO>> getSavedPlacesByCategory(
             @PathVariable Long categoryId,
 
-            @Parameter(name = "cursor", description = "다음 페이지 요청 시 기준이 되는 커서 ID (save_place PK) (default: null)", example = "0")
+            @Parameter(name = "cursor", description = "다음 페이지 요청 시 기준이 되는 커서 ID (save_place PK) (default: null) -> 응답받은 cursor 값 넣어주면 됨", example = "0")
             @RequestParam(required = false) Long cursor,
 
             @Parameter(name = "limit", description = "최대 응답 개수 (default: 20)", example = "20")
