@@ -29,7 +29,7 @@ spring:
             client-authentication-method: client_secret_post
             client-id: ${KAKAO_CLIENT_ID}
             client-secret: ${KAKAO_SECRET}
-            redirect-uri: https://api.dnbn.site/login/oauth2/code/kakao
+            redirect-uri: ${KAKAO_REDIRECT_URL}
             authorization-grant-type: authorization_code
             scope:
             client-name: Kakao
@@ -37,7 +37,7 @@ spring:
             client-authentication-method: client_secret_post
             client-id: ${NAVER_CLIENT_ID}
             client-secret: ${NAVER_SECRET}
-            redirect-uri: https://api.dnbn.site/login/oauth2/code/naver
+            redirect-uri: ${NAVER_REDIRECT_URL}
             authorization-grant-type: authorization_code
             scope:
             client-name: Naver
@@ -45,7 +45,7 @@ spring:
             client-authentication-method: client_secret_post
             client-id: ${GOOGLE_CLIENT_ID}
             client-secret: ${GOOGLE_SECRET}
-            redirect-uri: https://api.dnbn.site/login/oauth2/code/kakao
+            redirect-uri: ${GOOGLE_REDIRECT_URL}
             authorization-grant-type: authorization_code
             scope:
               - openid
