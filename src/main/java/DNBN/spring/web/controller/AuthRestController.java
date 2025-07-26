@@ -11,7 +11,9 @@ import DNBN.spring.web.dto.AuthResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -41,13 +43,34 @@ public class AuthRestController {
     @Operation(summary = "토큰 재발급 API",
             description = "RefreshToken으로 AccessToken을 재발급받는 API입니다."
     )
-    public ApiResponse<AuthResponseDTO.ReissueTokenResponseDTO> reissueAccessToken(HttpServletRequest request) {
-        String refreshToken = JwtTokenProvider.resolveToken(request); // Authorization 헤더에서 Bearer 토큰을 추출
+//    public ApiResponse<AuthResponseDTO.ReissueTokenResponseDTO> reissueAccessToken(HttpServletRequest request) {
+//        String refreshToken = JwtTokenProvider.resolveToken(request); // Authorization 헤더에서 Bearer 토큰을 추출
+    public void reissueAccessToken(HttpServletRequest request, HttpServletResponse response) {
+        String refreshToken = jwtTokenProvider.resolveRefreshToken(request);
         if (!StringUtils.hasText(refreshToken) || !jwtTokenProvider.isRefreshToken(refreshToken)) { // refreshToken == null은 !StringUtils.hasText(refreshToken)로 체크 가능
             throw new MemberHandler(ErrorStatus.INVALID_JWT_REFRESH_TOKEN); // TOKEN4002
         }
 
-        AuthResponseDTO.ReissueTokenResponseDTO response = authCommandService.reissue(refreshToken);
-        return ApiResponse.onSuccess(response);
+        AuthResponseDTO.ReissueTokenResponseDTO tokens = authCommandService.reissue(refreshToken);
+
+        addCookie(response, "accessToken", tokens.getAccessToken(), true, 60 * 60 * 4); // 4시간
+
+        // 응답 바디 없이 204 No Content
+        response.setStatus(HttpServletResponse.SC_NO_CONTENT);
+
+//        return ApiResponse.onSuccess(response);
+    }
+
+    private void addCookie(HttpServletResponse response, String name, String value, boolean httpOnly, int maxAgeInSeconds) {
+        ResponseCookie cookie = ResponseCookie.from(name, value)
+                .httpOnly(httpOnly)
+                .secure(true)
+                .path("/")
+                .domain("dnbn.site")
+                .maxAge(maxAgeInSeconds)
+                .sameSite("Lax")
+                .build();
+
+        response.addHeader("Set-Cookie", cookie.toString());
     }
 }
