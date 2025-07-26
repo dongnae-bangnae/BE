@@ -5,6 +5,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.stereotype.Component;
@@ -44,13 +45,23 @@ public class OAuth2FailureHandler implements AuthenticationFailureHandler {
 
     /**/
     private void addCookie(HttpServletResponse response, String name, String value, boolean httpOnly, int maxAgeInSeconds) {
-        Cookie cookie = new Cookie(name, value);
-        cookie.setHttpOnly(httpOnly);
-        cookie.setSecure(true); // 운영환경 HTTPS에서는 true로 유지
-        cookie.setPath("/");
-        cookie.setDomain("dnbn.site");
-        cookie.setMaxAge(maxAgeInSeconds);
-        response.addCookie(cookie);
+//        Cookie cookie = new Cookie(name, value);
+//        cookie.setHttpOnly(httpOnly);
+//        cookie.setSecure(true); // 운영환경 HTTPS에서는 true로 유지
+//        cookie.setPath("/");
+//        cookie.setDomain("dnbn.site");
+//        cookie.setMaxAge(maxAgeInSeconds);
+//        response.addCookie(cookie);
+        ResponseCookie cookie = ResponseCookie.from(name, value)
+                .httpOnly(httpOnly)
+                .secure(true)
+                .path("/")
+                .domain("dnbn.site")
+                .maxAge(maxAgeInSeconds)
+                .sameSite("Lax")
+                .build();
+
+        response.addHeader("Set-Cookie", cookie.toString());
     }
 
 }
