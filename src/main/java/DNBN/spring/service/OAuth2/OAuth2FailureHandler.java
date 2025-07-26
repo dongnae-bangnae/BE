@@ -26,11 +26,11 @@ public class OAuth2FailureHandler implements AuthenticationFailureHandler {
 //        response.sendRedirect(targetUrl);
 
         // JSON 응답 방식
-        response.setContentType("application/json;charset=UTF-8");
-        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-        response.getWriter().write("{\"success\": false, \"message\": \"" + exception.getMessage() + "\"}");
+//        response.setContentType("application/json;charset=UTF-8");
+//        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+//        response.getWriter().write("{\"success\": false, \"message\": \"" + exception.getMessage() + "\"}");
 
-        /*
+        /**/
         // 쿠키로 프론트에게 내려주기
         // 1. 실패 상태 쿠키 설정 (HttpOnly false → JS에서 읽음)
         addCookie(response, "isSuccess", "false", false, 60);
@@ -39,17 +39,18 @@ public class OAuth2FailureHandler implements AuthenticationFailureHandler {
 
         // 2. 실패용 브릿지 페이지로 리다이렉트
         response.sendRedirect("https://dnbn.com/auth-bridge");
-        */
+
     }
 
-    /*
+    /**/
     private void addCookie(HttpServletResponse response, String name, String value, boolean httpOnly, int maxAgeInSeconds) {
         Cookie cookie = new Cookie(name, value);
         cookie.setHttpOnly(httpOnly);
         cookie.setSecure(true); // 운영환경 HTTPS에서는 true로 유지
         cookie.setPath("/");
+        cookie.setDomain("dnbn.site");
         cookie.setMaxAge(maxAgeInSeconds);
         response.addCookie(cookie);
     }
-    */
+
 }

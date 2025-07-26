@@ -62,18 +62,18 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 //        response.sendRedirect(redirectUri);
 
         // JSON 응답 방식 (SPA 등 API 호출용)
-        ApiResponse<AuthResponseDTO.LoginResultDTO> apiResponse;
-        if (member.isOnboardingCompleted()) {
-            apiResponse = ApiResponse.of(SuccessStatus.MEMBER_ALREADY_LOGIN, result);
-        } else {
-            apiResponse = ApiResponse.of(SuccessStatus.MEMBER_NEEDS_ONBOARDING, result);
-        }
+//        ApiResponse<AuthResponseDTO.LoginResultDTO> apiResponse;
+//        if (member.isOnboardingCompleted()) {
+//            apiResponse = ApiResponse.of(SuccessStatus.MEMBER_ALREADY_LOGIN, result);
+//        } else {
+//            apiResponse = ApiResponse.of(SuccessStatus.MEMBER_NEEDS_ONBOARDING, result);
+//        }
+//
+//        response.setContentType("application/json;charset=UTF-8");
+//        response.setStatus(HttpServletResponse.SC_OK);
+//        response.getWriter().write(objectMapper.writeValueAsString(apiResponse));
 
-        response.setContentType("application/json;charset=UTF-8");
-        response.setStatus(HttpServletResponse.SC_OK);
-        response.getWriter().write(objectMapper.writeValueAsString(apiResponse));
-
-        /*
+        /**/
         // 쿠키로 프론트에게 내려주기
         boolean isOnboardingCompleted = member.isOnboardingCompleted();
         SuccessStatus status = isOnboardingCompleted
@@ -84,7 +84,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         addCookie(response, "accessToken", accessToken, true, 60 * 60 * 4); // 4시간
         addCookie(response, "refreshToken", refreshToken, true, 60 * 60 * 24 * 7); // 7일
         addCookie(response, "memberId", String.valueOf(member.getId()), true, 60 * 60 * 4);
-        addCookie(response, "isOnboardingCompleted", String.valueOf(isOnboardingCompleted), true, 60 * 60 * 4);
+        addCookie(response, "isOnboardingCompleted", String.valueOf(isOnboardingCompleted), false, 60 * 60 * 4);
 
         // 2. 상태 정보: HttpOnly = false (JS에서 읽게)
         addCookie(response, "isSuccess", "true", false, 60);
@@ -93,17 +93,18 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
         // 3. 리다이렉트 (브릿지 페이지)
         response.sendRedirect("https://dnbn.com/auth-bridge");
-        */
+
     }
 
-    /*
+    /**/
     private void addCookie(HttpServletResponse response, String name, String value, boolean httpOnly, int maxAgeInSeconds) {
         Cookie cookie = new Cookie(name, value);
         cookie.setHttpOnly(httpOnly);
         cookie.setSecure(true); // 운영환경에서는 true (HTTPS)
         cookie.setPath("/");
+        cookie.setDomain("dnbn.site");
         cookie.setMaxAge(maxAgeInSeconds);
         response.addCookie(cookie);
     }
-    */
+
 }

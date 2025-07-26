@@ -45,7 +45,7 @@ spring:
             client-authentication-method: client_secret_post
             client-id: ${GOOGLE_CLIENT_ID}
             client-secret: ${GOOGLE_SECRET}
-            redirect-uri: https://api.dnbn.site/login/oauth2/code/google
+            redirect-uri: https://api.dnbn.site/login/oauth2/code/kakao
             authorization-grant-type: authorization_code
             scope:
               - openid
