@@ -6,8 +6,10 @@ import DNBN.spring.apiPayload.exception.handler.MemberHandler;
 import DNBN.spring.config.security.jwt.JwtTokenProvider;
 import DNBN.spring.domain.Member;
 import DNBN.spring.repository.MemberRepository.MemberRepository;
+import DNBN.spring.service.ArticleService.ArticleQueryService;
 import DNBN.spring.service.CategoryService.CategoryQueryService;
 import DNBN.spring.service.CategoryService.CategoryService;
+import DNBN.spring.web.dto.ArticleResponseDTO;
 import DNBN.spring.web.dto.CategoryRequestDTO;
 import DNBN.spring.web.dto.CategoryResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
@@ -31,6 +33,7 @@ public class CategoryController {
     private final CategoryQueryService categoryQueryService;
     private final JwtTokenProvider jwtTokenProvider;
     private final MemberRepository memberRepository;
+    private final ArticleQueryService articleQueryService;
 
     @Operation(summary = "내 카테고리 목록 조회", description = "로그인한 사용자의 카테고리 목록을 반환합니다.")
     @GetMapping("/my")
@@ -82,5 +85,18 @@ public class CategoryController {
         Member member = memberRepository.findBySocialId(socialId)
                 .orElseThrow(() -> new MemberHandler(ErrorStatus.MEMBER_NOT_FOUND));
         return member.getId();
+    }
+
+    @Operation(summary = "카테고리에 작성된 게시물 목록 조회", description = "해당 카테고리에 작성된 게시물들을 반환합니다.")
+    @GetMapping("/{categoryId}/articles")
+    public ResponseEntity<ApiResponse<ArticleResponseDTO.ArticleListDTO>> getArticlesByCategory(
+            @PathVariable Long categoryId,
+            @RequestParam(required = false) Long cursor,
+            @RequestParam(defaultValue = "20") Long limit,
+            HttpServletRequest request) {
+
+        Long memberId = extractMemberIdFromToken(request);
+        ArticleResponseDTO.ArticleListDTO result = articleQueryService.getArticlesByCategory(categoryId, memberId, cursor, limit);
+        return ResponseEntity.ok(ApiResponse.onSuccess(result));
     }
 }
