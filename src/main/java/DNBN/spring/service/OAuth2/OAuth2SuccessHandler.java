@@ -16,6 +16,9 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.csrf.CsrfToken;
+import org.springframework.security.web.csrf.CsrfTokenRepository;
+import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -92,7 +95,24 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         addCookie(response, "code", status.getCode(), false, 60);
         addCookie(response, "message", URLEncoder.encode(status.getMessage(), StandardCharsets.UTF_8), false, 60);
 
-        // 3. 리다이렉트 (브릿지 페이지)
+        // 3. CSRF 토큰 수동 발급 + 쿠키로 내려주기
+        CsrfTokenRepository csrfTokenRepository = new HttpSessionCsrfTokenRepository();
+        CsrfToken csrfToken = csrfTokenRepository.generateToken(request);
+        csrfTokenRepository.saveToken(csrfToken, request, response);
+
+        // 프론트에서 JS로 읽을 수 있게 HttpOnly = false
+        ResponseCookie csrfCookie = ResponseCookie.from("XSRF-TOKEN", csrfToken.getToken())
+                .httpOnly(false)
+                .secure(true)
+                .path("/")
+                .domain("dnbn.site")
+                .maxAge(60 * 60)
+                .sameSite("Lax")
+                .build();
+
+        response.addHeader("Set-Cookie", csrfCookie.toString());
+
+        // 4. 리다이렉트 (브릿지 페이지)
         response.sendRedirect("https://dnbn.com/oauth-redirect");
 
     }
