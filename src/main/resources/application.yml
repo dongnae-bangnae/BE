@@ -79,6 +79,7 @@ spring:
       #   - 이 경우 파일 크기 초과 등 예외가 ExceptionHandler까지 도달하지 않고, 더 앞단(서블릿 컨테이너 등)에서 처리됨
       resolve-lazily: false
 server:
+
   tomcat:
     max-swallow-size: 200MB
 jwt:

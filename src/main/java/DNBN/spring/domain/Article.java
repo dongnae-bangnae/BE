@@ -76,6 +76,9 @@ public class Article extends BaseEntity {
         this.deletedAt = java.time.LocalDateTime.now();
     }
 
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "challengeId")
+  private Challenge challenge;
 }
 
 
