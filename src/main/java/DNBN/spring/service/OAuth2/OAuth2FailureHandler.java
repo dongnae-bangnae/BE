@@ -43,7 +43,6 @@ public class OAuth2FailureHandler implements AuthenticationFailureHandler {
 
     }
 
-    /**/
     private void addCookie(HttpServletResponse response, String name, String value, boolean httpOnly, int maxAgeInSeconds) {
 //        Cookie cookie = new Cookie(name, value);
 //        cookie.setHttpOnly(httpOnly);
@@ -63,5 +62,4 @@ public class OAuth2FailureHandler implements AuthenticationFailureHandler {
 
         response.addHeader("Set-Cookie", cookie.toString());
     }
-
 }

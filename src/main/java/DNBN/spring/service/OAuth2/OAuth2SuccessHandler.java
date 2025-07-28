@@ -48,12 +48,12 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         String accessToken = jwtTokenProvider.generateAccessToken(authentication); // kakao_12345
         String refreshToken = jwtTokenProvider.generateRefreshToken(member.getSocialId());
 
-        AuthResponseDTO.LoginResultDTO result = AuthResponseDTO.LoginResultDTO.builder()
-                .accessToken(accessToken)
-                .refreshToken(refreshToken)
-                .memberId(member.getId())
-                .isOnboardingCompleted(member.isOnboardingCompleted())
-                .build();
+//        AuthResponseDTO.LoginResultDTO result = AuthResponseDTO.LoginResultDTO.builder()
+//                .accessToken(accessToken)
+//                .refreshToken(refreshToken)
+//                .memberId(member.getId())
+//                .isOnboardingCompleted(member.isOnboardingCompleted())
+//                .build();
 
         // 리다이렉트 + 쿼리파라미터 방식: 프론트엔드가 토큰 읽을 수 있도록 전달 -> url에 토큰 노출
 //        String redirectUri = member.isOnboardingCompleted()
@@ -77,7 +77,6 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 //        response.setStatus(HttpServletResponse.SC_OK);
 //        response.getWriter().write(objectMapper.writeValueAsString(apiResponse));
 
-        /**/
         // 쿠키로 프론트에게 내려주기
         boolean isOnboardingCompleted = member.isOnboardingCompleted();
         SuccessStatus status = isOnboardingCompleted
@@ -105,7 +104,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
                 .httpOnly(false)
                 .secure(true)
                 .path("/")
-                .domain("dnbn.site")
+                .domain("dnbn.site") // 로컬 테스트 시 주석 처리해야 함
                 .maxAge(60 * 60)
                 .sameSite("Lax")
                 .build();
@@ -117,7 +116,6 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
     }
 
-    /**/
     private void addCookie(HttpServletResponse response, String name, String value, boolean httpOnly, int maxAgeInSeconds) {
 //        Cookie cookie = new Cookie(name, value);
 //        cookie.setHttpOnly(httpOnly);
@@ -137,5 +135,4 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
         response.addHeader("Set-Cookie", cookie.toString());
     }
-
 }

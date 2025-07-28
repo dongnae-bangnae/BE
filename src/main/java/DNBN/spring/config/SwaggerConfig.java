@@ -46,7 +46,7 @@ public class SwaggerConfig {
                 pathItem.readOperations().forEach(operation -> {
                     operation.addParametersItem(new Parameter()
                             .in("header")
-                            .name("X-XSRF-TOKEN")
+                            .name("X-XSRF-TOKEN") // XSRF-TOKEN라는 이름이 Spring Security에서 기본적으로 정한 CSRF 토큰 쿠키 표준이라 함
                             .required(false)
                             .schema(new StringSchema())
                             .description("CSRF 보호를 위한 토큰. XSRF-TOKEN 쿠키 값을 읽어서 설정해야 합니다."));
