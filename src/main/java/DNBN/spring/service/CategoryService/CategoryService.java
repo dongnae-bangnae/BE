@@ -29,6 +29,8 @@ public class CategoryService {
 
     public CategoryResponseDTO create(Long memberId, CategoryRequestDTO dto) {
         Member member = getMember(memberId);
+
+
         if (categoryRepository.existsByNameAndMemberAndDeletedAtIsNull(dto.name(), member)) {
             throw new CategoryHandler(ErrorStatus.CATEGORY_DUPLICATE_NAME);
         }
