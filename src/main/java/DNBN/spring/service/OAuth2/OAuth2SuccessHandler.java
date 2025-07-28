@@ -16,6 +16,7 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.security.web.csrf.CsrfTokenRepository;
 import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
@@ -95,17 +96,18 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         addCookie(response, "message", URLEncoder.encode(status.getMessage(), StandardCharsets.UTF_8), false, 60);
 
         // 3. CSRF 토큰 수동 발급 + 쿠키로 내려주기
-        CsrfTokenRepository csrfTokenRepository = new HttpSessionCsrfTokenRepository();
+//        CsrfTokenRepository csrfTokenRepository = new HttpSessionCsrfTokenRepository();
+        CookieCsrfTokenRepository csrfTokenRepository = CookieCsrfTokenRepository.withHttpOnlyFalse();
         CsrfToken csrfToken = csrfTokenRepository.generateToken(request);
         csrfTokenRepository.saveToken(csrfToken, request, response);
 
         // 프론트에서 JS로 읽을 수 있게 HttpOnly = false
         ResponseCookie csrfCookie = ResponseCookie.from("XSRF-TOKEN", csrfToken.getToken())
                 .httpOnly(false)
-                .secure(true)
+                .secure(false) // 테스트 시 false로
                 .path("/")
                 .domain("dnbn.site") // 로컬 테스트 시 주석 처리해야 함
-                .maxAge(60 * 60)
+                .maxAge(60 * 60 * 4)
                 .sameSite("Lax")
                 .build();
 
@@ -113,20 +115,12 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
         // 4. 리다이렉트 (브릿지 페이지)
         response.sendRedirect("https://dnbn.com/oauth-redirect");
-
     }
 
     private void addCookie(HttpServletResponse response, String name, String value, boolean httpOnly, int maxAgeInSeconds) {
-//        Cookie cookie = new Cookie(name, value);
-//        cookie.setHttpOnly(httpOnly);
-//        cookie.setSecure(true); // 운영환경에서는 true (HTTPS)
-//        cookie.setPath("/");
-//        cookie.setDomain("dnbn.site");
-//        cookie.setMaxAge(maxAgeInSeconds);
-//        response.addCookie(cookie);
         ResponseCookie cookie = ResponseCookie.from(name, value)
                 .httpOnly(httpOnly)
-                .secure(true)
+                .secure(true) // 운영환경에서는 true (HTTPS)
                 .path("/")
                 .domain("dnbn.site")
                 .maxAge(maxAgeInSeconds)

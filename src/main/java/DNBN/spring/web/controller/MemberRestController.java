@@ -49,7 +49,7 @@ public class MemberRestController {
     }
 
     @GetMapping("/info")
-    @Operation(summary = "회원 정보 조회 API - JWT AccessToken + CSRF 토큰 인증 필요",
+    @Operation(summary = "회원 정보 조회 API - JWT AccessToken 인증 필요",
             description = "JWT 인증된 멤버가 자신의 정보를 조회하는 API입니다.",
             security = { @SecurityRequirement(name = "JWT TOKEN") } // ‘내 정보 조회’는 로그인한 사용자만이 접근할 수 있는 API여야 함 --> Swagger 어노테이션인 @Operation 어노테이션에 security 필드를 추가해서 token이 요청 필수값임을 명시
     )

@@ -130,7 +130,7 @@ public class MemberCommandServiceImpl implements MemberCommandService {
                 .httpOnly(false) // 일반 쿠키라 false
                 .secure(true)
                 .path("/")
-                .domain("dnbn.site")
+                .domain("dnbn.site") // 테스트 시 주석처리
                 .maxAge(0)
                 .sameSite("Lax")
                 .build();

@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.csrf.InvalidCsrfTokenException;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
+@Slf4j
 @Component
 public class CustomAccessDeniedHandler implements AccessDeniedHandler { // 인증은 되었으나 권한이 없을 때의 403 에러를 반환
     @Override
@@ -22,7 +24,7 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler { // 인�
                        HttpServletResponse response,
                        AccessDeniedException accessDeniedException) throws IOException, ServletException {
 
-        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
         response.setContentType("application/json;charset=UTF-8");
 
         ErrorReasonDTO reason;
@@ -42,6 +44,10 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler { // 인�
                     .message(ErrorStatus.ACCESS_DENIED.getMessage())
                     .build();
         }
+        log.warn("❗ AccessDeniedException 발생 - 클래스: {}", accessDeniedException.getClass().getName());
+        log.warn("❗ AccessDeniedException 메시지: {}", accessDeniedException.getMessage(), accessDeniedException);
+        log.error("❌ [AccessDenied] URI: {}, Method: {}",
+                request.getRequestURI(), request.getMethod());
 
         response.getWriter().write(new ObjectMapper().writeValueAsString(
                 ApiResponse.onFailure(reason.getCode(), reason.getMessage(), reason)

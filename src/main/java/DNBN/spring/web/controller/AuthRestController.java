@@ -66,15 +66,16 @@ public class AuthRestController {
                 .httpOnly(false)    // JS에서 읽을 수 있어야 함
                 .secure(true)
                 .path("/")
-                .domain("dnbn.site")
-                .maxAge(60 * 60)    // 1시간, 필요 시 조절
+                .domain("dnbn.site") // 테스트 시 주석처리
+                .maxAge(60 * 60 * 4) // 4시간
                 .sameSite("Lax")
                 .build();
         response.addHeader("Set-Cookie", csrfCookie.toString());
 
         // 응답 바디 없이 204 No Content
         response.setStatus(HttpServletResponse.SC_NO_CONTENT);
-//        return ApiResponse.onSuccess(tokens);
+
+//        return ApiResponse.onSuccess(tokens); // 테스트용
 
 //        return ApiResponse.onSuccess(response);
     }
