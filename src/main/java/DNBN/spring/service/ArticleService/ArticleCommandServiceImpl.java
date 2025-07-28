@@ -53,188 +53,50 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
     // TODO: 함수 및 클래스로 분리하기 (아래의 오버로딩 함수 포함)
     @Override
     public ArticleWithPhotos createArticle(Long memberId, ArticleRequestDTO request, MultipartFile mainImage, List<MultipartFile> imageFiles) {
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new MemberHandler(ErrorStatus.MEMBER_NOT_FOUND));
-        Category category = categoryRepository.findById(request.categoryId())
-                .orElseThrow(() -> new CategoryHandler(ErrorStatus.CATEGORY_NOT_FOUND));
-        Place place = placeRepository.findById(request.placeId())
-                .orElseThrow(() -> new PlaceHandler(ErrorStatus.PLACE_NOT_FOUND));
-        Region region = regionRepository.findById(request.regionId())
-                .orElseThrow(() -> new RegionHandler(ErrorStatus.REGION_NOT_FOUND));
+        Member member = getMember(memberId);
+        Category category = getCategory(request.categoryId());
+        Place place = getPlace(request.placeId());
+        Region region = getRegion(request.regionId());
 
-        // 게시물 제목/내용 길이 제한 (제목 2~100자, 내용 10~5000자)
-        if (request.title() == null || request.title().length() < TITLE_MIN_LENGTH || request.title().length() > TITLE_MAX_LENGTH) {
-            throw new ArticleHandler(ErrorStatus.ARTICLE_TITLE_LENGTH_INVALID);
-        }
-        if (request.content() == null || request.content().length() < CONTENT_MIN_LENGTH || request.content().length() > CONTENT_MAX_LENGTH) {
-            throw new ArticleHandler(ErrorStatus.ARTICLE_CONTENT_LENGTH_INVALID);
-        }
-
-        // 대표 이미지 필수 여부 검증
-        if (mainImage == null || mainImage.isEmpty()) {
-            throw new ArticlePhotoHandler(ErrorStatus.ARTICLE_PHOTO_MAIN_IMAGE_REQUIRED);
-        }
-
-        // 이미지 개수 제한 (최대 10장)
-        int imageCount = (!mainImage.isEmpty() ? 1 : 0)
-                + (imageFiles != null ? (int) imageFiles.stream().filter(f -> f != null && !f.isEmpty()).count() : 0);
-        if (imageCount > MAX_IMAGE_COUNT) {
-            throw new ArticlePhotoHandler(ErrorStatus.ARTICLE_PHOTO_IMAGE_COUNT_EXCEEDED);
-        }
-
-        // 이미지 파일 크기/타입 제한
-        if (!mainImage.isEmpty()) {
-            if (mainImage.getSize() > MAX_IMAGE_SIZE) {
-                throw new ArticlePhotoHandler(ErrorStatus.ARTICLE_PHOTO_IMAGE_TOO_LARGE);
-            }
-            String contentType = mainImage.getContentType();
-            if (contentType == null || !contentType.startsWith("image/")) {
-                throw new ArticlePhotoHandler(ErrorStatus.ARTICLE_PHOTO_IMAGE_INVALID_TYPE);
-            }
-        }
-        if (imageFiles != null) {
-            for (MultipartFile file : imageFiles) {
-                if (file != null && !file.isEmpty()) {
-                    if (file.getSize() > MAX_IMAGE_SIZE) {
-                        throw new ArticlePhotoHandler(ErrorStatus.ARTICLE_PHOTO_IMAGE_TOO_LARGE);
-                    }
-                    String contentType = file.getContentType();
-                    if (contentType == null || !contentType.startsWith("image/")) {
-                        throw new ArticlePhotoHandler(ErrorStatus.ARTICLE_PHOTO_IMAGE_INVALID_TYPE);
-                    }
-                }
-            }
-        }
-
-        Article article = Article.builder()
-                .member(member)
-                .category(category)
-                .place(place)
-                .region(region)
-                .title(request.title())
-                .date(request.date())
-                .content(request.content())
-                .likesCount(0L)
-                .spamCount(0L)
-                .build();
+        Article article = createArticleEntity(member, category, place, region, request);
         articleRepository.save(article);
 
-        List<ArticlePhoto> photos = new ArrayList<>();
-        List<String> uploadedKeys = new ArrayList<>(); // 업로드된 S3 key 추적
-        try {
-            // 대표 이미지 S3 업로드 및 UUID 저장
-            if (mainImage != null && !mainImage.isEmpty()) {
-                String uuid = java.util.UUID.randomUUID().toString();
-                String mainImageKey = s3Manager.uploadFile(s3Manager.generateArticlePhotoKeyName(uuid), mainImage);
-                if (mainImageKey == null || mainImageKey.isBlank()) {
-                    throw new ArticlePhotoHandler(ErrorStatus.ARTICLE_PHOTO_S3_UPLOAD_FAILED);
-                }
-                uploadedKeys.add(mainImageKey); // 업로드 성공 시 key 저장
-                ArticlePhoto mainPhoto = ArticlePhoto.builder()
-                        .article(article)
-                        .place(place)
-                        .region(region)
-                        .fileKey(mainImageKey)
-                        .orderIndex(0)
-                        .isMain(true)
-                        .build();
-                photos.add(articlePhotoRepository.save(mainPhoto));
-            }
-            // 추가 이미지 S3 업로드 및 UUID 저장
-            if (imageFiles != null) {
-                int idx = 1;
-                for (MultipartFile file : imageFiles) {
-                    if (file != null && !file.isEmpty()) {
-                        String uuid = java.util.UUID.randomUUID().toString();
-                        String imageKey = s3Manager.uploadFile(s3Manager.generateArticlePhotoKeyName(uuid), file);
-                        if (imageKey == null || imageKey.isBlank()) {
-                            throw new ArticlePhotoHandler(ErrorStatus.ARTICLE_PHOTO_S3_UPLOAD_FAILED);
-                        }
-                        uploadedKeys.add(imageKey); // 업로드 성공 시 key 저장
-                        ArticlePhoto photo = ArticlePhoto.builder()
-                                .article(article)
-                                .place(place)
-                                .region(region)
-                                .fileKey(imageKey)
-                                .orderIndex(idx++)
-                                .isMain(false)
-                                .build();
-                        photos.add(articlePhotoRepository.save(photo));
-                    }
-                }
-            }
-        } catch (Exception e) {
-            log.error("S3 업로드 실패", e);
-            // 업로드된 파일이 있다면 S3에서 삭제
-            for (String key : uploadedKeys) {
-                try {
-                    s3Manager.deleteFile(key);
-                } catch (Exception ex) {
-                    log.error("S3 롤백(파일 삭제) 실패: {}", key, ex);
-                }
-            }
-            throw new ArticlePhotoHandler(ErrorStatus.ARTICLE_PHOTO_S3_UPLOAD_FAILED);
-        }
+        List<ArticlePhoto> photos = handleImages(article, place, region, mainImage, imageFiles);
         return new ArticleWithPhotos(article, photos);
     }
 
     @Override
     public ArticleWithPhotos createArticle(Long memberId, ArticleWithLocationRequestDTO request, MultipartFile mainImage, List<MultipartFile> imageFiles) {
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new MemberHandler(ErrorStatus.MEMBER_NOT_FOUND));
-        Category category = categoryRepository.findById(request.categoryId())
-                .orElseThrow(() -> new CategoryHandler(ErrorStatus.CATEGORY_NOT_FOUND));
-        Place place = placeRepository.findById(request.placeId())
-                .orElseThrow(() -> new PlaceHandler(ErrorStatus.PLACE_NOT_FOUND));
-
-        // TODO: 지역 생성 API 구현 후 수정 필요
+        Member member = getMember(memberId);
+        Category category = getCategory(request.categoryId());
+        Place place = getPlace(request.placeId());
         Region region = findOrCreateRegionByLatLng(request.latitude(), request.longitude());
 
-        // 게시물 제목/내용 길이 제한 (제목 2~100자, 내용 10~5000자)
-        if (request.title() == null || request.title().length() < TITLE_MIN_LENGTH || request.title().length() > TITLE_MAX_LENGTH) {
-            throw new ArticleHandler(ErrorStatus.ARTICLE_TITLE_LENGTH_INVALID);
-        }
-        if (request.content() == null || request.content().length() < CONTENT_MIN_LENGTH || request.content().length() > CONTENT_MAX_LENGTH) {
-            throw new ArticleHandler(ErrorStatus.ARTICLE_CONTENT_LENGTH_INVALID);
-        }
+        Article article = createArticleEntity(member, category, place, region, request);
+        articleRepository.save(article);
 
-        // 대표 이미지 필수 여부 검증
-        if (mainImage == null || mainImage.isEmpty()) {
-            throw new ArticlePhotoHandler(ErrorStatus.ARTICLE_PHOTO_MAIN_IMAGE_REQUIRED);
-        }
+        List<ArticlePhoto> photos = handleImages(article, place, region, mainImage, imageFiles);
+        return new ArticleWithPhotos(article, photos);
+    }
 
-        // 이미지 개수 제한 (최대 10장)
-        int imageCount = (!mainImage.isEmpty() ? 1 : 0)
-                + (imageFiles != null ? (int) imageFiles.stream().filter(f -> f != null && !f.isEmpty()).count() : 0);
-        if (imageCount > MAX_IMAGE_COUNT) {
-            throw new ArticlePhotoHandler(ErrorStatus.ARTICLE_PHOTO_IMAGE_COUNT_EXCEEDED);
-        }
-
-        // 이미지 파일 크기/타입 제한
-        if (!mainImage.isEmpty()) {
-            if (mainImage.getSize() > MAX_IMAGE_SIZE) {
-                throw new ArticlePhotoHandler(ErrorStatus.ARTICLE_PHOTO_IMAGE_TOO_LARGE);
-            }
-            String contentType = mainImage.getContentType();
-            if (contentType == null || !contentType.startsWith("image/")) {
-                throw new ArticlePhotoHandler(ErrorStatus.ARTICLE_PHOTO_IMAGE_INVALID_TYPE);
-            }
-        }
-        if (imageFiles != null) {
-            for (MultipartFile file : imageFiles) {
-                if (file != null && !file.isEmpty()) {
-                    if (file.getSize() > MAX_IMAGE_SIZE) {
-                        throw new ArticlePhotoHandler(ErrorStatus.ARTICLE_PHOTO_IMAGE_TOO_LARGE);
-                    }
-                    String contentType = file.getContentType();
-                    if (contentType == null || !contentType.startsWith("image/")) {
-                        throw new ArticlePhotoHandler(ErrorStatus.ARTICLE_PHOTO_IMAGE_INVALID_TYPE);
-                    }
-                }
-            }
-        }
-
-        Article article = Article.builder()
+    private Member getMember(Long memberId) {
+        return memberRepository.findById(memberId)
+                .orElseThrow(() -> new MemberHandler(ErrorStatus.MEMBER_NOT_FOUND));
+    }
+    private Category getCategory(Long categoryId) {
+        return categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new CategoryHandler(ErrorStatus.CATEGORY_NOT_FOUND));
+    }
+    private Place getPlace(Long placeId) {
+        return placeRepository.findById(placeId)
+                .orElseThrow(() -> new PlaceHandler(ErrorStatus.PLACE_NOT_FOUND));
+    }
+    private Region getRegion(Long regionId) {
+        return regionRepository.findById(regionId)
+                .orElseThrow(() -> new RegionHandler(ErrorStatus.REGION_NOT_FOUND));
+    }
+    private Article createArticleEntity(Member member, Category category, Place place, Region region, ArticleRequestDTO request) {
+        return Article.builder()
                 .member(member)
                 .category(category)
                 .place(place)
@@ -245,8 +107,21 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
                 .likesCount(0L)
                 .spamCount(0L)
                 .build();
-        articleRepository.save(article);
-
+    }
+    private Article createArticleEntity(Member member, Category category, Place place, Region region, ArticleWithLocationRequestDTO request) {
+        return Article.builder()
+                .member(member)
+                .category(category)
+                .place(place)
+                .region(region)
+                .title(request.title())
+                .date(request.date())
+                .content(request.content())
+                .likesCount(0L)
+                .spamCount(0L)
+                .build();
+    }
+    private List<ArticlePhoto> handleImages(Article article, Place place, Region region, MultipartFile mainImage, List<MultipartFile> imageFiles) {
         List<ArticlePhoto> photos = new ArrayList<>();
         List<String> uploadedKeys = new ArrayList<>();
         try {
@@ -300,7 +175,7 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
             }
             throw new ArticlePhotoHandler(ErrorStatus.ARTICLE_PHOTO_S3_UPLOAD_FAILED);
         }
-        return new ArticleWithPhotos(article, photos);
+        return photos;
     }
 
     // TODO: 지역 생성 API 구현 후 수정 필요
