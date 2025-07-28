@@ -38,4 +38,20 @@ public class SwaggerConfig {
                 .addSecurityItem(securityRequirement)
                 .components(components);
     }
+
+    @Bean
+    public OpenApiCustomizer csrfHeaderCustomizer() {
+        return openApi -> {
+            openApi.getPaths().forEach((path, pathItem) -> {
+                pathItem.readOperations().forEach(operation -> {
+                    operation.addParametersItem(new Parameter()
+                            .in("header")
+                            .name("X-XSRF-TOKEN")
+                            .required(false)
+                            .schema(new StringSchema())
+                            .description("CSRF 보호를 위한 토큰. XSRF-TOKEN 쿠키 값을 읽어서 설정해야 합니다."));
+                });
+            });
+        };
+    }
 }
