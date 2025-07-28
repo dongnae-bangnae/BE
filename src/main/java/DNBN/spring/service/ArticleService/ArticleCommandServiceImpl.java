@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -35,12 +36,18 @@ import org.springframework.web.multipart.MultipartFile;
 @RequiredArgsConstructor
 @Transactional
 public class ArticleCommandServiceImpl implements ArticleCommandService {
-    private static final int MAX_IMAGE_COUNT = 10;
-    private static final long MAX_IMAGE_SIZE = 10 * 1024 * 1024; // 10MB
-    private static final int TITLE_MIN_LENGTH = 2;
-    private static final int TITLE_MAX_LENGTH = 100;
-    private static final int CONTENT_MIN_LENGTH = 10;
-    private static final int CONTENT_MAX_LENGTH = 5000;
+    @Value("${article.validation.image.max-count}")
+    private int maxImageCount;
+    @Value("${article.validation.image.max-size}")
+    private long maxImageSize;
+    @Value("${article.validation.title.min-length}")
+    private int titleMinLength;
+    @Value("${article.validation.title.max-length}")
+    private int titleMaxLength;
+    @Value("${article.validation.content.min-length}")
+    private int contentMinLength;
+    @Value("${article.validation.content.max-length}")
+    private int contentMaxLength;
 
     private final ArticleRepository articleRepository;
     private final ArticlePhotoRepository articlePhotoRepository;

@@ -8,6 +8,7 @@ import DNBN.spring.web.dto.ArticleWithLocationRequestDTO;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -16,12 +17,18 @@ import java.util.List;
 @Aspect
 @Component
 public class ArticleCreateValidationAspect {
-    private static final int TITLE_MIN_LENGTH = 2;
-    private static final int TITLE_MAX_LENGTH = 100;
-    private static final int CONTENT_MIN_LENGTH = 10;
-    private static final int CONTENT_MAX_LENGTH = 5000;
-    private static final int MAX_IMAGE_COUNT = 10;
-    private static final long MAX_IMAGE_SIZE = 10 * 1024 * 1024; // 10MB
+    @Value("${article.validation.title.min-length}")
+    private int titleMinLength;
+    @Value("${article.validation.title.max-length}")
+    private int titleMaxLength;
+    @Value("${article.validation.content.min-length}")
+    private int contentMinLength;
+    @Value("${article.validation.content.max-length}")
+    private int contentMaxLength;
+    @Value("${article.validation.image.max-count}")
+    private int maxImageCount;
+    @Value("${article.validation.image.max-size}")
+    private long maxImageSize;
 
     @Before("execution(* DNBN.spring.service.ArticleService.ArticleCommandServiceImpl.createArticle(..))")
     public void validateCreateArticle(JoinPoint joinPoint) {
@@ -39,10 +46,10 @@ public class ArticleCreateValidationAspect {
             title = request.title();
             content = request.content();
         }
-        if (title == null || title.length() < TITLE_MIN_LENGTH || title.length() > TITLE_MAX_LENGTH) {
+        if (title == null || title.length() < titleMinLength || title.length() > titleMaxLength) {
             throw new ArticleHandler(ErrorStatus.ARTICLE_TITLE_LENGTH_INVALID);
         }
-        if (content == null || content.length() < CONTENT_MIN_LENGTH || content.length() > CONTENT_MAX_LENGTH) {
+        if (content == null || content.length() < contentMinLength || content.length() > contentMaxLength) {
             throw new ArticleHandler(ErrorStatus.ARTICLE_CONTENT_LENGTH_INVALID);
         }
         if (mainImage == null || mainImage.isEmpty()) {
@@ -50,11 +57,11 @@ public class ArticleCreateValidationAspect {
         }
         int imageCount = (!mainImage.isEmpty() ? 1 : 0)
                 + (imageFiles != null ? (int) imageFiles.stream().filter(f -> f != null && !f.isEmpty()).count() : 0);
-        if (imageCount > MAX_IMAGE_COUNT) {
+        if (imageCount > maxImageCount) {
             throw new ArticlePhotoHandler(ErrorStatus.ARTICLE_PHOTO_IMAGE_COUNT_EXCEEDED);
         }
         if (!mainImage.isEmpty()) {
-            if (mainImage.getSize() > MAX_IMAGE_SIZE) {
+            if (mainImage.getSize() > maxImageSize) {
                 throw new ArticlePhotoHandler(ErrorStatus.ARTICLE_PHOTO_IMAGE_TOO_LARGE);
             }
             String contentType = mainImage.getContentType();
@@ -65,7 +72,7 @@ public class ArticleCreateValidationAspect {
         if (imageFiles != null) {
             for (MultipartFile file : imageFiles) {
                 if (file != null && !file.isEmpty()) {
-                    if (file.getSize() > MAX_IMAGE_SIZE) {
+                    if (file.getSize() > maxImageSize) {
                         throw new ArticlePhotoHandler(ErrorStatus.ARTICLE_PHOTO_IMAGE_TOO_LARGE);
                     }
                     String contentType = file.getContentType();
@@ -77,4 +84,3 @@ public class ArticleCreateValidationAspect {
         }
     }
 }
-
