@@ -39,7 +39,7 @@ public class ArticleQueryServiceImpl implements ArticleQueryService {
     @Override
     public PostResponseDTO.PostPreViewDTO getTopChallengeArticle() {
         String requiredTag = "8월 챌린지";
-        Article topArticle = articleRepository.findTopByContentContainingOrderByLikesCountDescCreatedAtAsc(requiredTag)
+        Article topArticle = articleRepository.findTopByHashtagOrderByLikesCountDescCreatedAtAsc(requiredTag)
                 .orElseThrow(() -> new IllegalArgumentException("<UNK> <UNK> <UNK> <UNK>."));
         return ArticleConverter.articlePreViewDTO(topArticle);
     }
