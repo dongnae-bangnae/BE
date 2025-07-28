@@ -9,9 +9,7 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "article_spam", uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"article_id", "member_id"})
-})
+@Table(name = "article_spam")
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
@@ -34,24 +32,11 @@ public class ArticleSpam {
     @Column(name = "created_at", nullable = false, columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime createdAt;
 
-//    @PrePersist
-//    public void prePersist() {
-//        if (this.id == null && this.article != null && this.member != null) {
-//            this.id = new ArticleSpamId(article.getArticleId(), member.getId());
-//        }
-//        if (this.createdAt == null) {
-//            this.createdAt = LocalDateTime.now();
-//        }
-//    }
-//    public static ArticleSpam of(Article article, Member member) {
-//        return ArticleSpam.builder()
-//                .article(article)
-//                .member(member)
-//                .createdAt(LocalDateTime.now())
-//                .build();
-//    }
     @PrePersist
     public void prePersist() {
+        if (this.id == null && this.article != null && this.member != null) {
+            this.id = new ArticleSpamId(article.getArticleId(), member.getId());
+        }
         if (this.createdAt == null) {
             this.createdAt = LocalDateTime.now();
         }
@@ -59,7 +44,6 @@ public class ArticleSpam {
 
     public static ArticleSpam of(Article article, Member member) {
         return ArticleSpam.builder()
-                .id(new ArticleSpamId(article.getArticleId(), member.getId()))
                 .article(article)
                 .member(member)
                 .createdAt(LocalDateTime.now())
