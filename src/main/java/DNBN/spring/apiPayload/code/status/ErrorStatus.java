@@ -77,7 +77,10 @@ public enum ErrorStatus implements BaseErrorCode {
     // 댓글
     COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "COMMENT4001", "댓글을 찾을 수 없습니다."),
     COMMENT_CONTENT_LENGTH_INVALID(HttpStatus.BAD_REQUEST, "COMMENT4002", "댓글 내용은 1~1000자여야 합니다."),
-    COMMENT_FORBIDDEN(HttpStatus.FORBIDDEN, "COMMENT4003", "해당 댓글에 대한 권한이 없습니다.");
+    COMMENT_FORBIDDEN(HttpStatus.FORBIDDEN, "COMMENT4003", "해당 댓글에 대한 권한이 없습니다."),
+
+    // 챌린지
+    CHALLENGE_NOT_FOUNDE(HttpStatus.NOT_FOUND, "CHALLENGE_4001", "챌린지가 존재하지 않습니다.");
 
     private final HttpStatus httpStatus;
     private final String code;
