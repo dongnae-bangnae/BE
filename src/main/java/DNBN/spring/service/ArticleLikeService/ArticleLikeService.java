@@ -32,7 +32,6 @@ public class ArticleLikeService {
         if (articleLikeRepository.existsById(likeId)) {
             throw new GeneralException(ErrorStatus.ALREADY_LIKED);
         }
-//        ArticleLikeId id = new ArticleLikeId(article.getArticleId(), memberId);
         ArticleLike articleLike = ArticleLike.builder()
                 .id(likeId)
                 .article(article)
@@ -41,7 +40,6 @@ public class ArticleLikeService {
 
         articleLikeRepository.save(articleLike);
         article.increaseLikeCount();
-        //long likesCount = articleLikeRepository.countByArticle_ArticleId(articleId);
         long likesCount = article.getLikesCount();
         return LikeResponseDTO.of(articleId, likesCount);
     }
@@ -55,7 +53,6 @@ public class ArticleLikeService {
         articleLikeRepository.delete(articleLike);
         Article article = articleLike.getArticle();
         article.decreaseLikeCount();
-//        long likesCount = articleLikeRepository.countByArticle_ArticleId(articleId);
         long likesCount = article.getLikesCount();
         return LikeResponseDTO.of(articleId, likesCount);
     }

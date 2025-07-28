@@ -60,6 +60,14 @@ public class Article extends BaseEntity {
     this.likesCount = Math.max(0, this.likesCount - 1);
   }
 
+  public void increaseSpamCount() {
+    this.spamCount++;
+  }
+
+  public void decreaseSpamCount() {
+    this.spamCount = Math.max(0, this.spamCount - 1);
+  }
+
 }
 
 
