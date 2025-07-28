@@ -1,5 +1,6 @@
 package DNBN.spring.config.security;
 
+import DNBN.spring.apiPayload.exception.handler.CustomAccessDeniedHandler;
 import DNBN.spring.apiPayload.exception.handler.CustomAuthenticationEntryPoint;
 import DNBN.spring.config.security.jwt.JwtAuthenticationFilter;
 import DNBN.spring.config.security.jwt.JwtTokenProvider;
@@ -38,6 +39,7 @@ public class SecurityConfig {
     private final OAuth2SuccessHandler oAuth2SuccessHandler;
     private final OAuth2FailureHandler oAuth2FailureHandler;
     private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
+    private final CustomAccessDeniedHandler customAccessDeniedHandler;
 
     @Bean
     CorsConfigurationSource corsConfigurationSource() { // CORS 설정
@@ -94,7 +96,8 @@ public class SecurityConfig {
                         .failureHandler(oAuth2FailureHandler)
                 )
                 .exceptionHandling(exception -> exception
-                        .authenticationEntryPoint(customAuthenticationEntryPoint)
+                        .authenticationEntryPoint(customAuthenticationEntryPoint) // 인증 실패 처리 (401)
+                        .accessDeniedHandler(customAccessDeniedHandler) // 권한 거부 및 CSRF 예외 처리 (403)
                 )
 //                .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);
                 .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
