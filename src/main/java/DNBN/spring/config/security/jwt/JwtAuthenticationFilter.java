@@ -26,7 +26,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter { // 필터 �
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         log.info("🔥 [JWT 필터 제외 검사]: {}", request.getRequestURI());
-        return request.getRequestURI().equals("api/auth/reissue");
+        return request.getRequestURI().equals("/api/auth/reissue");
 //        return NO_FILTER_URIS.contains(request.getRequestURI()); // /auth/reissue 외에도 필요하면
 //        return super.shouldNotFilter(request);
     }
