@@ -12,7 +12,7 @@ public class ChallengeResponseDTO {
     @Getter
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class ChallengeResponseDTOBuilder {
+    public static class ChallengeDetailDTO {
         private Long challengeId;
         private String title;
         private String description;

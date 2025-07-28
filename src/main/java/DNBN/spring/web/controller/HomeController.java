@@ -6,6 +6,7 @@ import DNBN.spring.converter.ArticleConverter;
 import DNBN.spring.domain.Article;
 import DNBN.spring.repository.ArticleRepository.ArticleRepository;
 import DNBN.spring.service.ArticleService.ArticleQueryService;
+import DNBN.spring.service.ChallengeService.ChallengeQueryService;
 import DNBN.spring.web.dto.response.ChallengeResponseDTO;
 import DNBN.spring.web.dto.response.PostResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
@@ -18,10 +19,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -30,6 +28,7 @@ import java.util.List;
 @RequestMapping("/home")
 public class HomeController {
     private final ArticleQueryService articleQueryService;
+    private final ChallengeQueryService challengeQueryService;
 
     @GetMapping("/articles")
     @Operation(
@@ -49,11 +48,11 @@ public class HomeController {
         return ApiResponse.onSuccess(ArticleConverter.articlePreViewListDTO(articlePreviewList));
     }
 
-//    @GetMapping("/challenges/{challengeId}")
-//    @Operation(
-//            summary = "챌린지 상세 정보 조회 API - JWT 인증 필요",
-//            description = "챌린지 상세 정보 조회입니다." )
-//    public ApiResponse<ChallengeResponseDTO.ChallengeResponseDTOBuilder>() {
-//        return null;
-//    }
+    @GetMapping("/challenges/{challengeId}")
+    @Operation(
+            summary = "챌린지 상세 정보 조회 API - JWT 인증 필요",
+            description = "챌린지 상세 정보 조회입니다. 챌린지 아이디를 입력하세요." )
+    public ApiResponse<ChallengeResponseDTO.ChallengeDetailDTO> getChallengeDetail(@PathVariable Long challengeId) {
+        return ApiResponse.onSuccess(challengeQueryService.getChallengeDetail(challengeId));
+    }
 }
