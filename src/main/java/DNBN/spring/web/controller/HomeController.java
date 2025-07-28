@@ -55,4 +55,13 @@ public class HomeController {
     public ApiResponse<ChallengeResponseDTO.ChallengeDetailDTO> getChallengeDetail(@PathVariable Long challengeId) {
         return ApiResponse.onSuccess(challengeQueryService.getChallengeDetail(challengeId));
     }
+
+    @GetMapping("/challenge/top-article")
+    @Operation(
+            summary = "챌린지 좋아요 1등 게시물 조회 API - JWT 인증 필요",
+            description = "챌린지 게시물 중 좋아요 1등 게시물을 조회하는 api입니다."
+    )
+    public ApiResponse<PostResponseDTO.PostPreViewDTO> getTopArticle() {
+        return ApiResponse.onSuccess(articleQueryService.getTopChallengeArticle());
+    }
 }

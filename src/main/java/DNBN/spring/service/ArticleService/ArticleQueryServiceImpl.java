@@ -1,10 +1,12 @@
 package DNBN.spring.service.ArticleService;
 
+import DNBN.spring.converter.ArticleConverter;
 import DNBN.spring.domain.Article;
 import DNBN.spring.domain.Region;
 import DNBN.spring.repository.ArticleRepository.ArticleRepository;
 import DNBN.spring.repository.LikeRegionRepository.LikeRegionRepository;
 import DNBN.spring.repository.RegionRepository.RegionRepository;
+import DNBN.spring.web.dto.response.PostResponseDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -32,6 +34,13 @@ public class ArticleQueryServiceImpl implements ArticleQueryService {
 
         Pageable pageable = PageRequest.of(page - 1, 10, Sort.by(Sort.Direction.DESC, "createdAt"));
         return articleRepository.findAllByRegion_IdIn(regionIds, pageable);
+    }
+
+    @Override
+    public PostResponseDTO.PostPreViewDTO getTopChallengeArticle() {
+        Article topArticle = articleRepository.findTopByOrderByLikesCountDesc()
+                .orElseThrow(() -> new IllegalArgumentException("<UNK> <UNK> <UNK> <UNK>."));
+        return ArticleConverter.articlePreViewDTO(topArticle);
     }
 }
 
