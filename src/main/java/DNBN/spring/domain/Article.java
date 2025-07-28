@@ -52,4 +52,14 @@ public class Article extends BaseEntity {
 
   private LocalDateTime deletedAt;
 
+  public void increaseLikeCount() {
+    this.likesCount++;
+  }
+
+  public void decreaseLikeCount() {
+    this.likesCount = Math.max(0, this.likesCount - 1);
+  }
+
 }
+
+
