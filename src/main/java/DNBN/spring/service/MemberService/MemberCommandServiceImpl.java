@@ -125,10 +125,21 @@ public class MemberCommandServiceImpl implements MemberCommandService {
                 .sameSite("Lax")
                 .build();
 
+        // CSRF 토큰 쿠키 삭제
+        ResponseCookie deleteCsrfCookie = ResponseCookie.from("XSRF-TOKEN", "")
+                .httpOnly(false) // 일반 쿠키라 false
+                .secure(true)
+                .path("/")
+                .domain("dnbn.site")
+                .maxAge(0)
+                .sameSite("Lax")
+                .build();
+
         response.addHeader("Set-Cookie", deleteAccessTokenCookie.toString());
         response.addHeader("Set-Cookie", deleteRefreshTokenCookie.toString());
+        response.addHeader("Set-Cookie", deleteCsrfCookie.toString());
 
-        log.info("사용자 {} 로그아웃 처리 및 refreshToken 쿠키 삭제 완료", member.getId());
+        log.info("사용자 {} 로그아웃 처리 및 JWT와 CSRF 쿠키 삭제 완료", member.getId());
     }
 
     @Override
