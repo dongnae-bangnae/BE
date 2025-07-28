@@ -38,6 +38,9 @@ public enum ErrorStatus implements BaseErrorCode {
     ARTICLE_PHOTO_IMAGE_TOO_LARGE(HttpStatus.PAYLOAD_TOO_LARGE, "ARTICLEPHOTO4004", "이미지 파일 크기가 너무 큽니다. (최대 10MB)"),
     ARTICLE_PHOTO_S3_UPLOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "ARTICLEPHOTO5001", "이미지 업로드에 실패했습니다. 잠시 후 다시 시도해 주세요."),
 
+    // article & challenge
+    ARTICLE_CHALLENGE_NOT_FOUND(HttpStatus.NOT_FOUND,"ARTICLECHALLENGE4001", "해당하는 해시태그를 포함한 챌린지 게시물을 찾을 수 없습니다."),
+
     // For test
     TEMP_EXCEPTION(HttpStatus.BAD_REQUEST, "TEMP4001", "이거는 테스트"),
 

@@ -1,5 +1,7 @@
 package DNBN.spring.service.ArticleService;
 
+import DNBN.spring.apiPayload.code.status.ErrorStatus;
+import DNBN.spring.apiPayload.exception.handler.ArticleHandler;
 import DNBN.spring.converter.ArticleConverter;
 import DNBN.spring.domain.Article;
 import DNBN.spring.domain.Region;
@@ -40,7 +42,7 @@ public class ArticleQueryServiceImpl implements ArticleQueryService {
     public PostResponseDTO.PostPreViewDTO getTopChallengeArticle() {
         String requiredTag = "8월 챌린지";
         Article topArticle = articleRepository.findTopByHashtagOrderByLikesCountDescCreatedAtAsc(requiredTag)
-                .orElseThrow(() -> new IllegalArgumentException("<UNK> <UNK> <UNK> <UNK>."));
+                .orElseThrow(() -> new ArticleHandler(ErrorStatus.ARTICLE_CHALLENGE_NOT_FOUND));
         return ArticleConverter.articlePreViewDTO(topArticle);
     }
 }
