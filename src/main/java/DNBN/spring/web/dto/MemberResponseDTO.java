@@ -1,9 +1,6 @@
 package DNBN.spring.web.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.List;
 
@@ -27,6 +24,29 @@ public class MemberResponseDTO {
         Long memberId;
         String nickname;
         String profileImage;
-        List<RegionResponseDTO.RegionPreviewnDTO> likePlaces;
+        List<RegionResponseDTO.RegionPreviewnDTO> likeRegions;
     }
+
+    @Getter
+    @Builder
+    public static class ChosenRegionsDTO {
+        private List<RegionInfo> chosenRegions;
+
+        @Getter
+        @Builder
+        public static class RegionInfo {
+            Long regionId;
+            String district;
+        }
+    }
+
+    @Getter
+    @Setter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class ProfileImageUpdateResultDTO {
+        private String profileImageUrl;
+    }
+
 }

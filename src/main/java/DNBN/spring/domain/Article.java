@@ -2,6 +2,7 @@ package DNBN.spring.domain;
 
 import DNBN.spring.domain.common.BaseEntity;
 import jakarta.persistence.*;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
@@ -51,7 +52,7 @@ public class Article extends BaseEntity {
   private Long spamCount = 0L;
 
   private LocalDateTime deletedAt;
-
+  
   public void increaseLikeCount() {
     this.likesCount++;
   }
@@ -67,6 +68,13 @@ public class Article extends BaseEntity {
   public void decreaseSpamCount() {
     this.spamCount = Math.max(0, this.spamCount - 1);
   }
+ 
+  @Column(nullable = false)
+  private LocalDate date;
+
+  public void delete() {
+        this.deletedAt = java.time.LocalDateTime.now();
+    }
 
 }
 
