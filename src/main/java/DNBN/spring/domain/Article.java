@@ -52,7 +52,23 @@ public class Article extends BaseEntity {
   private Long spamCount = 0L;
 
   private LocalDateTime deletedAt;
+  
+  public void increaseLikeCount() {
+    this.likesCount++;
+  }
 
+  public void decreaseLikeCount() {
+    this.likesCount = Math.max(0, this.likesCount - 1);
+  }
+
+  public void increaseSpamCount() {
+    this.spamCount++;
+  }
+
+  public void decreaseSpamCount() {
+    this.spamCount = Math.max(0, this.spamCount - 1);
+  }
+ 
   @Column(nullable = false)
   private LocalDate date;
 
@@ -60,4 +76,9 @@ public class Article extends BaseEntity {
         this.deletedAt = java.time.LocalDateTime.now();
     }
 
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "challengeId")
+  private Challenge challenge;
 }
+
+
