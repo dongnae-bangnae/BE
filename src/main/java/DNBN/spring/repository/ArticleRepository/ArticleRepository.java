@@ -20,6 +20,6 @@ public interface ArticleRepository extends JpaRepository<Article, Long> {
 
     Page<Article> findAllByRegion_IdIn(List<Long> regionIds, Pageable pageable);
 
-    Optional<Article> findTopByContentContainingOrderByLikesCountDesc(String keyword);
+    Optional<Article> findTopByContentContainingOrderByLikesCountDescCreatedAtAsc(String keyword);
 }
 
