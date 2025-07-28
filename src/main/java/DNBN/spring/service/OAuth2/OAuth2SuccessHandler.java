@@ -93,7 +93,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         addCookie(response, "message", URLEncoder.encode(status.getMessage(), StandardCharsets.UTF_8), false, 60);
 
         // 3. 리다이렉트 (브릿지 페이지)
-        response.sendRedirect("https://dnbn.com/auth-bridge");
+        response.sendRedirect("https://dnbn.com/oauth-redirect");
 
     }
 

@@ -39,7 +39,7 @@ public class OAuth2FailureHandler implements AuthenticationFailureHandler {
         addCookie(response, "message", java.net.URLEncoder.encode(exception.getMessage(), java.nio.charset.StandardCharsets.UTF_8), false, 60);
 
         // 2. 실패용 브릿지 페이지로 리다이렉트
-        response.sendRedirect("https://dnbn.com/auth-bridge");
+        response.sendRedirect("https://dnbn.com/oauth-redirect");
 
     }
 
