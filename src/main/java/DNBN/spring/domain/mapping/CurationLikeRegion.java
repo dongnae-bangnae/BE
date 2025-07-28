@@ -1,22 +1,20 @@
 package DNBN.spring.domain.mapping;
 
 import DNBN.spring.domain.Curation;
-import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
 
 @Entity
-@Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class CurationLikeRegion {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue
+    private Long curationLikeRegionId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     private Curation curation;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     private LikeRegion likeRegion;
 }

@@ -15,7 +15,9 @@ import java.util.List;
 public class CurationResponseDTO {
     private Long curationId;
     private String title;
-    private String placeName;
+    private Long likeCount;
+    private Long commentCount;
+    private LocalDate createdAt;
     private List<PlaceSummary> likePlaces;
 
     @Getter
