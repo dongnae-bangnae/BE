@@ -16,4 +16,6 @@ public interface LikeRegionRepository extends JpaRepository<LikeRegion, Long> {
 
     @Query("SELECT lr.region.id FROM LikeRegion lr WHERE lr.member.id = :memberId")
     List<Long> findRegionIdsByMemberId(@Param("memberId") Long memberId);
+
+    List<LikeRegion> findByMember(Member member);
 }

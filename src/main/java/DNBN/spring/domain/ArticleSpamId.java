@@ -7,10 +7,9 @@ import java.io.Serializable;
 
 @Embeddable
 @Getter
-@Setter
-@EqualsAndHashCode
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode
 public class ArticleSpamId implements Serializable {
     private Long articleId;
     private Long memberId;

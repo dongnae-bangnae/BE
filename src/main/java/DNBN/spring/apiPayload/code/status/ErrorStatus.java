@@ -38,6 +38,9 @@ public enum ErrorStatus implements BaseErrorCode {
     ARTICLE_PHOTO_IMAGE_TOO_LARGE(HttpStatus.PAYLOAD_TOO_LARGE, "ARTICLEPHOTO4004", "이미지 파일 크기가 너무 큽니다. (최대 10MB)"),
     ARTICLE_PHOTO_S3_UPLOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "ARTICLEPHOTO5001", "이미지 업로드에 실패했습니다. 잠시 후 다시 시도해 주세요."),
 
+    // article & challenge
+    ARTICLE_CHALLENGE_NOT_FOUND(HttpStatus.NOT_FOUND,"ARTICLECHALLENGE4001", "해당하는 해시태그를 포함한 챌린지 게시물을 찾을 수 없습니다."),
+
     // For test
     TEMP_EXCEPTION(HttpStatus.BAD_REQUEST, "TEMP4001", "이거는 테스트"),
 
@@ -77,7 +80,14 @@ public enum ErrorStatus implements BaseErrorCode {
     // 댓글
     COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "COMMENT4001", "댓글을 찾을 수 없습니다."),
     COMMENT_CONTENT_LENGTH_INVALID(HttpStatus.BAD_REQUEST, "COMMENT4002", "댓글 내용은 1~1000자여야 합니다."),
-    COMMENT_FORBIDDEN(HttpStatus.FORBIDDEN, "COMMENT4003", "해당 댓글에 대한 권한이 없습니다.");
+    COMMENT_FORBIDDEN(HttpStatus.FORBIDDEN, "COMMENT4003", "해당 댓글에 대한 권한이 없습니다."),
+
+    // 챌린지
+    CHALLENGE_NOT_FOUND(HttpStatus.NOT_FOUND, "CHALLENGE_4001", "챌린지가 존재하지 않습니다."),
+
+    // 큐레이션
+    CURATION_NO_LIKE_REGION(HttpStatus.NOT_FOUND, "CURATION_4001", "관심지역이 존재하지 않습니다."),
+    CURATION_NOT_ENOUGH_PLACES(HttpStatus.BAD_REQUEST, "CURATION_4002", "큐레이션 생성을 위한 장소가 부족합니다.");
 
     private final HttpStatus httpStatus;
     private final String code;
