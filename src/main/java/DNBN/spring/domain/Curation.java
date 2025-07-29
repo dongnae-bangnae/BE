@@ -33,4 +33,12 @@ public class Curation {
     @Builder.Default
     @OneToMany(mappedBy = "curation", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CurationPlace> curationPlaces = new ArrayList<>(); // 꼭 초기화
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_id")
+    private Member member;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "region_id")
+    private Region region;
 }

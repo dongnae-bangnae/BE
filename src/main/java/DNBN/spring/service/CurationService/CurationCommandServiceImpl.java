@@ -6,6 +6,7 @@ import DNBN.spring.converter.CurationConverter;
 import DNBN.spring.domain.Curation;
 import DNBN.spring.domain.Member;
 import DNBN.spring.domain.Place;
+import DNBN.spring.domain.Region;
 import DNBN.spring.domain.enums.PinCategory;
 import DNBN.spring.domain.mapping.CurationPlace;
 import DNBN.spring.domain.mapping.LikeRegion;
@@ -20,6 +21,8 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.*;
+
+import static DNBN.spring.domain.QRegion.region;
 
 @Service
 @RequiredArgsConstructor
@@ -37,10 +40,21 @@ public class CurationCommandServiceImpl implements CurationCommandService {
         if (likeRegions.isEmpty()) {
             throw new CurationHandler(ErrorStatus.CURATION_NO_LIKE_REGION);
         }
-        Long regionId = likeRegions.get(0).getRegion().getId();
+
+        Region region = likeRegions.get(0).getRegion();
+        LocalDate startOfWeek = getStartOfThisWeek();
+        LocalDate endOfWeek = startOfWeek.plusDays(6);
+
+        // 이번 주에 생성된 큐레이션이 있는지 확인
+        Optional<Curation> existing = curationRepository.findByMemberAndRegionAndCreatedAtBetween(
+                member, region, startOfWeek, endOfWeek
+        );
+        if (existing.isPresent()) {
+            return CurationConverter.toCurationResponseDTO(existing.get());
+        }
 
         // 관심 지역에 속한 모든 Place 조회
-        List<Place> places = placeRepository.findByRegionId(regionId);
+        List<Place> places = placeRepository.findAllByRegion(region);
         if (places.size() < 3) {
             throw new CurationHandler(ErrorStatus.CURATION_NOT_ENOUGH_PLACES);
         }
@@ -52,7 +66,7 @@ public class CurationCommandServiceImpl implements CurationCommandService {
         // 큐레이션 저장
         Curation curation = Curation.builder()
                 .createdAt(LocalDate.now())
-                .title("테스트 큐레이션") // 필요시 동적으로 생성 가능
+                .title("이번주 테스트 큐레이션") // 필요시 동적으로 생성 가능
                 .likeCount(0L)
                 .commentCount(0L)
                 .build();
@@ -86,5 +100,10 @@ public class CurationCommandServiceImpl implements CurationCommandService {
                 .commentCount(curation.getCommentCount())
                 .likePlaces(dtoList)
                 .build();
+    }
+
+    @Override
+    public LocalDate getStartOfThisWeek() {
+        return LocalDate.now().with(java.time.DayOfWeek.MONDAY);
     }
 }
