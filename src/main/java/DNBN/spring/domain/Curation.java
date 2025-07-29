@@ -24,6 +24,8 @@ public class Curation {
 
     private String title;
 
+    private String thumbnailImageUrl;
+
     private Long likeCount;
 
     private Long commentCount;
