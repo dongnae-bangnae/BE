@@ -18,7 +18,7 @@ public class RegionRestController {
     private final RegionQueryService regionQueryService;
 
     @GetMapping("/search")
-    @Operation(summary = "관심 동네 검색", description = "키워드로 관심 동네를 검색합니다.")
+    @Operation(summary = "동네 검색", description = "키워드로 관심 동네를 검색합니다.")
     public ResponseEntity<ApiResponse<RegionResponseDTO.SearchRegionResult>> searchRegionList(
             @Parameter(name = "keyword", description = "검색 키워드", required = true)
             @RequestParam String keyword,
