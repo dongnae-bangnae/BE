@@ -22,7 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/member")
+@RequestMapping("api/member")
 public class MemberRestController {
 
     private final MemberQueryService memberQueryService;
@@ -33,7 +33,7 @@ public class MemberRestController {
             consumes = {MediaType.MULTIPART_FORM_DATA_VALUE}
     )
     @Operation(
-            summary = "회원 초기 정보 등록 (온보딩) API - JWT 인증 필요",
+            summary = "회원 초기 정보 등록 (온보딩) API - JWT AccessToken + CSRF 토큰 인증 필요",
             description = "JWT 인증된 멤버가 닉네임, 프로필 이미지, 선호 지역을 등록하는 API입니다.",
             security = @SecurityRequirement(name = "JWT TOKEN")
     )
@@ -49,7 +49,7 @@ public class MemberRestController {
     }
 
     @GetMapping("/info")
-    @Operation(summary = "회원 정보 조회 API - JWT 인증 필요",
+    @Operation(summary = "회원 정보 조회 API - JWT AccessToken 인증 필요",
             description = "JWT 인증된 멤버가 자신의 정보를 조회하는 API입니다.",
             security = { @SecurityRequirement(name = "JWT TOKEN") } // ‘내 정보 조회’는 로그인한 사용자만이 접근할 수 있는 API여야 함 --> Swagger 어노테이션인 @Operation 어노테이션에 security 필드를 추가해서 token이 요청 필수값임을 명시
     )
@@ -64,7 +64,7 @@ public class MemberRestController {
     }
 
     @DeleteMapping
-    @Operation(summary = "회원 탈퇴 API - JWT 인증 필요",
+    @Operation(summary = "회원 탈퇴 API - JWT AccessToken + CSRF 토큰 인증 필요",
             description = "JWT 인증된 멤버가 자신의 계정을 탈퇴(삭제)하는 API입니다.",
             security = { @SecurityRequirement(name = "JWT TOKEN") }
     )
@@ -74,7 +74,7 @@ public class MemberRestController {
     }
 
     @PatchMapping("/nickname")
-    @Operation(summary = "회원 닉네임 변경 API - JWT 인증 필요",
+    @Operation(summary = "회원 닉네임 변경 API - JWT AccessToken + CSRF 토큰 인증 필요",
             description = "JWT 인증된 멤버가 자신의 닉네임을 변경하는 API입니다.",
             security = { @SecurityRequirement(name = "JWT TOKEN") }
     )
@@ -90,7 +90,7 @@ public class MemberRestController {
 
     @PatchMapping("/regions")
     @Operation(
-            summary = "관심 동네 변경 API - JWT 인증 필요",
+            summary = "관심 동네 변경 API - JWT AccessToken + CSRF 토큰 인증 필요",
             description = "JWT 인증된 멤버가 자신의 관심 동네를 수정하는 API입니다.",
             security = @SecurityRequirement(name = "JWT TOKEN")
     )
@@ -108,7 +108,7 @@ public class MemberRestController {
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE
     )
     @Operation(
-            summary = "프로필 이미지 변경 API - JWT 인증 필요",
+            summary = "프로필 이미지 변경 API - JWT AccessToken + CSRF 토큰 인증 필요",
             description = "JWT 인증된 사용자가 프로필 이미지를 변경합니다.",
             security = { @SecurityRequirement(name = "JWT TOKEN") }
     )

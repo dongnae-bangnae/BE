@@ -33,7 +33,6 @@ public class ArticleConverter {
         return PostResponseDTO.PostPreViewDTO.builder()
                 .articleId(article.getArticleId())
                 .memberId(article.getMember().getId())
-                .categoryId(article.getCategory().getCategoryId())
                 .placeId(article.getPlace().getPlaceId())
                 .regionId(article.getRegion().getId())
                 .title(article.getTitle())
@@ -55,6 +54,32 @@ public class ArticleConverter {
                 .totalElements(articleList.getTotalElements())
                 .listSize(articleDTOList.size())
                 .postList(articleDTOList)
+                .build();
+    }
+
+    public static ArticleResponseDTO.ArticlePreviewDTO toPreviewDTO(
+            Article article, String imageUrl) {
+        return ArticleResponseDTO.ArticlePreviewDTO.builder()
+                .articleId(article.getArticleId())
+                .pinCategory(article.getPlace().getPinCategory().name())
+                .imageUrl(imageUrl)
+                .title(article.getTitle())
+                .likes(article.getLikesCount())
+                .spam(article.getSpamCount())
+                .comments(article.getCommentCount())
+                .build();
+    }
+
+    public static ArticleResponseDTO.ArticleListDTO toListDTO(
+            List<ArticleResponseDTO.ArticlePreviewDTO> previews, Long limit, boolean hasNext) {
+
+        Long nextCursor = previews.isEmpty() ? null : previews.get(previews.size() - 1).getArticleId();
+
+        return ArticleResponseDTO.ArticleListDTO.builder()
+                .articles(previews)
+                .cursor(nextCursor)
+                .limit(limit)
+                .hasNext(hasNext)
                 .build();
     }
 }

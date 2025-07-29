@@ -10,6 +10,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
+import java.util.Optional;
 
 public interface ArticleRepository extends JpaRepository<Article, Long> {
     List<Article> findAllByMember(Member member);
@@ -18,5 +19,7 @@ public interface ArticleRepository extends JpaRepository<Article, Long> {
     List<Article> findAllByRegion(Region region);
 
     Page<Article> findAllByRegion_IdIn(List<Long> regionIds, Pageable pageable);
+
+    Optional<Article> findTopByHashtagOrderByLikesCountDescCreatedAtAsc(String keyword);
 }
 
