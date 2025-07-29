@@ -6,6 +6,6 @@ import DNBN.spring.web.dto.response.CurationResponseDTO;
 import java.time.LocalDate;
 
 public interface CurationCommandService {
-    CurationResponseDTO generateCuration(Member member);
+    CurationResponseDTO generateCuration();
     LocalDate getStartOfThisWeek();
 }

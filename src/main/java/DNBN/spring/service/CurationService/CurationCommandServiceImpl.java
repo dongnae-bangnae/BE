@@ -14,6 +14,7 @@ import DNBN.spring.repository.CurationRepository.CurationRepository;
 import DNBN.spring.repository.LikeRegionRepository.LikeRegionRepository;
 import DNBN.spring.repository.MemberRepository.MemberRepository;
 import DNBN.spring.repository.PlaceRepository.PlaceRepository;
+import DNBN.spring.repository.RegionRepository.RegionRepository;
 import DNBN.spring.web.dto.response.CurationResponseDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -26,7 +27,7 @@ import static DNBN.spring.domain.QRegion.region;
 @Service
 @RequiredArgsConstructor
 public class CurationCommandServiceImpl implements CurationCommandService {
-    private final LikeRegionRepository likeRegionRepository;
+    private final RegionRepository regionRepository;
     private final PlaceRepository placeRepository;
     private final CurationRepository curationRepository;
     private final CurationPlaceRepository curationPlaceRepository;
@@ -34,14 +35,17 @@ public class CurationCommandServiceImpl implements CurationCommandService {
     private final ArticlePhotoRepository articlePhotoRepository;
 
     @Override
-    public CurationResponseDTO generateCuration(Member member) {
-        // 관심 지역 3개 중 첫번째 관심지역 가져오기
-        List<LikeRegion> likeRegions = likeRegionRepository.findByMember(member);
-        if (likeRegions.isEmpty()) {
-            throw new CurationHandler(ErrorStatus.CURATION_NO_LIKE_REGION);
+    public CurationResponseDTO generateCuration() {
+        // 장소 3개 이상인 지역 조회
+        List<Region> candidateRegions = regionRepository.findRegionsWithAtLeastThreePlaces();
+        if (candidateRegions.isEmpty()) {
+            throw new CurationHandler(ErrorStatus.CURATION_NO_VALID_REGION);
         }
 
-        Region region = likeRegions.get(0).getRegion();
+        // 랜덤 지역 선택
+        Collections.shuffle(candidateRegions);
+        Region region = candidateRegions.get(0);
+
         LocalDate startOfWeek = getStartOfThisWeek();
         LocalDate endOfWeek = startOfWeek.plusDays(6);
 

@@ -23,14 +23,11 @@ public class CurationScheduler {
     public void generateWeeklyCurations() {
         log.info("📆 [큐레이션 자동 생성] 시작");
 
-        List<Member> members = memberRepository.findAll();
-        for (Member member : members) {
-            try {
-                curationCommandService.generateCuration(member);
-                log.info("✅ {}번 회원 큐레이션 생성 성공", member.getId());
-            } catch (Exception e) {
-                log.warn("❌ {}번 회원 큐레이션 생성 실패: {}", member.getId(), e.getMessage());
-            }
+        try {
+            curationCommandService.generateCuration();
+            log.info("✅ 큐레이션 생성 성공");
+        } catch (Exception e) {
+            log.warn("❌ 큐레이션 생성 실패: {}", e.getMessage());
         }
 
         log.info("✅ [큐레이션 자동 생성] 완료");
