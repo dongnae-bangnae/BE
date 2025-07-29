@@ -97,6 +97,7 @@ public class CurationCommandServiceImpl implements CurationCommandService {
                 .curationId(curation.getCurationId())
                 .memberId(member.getId())
                 .regionId(region.getId())
+                .regionName(region.getFullName())
                 .title(curation.getTitle())
                 .createdAt(curation.getCreatedAt())
                 .likeCount(curation.getLikeCount())
