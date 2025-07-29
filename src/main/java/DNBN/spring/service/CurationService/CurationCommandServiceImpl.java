@@ -46,8 +46,8 @@ public class CurationCommandServiceImpl implements CurationCommandService {
         LocalDate endOfWeek = startOfWeek.plusDays(6);
 
         // 이번 주에 생성된 큐레이션이 있는지 확인
-        Optional<Curation> existing = curationRepository.findByMemberAndRegionAndCreatedAtBetween(
-                member, region, startOfWeek, endOfWeek
+        Optional<Curation> existing = curationRepository.findByRegionAndCreatedAtBetween(
+                region, startOfWeek, endOfWeek
         );
         if (existing.isPresent()) {
             return CurationConverter.toCurationResponseDTO(existing.get());
@@ -84,7 +84,6 @@ public class CurationCommandServiceImpl implements CurationCommandService {
         // 큐레이션 저장
         Curation curation = Curation.builder()
                 .createdAt(LocalDate.now())
-                .member(member)
                 .region(region)
                 .title("이번주 테스트 큐레이션") // 필요시 동적으로 생성 가능
                 .thumbnailImageUrl(thumbnailImageUrl)
@@ -114,7 +113,6 @@ public class CurationCommandServiceImpl implements CurationCommandService {
 
         return CurationResponseDTO.builder()
                 .curationId(curation.getCurationId())
-                .memberId(member.getId())
                 .regionId(region.getId())
                 .regionName(region.getFullName())
                 .title(curation.getTitle())

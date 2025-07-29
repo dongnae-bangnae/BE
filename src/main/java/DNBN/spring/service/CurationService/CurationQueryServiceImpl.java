@@ -25,7 +25,7 @@ public class CurationQueryServiceImpl implements CurationQueryService {
 
     @Override
     public List<CurationResponseDTO> getCurationsByMember(Long memberId) {
-        List<Curation> curations = curationRepository.findByMemberId(memberId);
+        List<Curation> curations = curationRepository.findAllByOrderByCreatedAtDesc();
 
         if (curations.isEmpty()) {
             throw new CurationHandler(ErrorStatus.CURATION_NOT_FOUND);

@@ -14,7 +14,6 @@ import java.util.List;
 @AllArgsConstructor
 public class CurationResponseDTO {
     private Long curationId;
-    private Long memberId;
     private Long regionId;
     private String regionName;
     private String title;
