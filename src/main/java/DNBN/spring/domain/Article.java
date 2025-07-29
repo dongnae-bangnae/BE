@@ -52,6 +52,8 @@ public class Article extends BaseEntity {
   private Long spamCount = 0L;
 
   private LocalDateTime deletedAt;
+
+  private String hashtag;
   
   public void increaseLikeCount() {
     this.likesCount++;

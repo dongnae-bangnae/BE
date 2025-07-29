@@ -33,7 +33,6 @@ public class ArticleConverter {
         return PostResponseDTO.PostPreViewDTO.builder()
                 .articleId(article.getArticleId())
                 .memberId(article.getMember().getId())
-                .categoryId(article.getCategory().getCategoryId())
                 .placeId(article.getPlace().getPlaceId())
                 .regionId(article.getRegion().getId())
                 .title(article.getTitle())
