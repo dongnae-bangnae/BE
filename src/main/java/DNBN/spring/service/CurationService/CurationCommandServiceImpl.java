@@ -66,6 +66,8 @@ public class CurationCommandServiceImpl implements CurationCommandService {
         // 큐레이션 저장
         Curation curation = Curation.builder()
                 .createdAt(LocalDate.now())
+                .member(member)
+                .region(region)
                 .title("이번주 테스트 큐레이션") // 필요시 동적으로 생성 가능
                 .likeCount(0L)
                 .commentCount(0L)
@@ -88,12 +90,13 @@ public class CurationCommandServiceImpl implements CurationCommandService {
                         .likePlaceId(place.getPlaceId())
                         .name(place.getTitle())
                         .pinCategory(place.getPinCategory().name())
-                        .regionId(place.getRegion().getId())
                         .build())
                 .toList();
 
         return CurationResponseDTO.builder()
                 .curationId(curation.getCurationId())
+                .memberId(member.getId())
+                .regionId(region.getId())
                 .title(curation.getTitle())
                 .createdAt(curation.getCreatedAt())
                 .likeCount(curation.getLikeCount())

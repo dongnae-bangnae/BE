@@ -14,6 +14,8 @@ import java.util.List;
 @AllArgsConstructor
 public class CurationResponseDTO {
     private Long curationId;
+    private Long memberId;
+    private Long regionId;
     private String title;
     private Long likeCount;
     private Long commentCount;
@@ -28,6 +30,5 @@ public class CurationResponseDTO {
         private Long likePlaceId;
         private String name;
         private String pinCategory;
-        private Long regionId;
     }
 }
