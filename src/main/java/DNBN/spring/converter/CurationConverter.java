@@ -8,10 +8,18 @@ public class CurationConverter {
         return CurationResponseDTO.builder()
                 .curationId(curation.getCurationId())
                 .title(curation.getTitle())
-                .title(curation.getTitle())
                 .createdAt(curation.getCreatedAt())
                 .likeCount(curation.getLikeCount())
                 .commentCount(curation.getCommentCount())
+                .likePlaces(
+                        curation.getCurationPlaces().stream()
+                                .map(cp -> CurationResponseDTO.Places.builder()
+                                        .likePlaceId(cp.getPlace().getPlaceId())
+                                        .name(cp.getPlace().getTitle())
+                                        .pinCategory(cp.getPlace().getPinCategory().name())
+                                        .build()
+                                ).toList()
+                )
                 .build();
     }
 }

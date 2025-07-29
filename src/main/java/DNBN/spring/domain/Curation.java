@@ -1,14 +1,14 @@
 package DNBN.spring.domain;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import DNBN.spring.domain.mapping.CurationPlace;
+import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -30,5 +30,7 @@ public class Curation {
 
     private LocalDate createdAt;
 
-
+    @Builder.Default
+    @OneToMany(mappedBy = "curation", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<CurationPlace> curationPlaces = new ArrayList<>(); // 꼭 초기화
 }

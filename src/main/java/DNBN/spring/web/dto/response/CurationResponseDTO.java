@@ -18,13 +18,13 @@ public class CurationResponseDTO {
     private Long likeCount;
     private Long commentCount;
     private LocalDate createdAt;
-    private List<PlaceSummary> likePlaces;
+    private List<Places> likePlaces;
 
     @Getter
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class PlaceSummary {
+    public static class Places {
         private Long likePlaceId;
         private String name;
         private String pinCategory;

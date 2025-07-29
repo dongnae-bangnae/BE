@@ -2,6 +2,7 @@ package DNBN.spring.web.controller;
 
 import DNBN.spring.apiPayload.ApiResponse;
 import DNBN.spring.domain.Member;
+import DNBN.spring.domain.MemberDetails;
 import DNBN.spring.repository.MemberRepository.MemberRepository;
 import DNBN.spring.service.CurationService.CurationCommandService;
 import DNBN.spring.web.dto.response.CurationResponseDTO;
@@ -25,14 +26,12 @@ public class CurationController {
             summary = "오늘의 큐레이션 생성 API",
             description = "관심 지역 기반으로 큐레이션을 생성합니다."
     )
-    public ApiResponse<CurationResponseDTO> generateCuration(@AuthenticationPrincipal Long memberId) {
-        if (memberId == null) {
+    public ApiResponse<CurationResponseDTO> generateCuration(@AuthenticationPrincipal MemberDetails memberDetails) {
+        if (memberDetails == null) {
             throw new IllegalArgumentException("인증되지 않은 사용자입니다.");
         }
 
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
-
+        Member member = memberDetails.getMember(); // 또는 memberDetails.getId() 후 memberRepository 조회
         CurationResponseDTO response = curationCommandService.generateCuration(member);
         return ApiResponse.onSuccess(response);
     }

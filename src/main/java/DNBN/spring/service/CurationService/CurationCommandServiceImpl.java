@@ -17,9 +17,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -38,22 +36,15 @@ public class CurationCommandServiceImpl implements CurationCommandService {
                 .map(lr -> lr.getRegion().getId())
                 .toList();
 
-        // 관심 지역의 Place 중, 게시글이 1개 이상 있는 Place 조회
-        List<Place> candidatePlaces = placeRepository.findPlacesWithArticlesByRegionIds(regionIds);
-
-        // 카테고리 별로 중복 없이 필터링
-        Map<PinCategory, Place> categoryToPlace = new HashMap<>();
-        for (Place place : candidatePlaces) {
-            if (!categoryToPlace.containsKey(place.getPinCategory())) {
-                categoryToPlace.put(place.getPinCategory(), place);
-            }
-            if (categoryToPlace.size() >= 5) break;
+        // 관심 지역에 속한 모든 Place 조회
+        List<Place> places = placeRepository.findByRegionIdIn(regionIds);
+        if (places.size() < 3) {
+            throw new IllegalStateException("큐레이션 생성을 위한 장소가 부족합니다.");
         }
 
-        // 게시물이 3개 이상일 때만 큐레이션 생성
-        if (categoryToPlace.size() < 3) {
-            throw new IllegalStateException("큐레이션 생성을 위한 게시글이 충분하지 않습니다.");
-        }
+        // 랜덤으로 3개 선택
+        Collections.shuffle(places);
+        List<Place> selectedPlaces = places.subList(0, 3);
 
         // 큐레이션 저장
         Curation curation = Curation.builder()
@@ -62,14 +53,19 @@ public class CurationCommandServiceImpl implements CurationCommandService {
         curation = curationRepository.save(curation);
 
         // 장소 저장
-        for (Place place : categoryToPlace.values()) {
+        for (Place place : selectedPlaces) {
             CurationPlace cp = CurationPlace.builder()
                     .curation(curation)
                     .place(place)
                     .build();
+
+            curation.getCurationPlaces().add(cp);
             curationPlaceRepository.save(cp);
         }
 
-        return CurationConverter.toCurationResponseDTO(curation);
+        Curation fetched = curationRepository.findByIdWithPlaces(curation.getCurationId())
+                .orElseThrow(() -> new IllegalStateException("큐레이션 조회 실패"));
+
+        return CurationConverter.toCurationResponseDTO(fetched);
     }
 }
