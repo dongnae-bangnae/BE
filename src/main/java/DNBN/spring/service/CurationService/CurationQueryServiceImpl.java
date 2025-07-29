@@ -27,6 +27,10 @@ public class CurationQueryServiceImpl implements CurationQueryService {
     public List<CurationResponseDTO> getCurationsByMember(Long memberId) {
         List<Curation> curations = curationRepository.findByMemberId(memberId);
 
+        if (curations.isEmpty()) {
+            throw new CurationHandler(ErrorStatus.CURATION_NOT_FOUND);
+        }
+
         return curations.stream()
                 .map(CurationConverter::toCurationResponseDTO)
                 .toList();
