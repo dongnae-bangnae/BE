@@ -35,7 +35,7 @@ public class CurationCommandServiceImpl implements CurationCommandService {
     private final ArticlePhotoRepository articlePhotoRepository;
 
     @Override
-    public CurationResponseDTO generateCuration() {
+    public List<CurationResponseDTO> generateCurations() {
         // 장소 3개 이상인 지역 조회
         List<Region> candidateRegions = regionRepository.findRegionsWithAtLeastThreePlaces();
         if (candidateRegions.isEmpty()) {
@@ -44,87 +44,85 @@ public class CurationCommandServiceImpl implements CurationCommandService {
 
         // 랜덤 지역 선택
         Collections.shuffle(candidateRegions);
-        Region region = candidateRegions.get(0);
+        List<Region> selectedRegions = candidateRegions.subList(0, Math.min(5, candidateRegions.size()));
 
         LocalDate startOfWeek = getStartOfThisWeek();
         LocalDate endOfWeek = startOfWeek.plusDays(6);
 
+        List<CurationResponseDTO> resultList = new ArrayList<>();
+
         // 이번 주에 생성된 큐레이션이 있는지 확인
-        Optional<Curation> existing = curationRepository.findByRegionAndCreatedAtBetween(
-                region, startOfWeek, endOfWeek
-        );
-        if (existing.isPresent()) {
-            return CurationConverter.toCurationResponseDTO(existing.get());
-        }
-
-        // 관심 지역에 속한 모든 Place 조회
-        List<Place> places = placeRepository.findAllByRegion(region);
-        if (places.size() < 3) {
-            throw new CurationHandler(ErrorStatus.CURATION_NOT_ENOUGH_PLACES);
-        }
-
-        // 랜덤으로 3개 선택
-        Collections.shuffle(places);
-        List<Place> selectedPlaces = places.subList(0, 3);
-
-        // 썸네일 이미지
-        Place firstPlace = selectedPlaces.get(0);
-        String thumbnailImageUrl = null;
-
-        // 첫번째 장소의 첫번째 게시물 썸네일 이미지 가져오기
-        List<Article> articles = articleRepository.findByPlaceOrderByCreatedAtAsc(firstPlace);
-
-        System.out.println("📄 게시물 수 = " + articles.size());
-
-        if (!articles.isEmpty()) {
-            List<ArticlePhoto> photos = articlePhotoRepository.findAllByArticle(articles.get(0));
-
-            System.out.println("🖼️ 대표 이미지 개수 = " + photos.size());
-            if (!photos.isEmpty()) {
-                thumbnailImageUrl = photos.get(0).toString();
+        for (Region region : selectedRegions) {
+            // 해당 지역에 이미 이번 주 큐레이션이 있는지 확인
+            Optional<Curation> existing = curationRepository.findByRegionAndCreatedAtBetween(region, startOfWeek, endOfWeek);
+            if (existing.isPresent()) {
+                resultList.add(CurationConverter.toCurationResponseDTO(existing.get()));
+                continue;
             }
-        }
 
-        // 큐레이션 저장
-        Curation curation = Curation.builder()
-                .createdAt(LocalDate.now())
-                .region(region)
-                .title("이번주 테스트 큐레이션") // 필요시 동적으로 생성 가능
-                .thumbnailImageUrl(thumbnailImageUrl)
-                .likeCount(0L)
-                .commentCount(0L)
-                .build();
-        curation = curationRepository.save(curation);
+            // 해당 지역의 장소 조회
+            List<Place> places = placeRepository.findAllByRegion(region);
+            if (places.size() < 3) continue;
 
-        // 큐레이션 장소 매핑 저장
-        for (Place place : selectedPlaces) {
-            CurationPlace cp = CurationPlace.builder()
-                    .curation(curation)
-                    .place(place)
+            Collections.shuffle(places);
+            List<Place> selectedPlaces = places.subList(0, 3);
+
+            // 썸네일 이미지
+            String thumbnailImageUrl = null;
+            Place firstPlace = selectedPlaces.get(0);
+            List<Article> articles = articleRepository.findByPlaceOrderByCreatedAtAsc(firstPlace);
+            if (!articles.isEmpty()) {
+                List<ArticlePhoto> photos = articlePhotoRepository.findAllByArticle(articles.get(0));
+                if (!photos.isEmpty()) {
+                    thumbnailImageUrl = photos.get(0).toString(); // 실제 이미지 URL 필드 사용
+                }
+            }
+
+            // 큐레이션 저장
+            Curation curation = Curation.builder()
+                    .createdAt(LocalDate.now())
+                    .region(region)
+                    .title("이번주 테스트 큐레이션")
+                    .thumbnailImageUrl(thumbnailImageUrl)
+                    .likeCount(0L)
+                    .commentCount(0L)
                     .build();
-            curation.getCurationPlaces().add(cp); // 중요: 양방향 연결
-            curationPlaceRepository.save(cp);
+            curation = curationRepository.save(curation);
+
+            // 장소 매핑 저장
+            for (Place place : selectedPlaces) {
+                CurationPlace cp = CurationPlace.builder()
+                        .curation(curation)
+                        .place(place)
+                        .build();
+                curation.getCurationPlaces().add(cp);
+                curationPlaceRepository.save(cp);
+            }
+
+            // DTO 변환 및 추가
+            List<CurationResponseDTO.Places> dtoList = selectedPlaces.stream()
+                    .map(place -> CurationResponseDTO.Places.builder()
+                            .likePlaceId(place.getPlaceId())
+                            .name(place.getTitle())
+                            .pinCategory(place.getPinCategory().name())
+                            .build())
+                    .toList();
+
+            CurationResponseDTO dto = CurationResponseDTO.builder()
+                    .curationId(curation.getCurationId())
+                    .regionId(region.getId())
+                    .regionName(region.getFullName())
+                    .title(curation.getTitle())
+                    .createdAt(curation.getCreatedAt())
+                    .likeCount(curation.getLikeCount())
+                    .commentCount(curation.getCommentCount())
+                    .likePlaces(dtoList)
+                    .build();
+
+            resultList.add(dto);
         }
 
-        // 응답 DTO 구성
-        List<CurationResponseDTO.Places> dtoList = selectedPlaces.stream()
-                .map(place -> CurationResponseDTO.Places.builder()
-                        .likePlaceId(place.getPlaceId())
-                        .name(place.getTitle())
-                        .pinCategory(place.getPinCategory().name())
-                        .build())
-                .toList();
-
-        return CurationResponseDTO.builder()
-                .curationId(curation.getCurationId())
-                .regionId(region.getId())
-                .regionName(region.getFullName())
-                .title(curation.getTitle())
-                .createdAt(curation.getCreatedAt())
-                .likeCount(curation.getLikeCount())
-                .commentCount(curation.getCommentCount())
-                .likePlaces(dtoList)
-                .build();
+        return resultList;
     }
 
     @Override

@@ -28,8 +28,8 @@ public class CurationController {
             summary = "이번주의 큐레이션 생성 API",
             description = "관심 지역 기반으로 큐레이션을 자동 생성합니다. 매주 월요일 아침 9시에 자동 갱신됩니다."
     )
-    public ApiResponse<CurationResponseDTO> generateCuration() {
-        CurationResponseDTO response = curationCommandService.generateCuration();
+    public ApiResponse<List<CurationResponseDTO>> generateCuration() {
+        List<CurationResponseDTO> response = curationCommandService.generateCurations();
         return ApiResponse.onSuccess(response);
     }
 
