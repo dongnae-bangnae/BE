@@ -14,6 +14,7 @@ import DNBN.spring.web.dto.CategoryRequestDTO;
 import DNBN.spring.web.dto.CategoryResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -93,10 +94,19 @@ public class CategoryController {
     public ResponseEntity<ApiResponse<ArticleResponseDTO.ArticleListDTO>> getArticlesByCategory(
             @PathVariable Long categoryId,
 
-            @Parameter(name = "cursor", description = "다음 페이지 요청 시 기준이 되는 커서 articleId (default: null) -> 응답받은 cursor 값 넣어주면 됨", example = "0")
+            @Parameter(
+                    name        = "cursor",
+                    description = "다음 페이지 기준이 되는 커서 articleId (default: null)",
+                    schema      = @Schema(type="integer", format="int64", defaultValue = "null")
+            )
             @RequestParam(required = false) Long cursor,
 
-            @Parameter(name = "limit", description = "최대 응답 개수 (default: 20)", example = "20")
+            @Parameter(
+                    name        = "limit",
+                    description = "최대 응답 개수 (default: 20)",
+                    schema      = @Schema(type="integer", format="int64", defaultValue = "20"),
+                    example     = "20"
+            )
             @RequestParam(defaultValue = "20") Long limit,
 
             HttpServletRequest request) {

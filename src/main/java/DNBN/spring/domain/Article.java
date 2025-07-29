@@ -51,6 +51,9 @@ public class Article extends BaseEntity {
   @Column(nullable = false, columnDefinition = "BIGINT DEFAULT 0")
   private Long spamCount = 0L;
 
+  @Column(name = "comment_count", nullable = false, columnDefinition = "BIGINT DEFAULT 0")
+  private Long commentCount;
+
   private LocalDateTime deletedAt;
 
   @Column(nullable = false)

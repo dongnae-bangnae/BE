@@ -2,6 +2,7 @@ package DNBN.spring.service.ArticleService;
 
 import DNBN.spring.apiPayload.code.status.ErrorStatus;
 import DNBN.spring.apiPayload.exception.handler.CategoryHandler;
+import DNBN.spring.apiPayload.exception.handler.MemberHandler;
 import DNBN.spring.aws.s3.AmazonS3Manager;
 import DNBN.spring.converter.ArticleConverter;
 import DNBN.spring.domain.*;
@@ -11,6 +12,7 @@ import DNBN.spring.repository.ArticleRepository.ArticleRepositoryCustom;
 import DNBN.spring.repository.CategoryRepository.CategoryRepository;
 import DNBN.spring.repository.CommentRepository.CommentRepository;
 import DNBN.spring.repository.LikeRegionRepository.LikeRegionRepository;
+import DNBN.spring.repository.MemberRepository.MemberRepository;
 import DNBN.spring.repository.RegionRepository.RegionRepository;
 import DNBN.spring.web.dto.ArticleResponseDTO;
 import lombok.RequiredArgsConstructor;
@@ -33,7 +35,7 @@ public class ArticleQueryServiceImpl implements ArticleQueryService {
     private final CommentRepository commentRepository;
     private final ArticlePhotoRepository articlePhotoRepository;
     private final ArticleRepositoryCustom articleRepositoryCustom;
-    private final AmazonS3Manager amazonS3Manager;
+    private final MemberRepository memberRepository;
 
     @Override
     public Page<Article> getArticleListByRegion(Long memberId, Integer page) {
@@ -49,17 +51,21 @@ public class ArticleQueryServiceImpl implements ArticleQueryService {
 
     @Override
     public ArticleResponseDTO.ArticleListDTO getArticlesByCategory(Long categoryId, Long memberId, Long cursor, Long limit) {
-        // 1. 카테고리 소유 확인
-        Category category = categoryRepository.findByCategoryIdAndMemberAndDeletedAtIsNull(categoryId, Member.builder().id(memberId).build())
+        // 1. 사용자 확인
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new MemberHandler(ErrorStatus.MEMBER_NOT_FOUND));
+
+        // 2. 카테고리 소유 확인
+        Category category = categoryRepository.findByCategoryIdAndMemberAndDeletedAtIsNull(categoryId, member)
                 .orElseThrow(() -> new CategoryHandler(ErrorStatus._FORBIDDEN));
 
-        // 2. 게시물 조회 (limit + 1 조회로 hasNext 판별)
+        // 3. 게시물 조회 (limit + 1 조회로 hasNext 판별)
         List<Article> articles = articleRepositoryCustom.findArticlesByCategoryWithCursor(categoryId, cursor, limit + 1);
 
         boolean hasNext = articles.size() > limit;
         if (hasNext) articles.remove(articles.size() - 1);
 
-        // 3. 변환
+        // 4. 변환
         List<ArticleResponseDTO.ArticlePreviewDTO> previews = articles.stream()
                 .map(article -> {
                     String mainImage = articlePhotoRepository.findAllByArticle(article).stream()
@@ -68,9 +74,7 @@ public class ArticleQueryServiceImpl implements ArticleQueryService {
                             .map(photo -> photo.getFileKey())
                             .orElse("기본 이미지 URL");
 
-                    long commentCount = commentRepository.findAllByArticle(article).size();
-
-                    return ArticleConverter.toPreviewDTO(article, mainImage, commentCount);
+                    return ArticleConverter.toPreviewDTO(article, mainImage);
                 }).toList();
 
         return ArticleConverter.toListDTO(previews, limit, hasNext);

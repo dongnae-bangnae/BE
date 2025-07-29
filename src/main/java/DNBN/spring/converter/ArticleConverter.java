@@ -59,7 +59,7 @@ public class ArticleConverter {
     }
 
     public static ArticleResponseDTO.ArticlePreviewDTO toPreviewDTO(
-            Article article, String imageUrl, Long commentCount) {
+            Article article, String imageUrl) {
         return ArticleResponseDTO.ArticlePreviewDTO.builder()
                 .articleId(article.getArticleId())
                 .pinCategory(article.getPlace().getPinCategory().name())
@@ -67,7 +67,7 @@ public class ArticleConverter {
                 .title(article.getTitle())
                 .likes(article.getLikesCount())
                 .spam(article.getSpamCount())
-                .comments(commentCount)
+                .comments(article.getCommentCount())
                 .build();
     }
 

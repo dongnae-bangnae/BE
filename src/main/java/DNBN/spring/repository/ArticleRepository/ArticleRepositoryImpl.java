@@ -31,7 +31,7 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
                 .selectFrom(article)
                 .where(builder)
                 .orderBy(article.articleId.desc())
-                .limit(limit + 1)
+                .limit(limit)
                 .fetch();
     }
 }
