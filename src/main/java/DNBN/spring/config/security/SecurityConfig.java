@@ -1,5 +1,6 @@
 package DNBN.spring.config.security;
 
+import DNBN.spring.apiPayload.exception.handler.CustomAccessDeniedHandler;
 import DNBN.spring.apiPayload.exception.handler.CustomAuthenticationEntryPoint;
 import DNBN.spring.config.security.jwt.JwtAuthenticationFilter;
 import DNBN.spring.config.security.jwt.JwtTokenProvider;
@@ -20,6 +21,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -37,6 +39,7 @@ public class SecurityConfig {
     private final OAuth2SuccessHandler oAuth2SuccessHandler;
     private final OAuth2FailureHandler oAuth2FailureHandler;
     private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
+    private final CustomAccessDeniedHandler customAccessDeniedHandler;
 
     @Bean
     CorsConfigurationSource corsConfigurationSource() { // CORS 설정
@@ -44,8 +47,10 @@ public class SecurityConfig {
 
         // 동네방네 프론트, 백엔드 로컬, 운영 도메인 등 실제 사용하는 도메인 입력
         config.setAllowedOrigins(List.of(
-//                "https://", // 프론트 도메인
-//                "https://", // 백엔드 도메인
+                "https://dnbn.site", // 프론트 도메인
+                "https://api.dnbn.site", // 백엔드 도메인
+                "http://3.36.90.173:3000",
+                "http://3.36.90.173:8080",
                 "http://localhost:3000", // 로컬 프론트
                 "http://localhost:8080" // 로컬 백엔드
         ));
@@ -66,18 +71,23 @@ public class SecurityConfig {
                 .httpBasic(HttpBasicConfigurer::disable)
                 .cors(corsConfigurer -> corsConfigurer.configurationSource(corsConfigurationSource())) // CORS 설정 추가
                 .sessionManagement(session ->
-                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS) // JWT 사용 시 STATELESS
                 )
                 .authorizeHttpRequests(
                         (requests) -> requests
                                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                                .requestMatchers("/", "/auth/reissue", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                                .requestMatchers("/", "/api/auth/reissue", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
 //                                .requestMatchers("/admin/**").hasRole("ADMIN") // pm이 ADMIN역할 기능 필요 X
                                 .anyRequest().authenticated()
                 )
 //                .csrf()
 //                .disable()
                 .csrf(AbstractHttpConfigurer::disable)
+                // 배포 시 아래 코드 주석 해제
+//                .csrf(csrf -> csrf
+//                        .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()) // CSRF 토큰을 일반 쿠키(HttpOnly=false)에 저장하여 JS가 읽을 수 있게 하는 설정
+//                        .ignoringRequestMatchers("/api/auth/**") // GET은 자동으로 제외됨
+//                )
                 .oauth2Login(oauth2 -> oauth2
                         .userInfoEndpoint(userInfo -> userInfo
                                 .oidcUserService(customOidcUserService) // 구글
@@ -87,7 +97,8 @@ public class SecurityConfig {
                         .failureHandler(oAuth2FailureHandler)
                 )
                 .exceptionHandling(exception -> exception
-                        .authenticationEntryPoint(customAuthenticationEntryPoint)
+                        .authenticationEntryPoint(customAuthenticationEntryPoint) // 인증 실패 처리 (401)
+                        .accessDeniedHandler(customAccessDeniedHandler) // 권한 거부 및 CSRF 예외 처리 (403)
                 )
 //                .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);
                 .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);

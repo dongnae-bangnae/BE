@@ -23,5 +23,27 @@ public class ArticleResponseDTO {
     private Long spamCount;
     private String createdAt;
     private String updatedAt;
+
+    @Builder
+    @Getter
+    public static class ArticlePreviewDTO {
+        private Long articleId;
+        private String pinCategory;
+        private String imageUrl;
+        private String title;
+        private Long likes;
+        private Long spam;
+        private Long comments;
+    }
+
+    @Builder
+    @Getter
+    public static class ArticleListDTO {
+        private List<ArticlePreviewDTO> articles;
+        private Long cursor;
+        private Long limit;
+        private boolean hasNext;
+    }
+
 }
 

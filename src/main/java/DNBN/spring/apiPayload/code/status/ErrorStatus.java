@@ -15,6 +15,8 @@ public enum ErrorStatus implements BaseErrorCode {
     _UNAUTHORIZED(HttpStatus.UNAUTHORIZED,"COMMON4001","인증이 필요합니다."),
     _FORBIDDEN(HttpStatus.FORBIDDEN, "COMMON4003", "금지된 요청입니다."),
 
+    ACCESS_DENIED(HttpStatus.FORBIDDEN, "COMMON4004", "권한이 없습니다."),
+
     // 멤버 관련 에러
     MEMBER_NOT_FOUND(HttpStatus.BAD_REQUEST, "MEMBER4001", "사용자가 없습니다."),
     NICKNAME_NOT_EXIST(HttpStatus.BAD_REQUEST, "MEMBER4002", "닉네임은 필수입니다."),
@@ -56,6 +58,8 @@ public enum ErrorStatus implements BaseErrorCode {
 
     INVALID_SOCIAL_TOKEN(HttpStatus.UNAUTHORIZED, "TOKEN4003", "유효하지 않은 SocialToken입니다."),
 
+    INVALID_CSRF_TOKEN(HttpStatus.UNAUTHORIZED, "TOKEN4004", "유효하지 않은 CSRF Token입니다."),
+
     INVALID_PASSWORD(HttpStatus.UNAUTHORIZED, "PW4001", "잘못된 비밀번호입니다."),
 
     // 장소 저장 에러
@@ -83,7 +87,11 @@ public enum ErrorStatus implements BaseErrorCode {
     COMMENT_FORBIDDEN(HttpStatus.FORBIDDEN, "COMMENT4003", "해당 댓글에 대한 권한이 없습니다."),
 
     // 챌린지
-    CHALLENGE_NOT_FOUNDE(HttpStatus.NOT_FOUND, "CHALLENGE_4001", "챌린지가 존재하지 않습니다.");
+    CHALLENGE_NOT_FOUND(HttpStatus.NOT_FOUND, "CHALLENGE_4001", "챌린지가 존재하지 않습니다."),
+
+    // 큐레이션
+    CURATION_NO_LIKE_REGION(HttpStatus.NOT_FOUND, "CURATION_4001", "관심지역이 존재하지 않습니다."),
+    CURATION_NOT_ENOUGH_PLACES(HttpStatus.BAD_REQUEST, "CURATION_4002", "큐레이션 생성을 위한 장소가 부족합니다.");
 
     private final HttpStatus httpStatus;
     private final String code;
