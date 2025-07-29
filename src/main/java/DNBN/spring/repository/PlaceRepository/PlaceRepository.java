@@ -13,10 +13,7 @@ public interface PlaceRepository extends JpaRepository<Place, Long> {
     List<Place> findAllByRegion(Region region);
     Optional<Place> findByLatitudeAndLongitude(Double lat, Double lng);
 
-    @Query("SELECT p FROM Place p WHERE p.region.id IN :regionIds")
-    List<Place> findByRegionIds(@Param("regionIds") List<Long> regionIds);
+    List<Place> findByRegionId(Long regionId);
 
-    @Query("SELECT p FROM Place p WHERE p.region.id IN :regionIds")
-    List<Place> findByRegionIdIn(@Param("regionIds") List<Long> regionIds);
 }
 

@@ -32,12 +32,13 @@ public class CurationCommandServiceImpl implements CurationCommandService {
     public CurationResponseDTO generateCuration(Member member) {
         // 관심 지역 3개 중 첫번째 관심지역 가져오기
         List<LikeRegion> likeRegions = likeRegionRepository.findByMember(member);
-        List<Long> regionIds = likeRegions.stream()
-                .map(lr -> lr.getRegion().getId())
-                .toList();
+        if (likeRegions.isEmpty()) {
+            throw new IllegalStateException("관심 지역이 없습니다.");
+        }
+        Long regionId = likeRegions.get(0).getRegion().getId();
 
         // 관심 지역에 속한 모든 Place 조회
-        List<Place> places = placeRepository.findByRegionIdIn(regionIds);
+        List<Place> places = placeRepository.findByRegionId(regionId);
         if (places.size() < 3) {
             throw new IllegalStateException("큐레이션 생성을 위한 장소가 부족합니다.");
         }
@@ -49,23 +50,39 @@ public class CurationCommandServiceImpl implements CurationCommandService {
         // 큐레이션 저장
         Curation curation = Curation.builder()
                 .createdAt(LocalDate.now())
+                .title("테스트 큐레이션") // 필요시 동적으로 생성 가능
+                .likeCount(0L)
+                .commentCount(0L)
                 .build();
         curation = curationRepository.save(curation);
 
-        // 장소 저장
+        // 큐레이션 장소 매핑 저장
         for (Place place : selectedPlaces) {
             CurationPlace cp = CurationPlace.builder()
                     .curation(curation)
                     .place(place)
                     .build();
-
-            curation.getCurationPlaces().add(cp);
+            curation.getCurationPlaces().add(cp); // 중요: 양방향 연결
             curationPlaceRepository.save(cp);
         }
 
-        Curation fetched = curationRepository.findByIdWithPlaces(curation.getCurationId())
-                .orElseThrow(() -> new IllegalStateException("큐레이션 조회 실패"));
+        // 응답 DTO 구성
+        List<CurationResponseDTO.Places> dtoList = selectedPlaces.stream()
+                .map(place -> CurationResponseDTO.Places.builder()
+                        .likePlaceId(place.getPlaceId())
+                        .name(place.getTitle())
+                        .pinCategory(place.getPinCategory().name())
+                        .regionId(place.getRegion().getId())
+                        .build())
+                .toList();
 
-        return CurationConverter.toCurationResponseDTO(fetched);
+        return CurationResponseDTO.builder()
+                .curationId(curation.getCurationId())
+                .title(curation.getTitle())
+                .createdAt(curation.getCreatedAt())
+                .likeCount(curation.getLikeCount())
+                .commentCount(curation.getCommentCount())
+                .likePlaces(dtoList)
+                .build();
     }
 }

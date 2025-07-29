@@ -28,5 +28,6 @@ public class CurationResponseDTO {
         private Long likePlaceId;
         private String name;
         private String pinCategory;
+        private Long regionId;
     }
 }
