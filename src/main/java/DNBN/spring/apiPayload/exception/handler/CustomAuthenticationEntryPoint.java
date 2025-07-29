@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 
 @Component
-public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint {
+public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint { // 인증 실패 시 401 에러를 반환
     @Override
     public void commence(HttpServletRequest request,
                          HttpServletResponse response,

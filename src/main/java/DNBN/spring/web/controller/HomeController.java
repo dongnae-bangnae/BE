@@ -25,7 +25,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/home")
+@RequestMapping("api/home")
 public class HomeController {
     private final ArticleQueryService articleQueryService;
     private final ChallengeQueryService challengeQueryService;
