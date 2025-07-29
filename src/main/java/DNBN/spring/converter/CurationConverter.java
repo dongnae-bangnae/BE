@@ -11,6 +11,7 @@ public class CurationConverter {
                 .regionId(curation.getRegion().getId())
                 .regionName(curation.getRegion().getFullName())
                 .title(curation.getTitle())
+                .thumbnailImageUrl(curation.getThumbnailImageUrl())
                 .createdAt(curation.getCreatedAt())
                 .likeCount(curation.getLikeCount())
                 .commentCount(curation.getCommentCount())

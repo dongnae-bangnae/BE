@@ -3,13 +3,12 @@ package DNBN.spring.service.CurationService;
 import DNBN.spring.apiPayload.code.status.ErrorStatus;
 import DNBN.spring.apiPayload.exception.handler.CurationHandler;
 import DNBN.spring.converter.CurationConverter;
-import DNBN.spring.domain.Curation;
-import DNBN.spring.domain.Member;
-import DNBN.spring.domain.Place;
-import DNBN.spring.domain.Region;
+import DNBN.spring.domain.*;
 import DNBN.spring.domain.enums.PinCategory;
 import DNBN.spring.domain.mapping.CurationPlace;
 import DNBN.spring.domain.mapping.LikeRegion;
+import DNBN.spring.repository.ArticlePhotoRepository.ArticlePhotoRepository;
+import DNBN.spring.repository.ArticleRepository.ArticleRepository;
 import DNBN.spring.repository.CurationPlaceRepository.CurationPlaceRepository;
 import DNBN.spring.repository.CurationRepository.CurationRepository;
 import DNBN.spring.repository.LikeRegionRepository.LikeRegionRepository;
@@ -31,7 +30,8 @@ public class CurationCommandServiceImpl implements CurationCommandService {
     private final PlaceRepository placeRepository;
     private final CurationRepository curationRepository;
     private final CurationPlaceRepository curationPlaceRepository;
-    private final MemberRepository memberRepository;
+    private final ArticleRepository articleRepository;
+    private final ArticlePhotoRepository articlePhotoRepository;
 
     @Override
     public CurationResponseDTO generateCuration(Member member) {
@@ -63,12 +63,31 @@ public class CurationCommandServiceImpl implements CurationCommandService {
         Collections.shuffle(places);
         List<Place> selectedPlaces = places.subList(0, 3);
 
+        // 썸네일 이미지
+        Place firstPlace = selectedPlaces.get(0);
+        String thumbnailImageUrl = null;
+
+        // 첫번째 장소의 첫번째 게시물 썸네일 이미지 가져오기
+        List<Article> articles = articleRepository.findByPlaceOrderByCreatedAtAsc(firstPlace);
+
+        System.out.println("📄 게시물 수 = " + articles.size());
+
+        if (!articles.isEmpty()) {
+            List<ArticlePhoto> photos = articlePhotoRepository.findAllByArticle(articles.get(0));
+
+            System.out.println("🖼️ 대표 이미지 개수 = " + photos.size());
+            if (!photos.isEmpty()) {
+                thumbnailImageUrl = photos.get(0).toString();
+            }
+        }
+
         // 큐레이션 저장
         Curation curation = Curation.builder()
                 .createdAt(LocalDate.now())
                 .member(member)
                 .region(region)
                 .title("이번주 테스트 큐레이션") // 필요시 동적으로 생성 가능
+                .thumbnailImageUrl(thumbnailImageUrl)
                 .likeCount(0L)
                 .commentCount(0L)
                 .build();
