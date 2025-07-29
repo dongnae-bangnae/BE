@@ -13,6 +13,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Set;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -20,13 +21,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter { // 필터 �
 
     private final JwtTokenProvider jwtTokenProvider;
 
-//    private static final Set<String> NO_FILTER_URIS = Set.of("/auth/reissue", ""); // /auth/reissue 외에도 필요하면
+    private static final Set<String> NO_FILTER_URIS = Set.of("/auth/reissue", "/generate"); // /auth/reissue 외에도 필요하면
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         log.info("🔥 [JWT 필터 제외 검사]: {}", request.getRequestURI());
-        return request.getRequestURI().equals("/auth/reissue");
-//        return NO_FILTER_URIS.contains(request.getRequestURI()); // /auth/reissue 외에도 필요하면
+//        return request.getRequestURI().equals("/auth/reissue");
+        return NO_FILTER_URIS.contains(request.getRequestURI()); // /auth/reissue 외에도 필요하면
 //        return super.shouldNotFilter(request);
     }
 

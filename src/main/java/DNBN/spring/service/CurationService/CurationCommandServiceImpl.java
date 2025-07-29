@@ -67,7 +67,7 @@ public class CurationCommandServiceImpl implements CurationCommandService {
                     .curation(curation)
                     .place(place)
                     .build();
-            cp = curationPlaceRepository.save(cp);
+            curationPlaceRepository.save(cp);
         }
 
         return CurationConverter.toCurationResponseDTO(curation);
