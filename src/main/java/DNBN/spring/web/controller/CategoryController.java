@@ -9,9 +9,13 @@ import DNBN.spring.repository.MemberRepository.MemberRepository;
 import DNBN.spring.service.ArticleService.ArticleQueryService;
 import DNBN.spring.service.CategoryService.CategoryQueryService;
 import DNBN.spring.service.CategoryService.CategoryService;
+import DNBN.spring.service.PlaceService.PlaceQueryService;
+
 import DNBN.spring.web.dto.ArticleResponseDTO;
+
 import DNBN.spring.web.dto.CategoryRequestDTO;
 import DNBN.spring.web.dto.CategoryResponseDTO;
+import DNBN.spring.web.dto.PlaceResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -35,6 +39,9 @@ public class CategoryController {
     private final CategoryQueryService categoryQueryService;
     private final JwtTokenProvider jwtTokenProvider;
     private final MemberRepository memberRepository;
+
+    private final PlaceQueryService placeQueryService;
+
     private final ArticleQueryService articleQueryService;
 
     @Operation(summary = "내 카테고리 목록 조회", description = "로그인한 사용자의 카테고리 목록을 반환합니다.")
@@ -75,6 +82,34 @@ public class CategoryController {
         Long memberId = extractMemberIdFromToken(request);
         categoryService.delete(memberId, categoryId);
         return ResponseEntity.ok(ApiResponse.onSuccess(null));
+    }
+
+    @Operation(summary     = "카테고리에 저장된 장소 목록 조회", description = "해당 카테고리에 저장된 장소들을 커서 기반 페이징으로 반환합니다.")
+    @GetMapping("/{categoryId}/places")
+    public ResponseEntity<ApiResponse<PlaceResponseDTO.SavedPlaceListDTO>> getPlacesByCategory(
+            @PathVariable Long categoryId,
+
+            @Parameter(
+                    name        = "cursor",
+                    description = "다음 페이지 요청 시 기준이 되는 save_place PK (default: null)",
+                    schema      = @Schema(type="integer", format="int64", defaultValue="null")
+            )
+            @RequestParam(required = false) Long cursor,
+
+            @Parameter(
+                    name        = "limit",
+                    description = "최대 응답 개수 (default: 20)",
+                    schema      = @Schema(type="integer", format="int64", defaultValue="20"),
+                    example     = "20"
+            )
+            @RequestParam(defaultValue = "20") Long limit,
+
+            HttpServletRequest request
+    ) {
+        Long memberId = extractMemberIdFromToken(request);
+        PlaceResponseDTO.SavedPlaceListDTO result =
+                placeQueryService.getSavedPlaces(categoryId, memberId, cursor, limit);
+        return ResponseEntity.ok(ApiResponse.onSuccess(result));
     }
 
     private Long extractMemberIdFromToken(HttpServletRequest request) {
