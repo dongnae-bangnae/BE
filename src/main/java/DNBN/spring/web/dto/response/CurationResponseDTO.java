@@ -16,6 +16,7 @@ public class CurationResponseDTO {
     private Long curationId;
     private Long memberId;
     private Long regionId;
+    private Long regionName;
     private String title;
     private Long likeCount;
     private Long commentCount;
