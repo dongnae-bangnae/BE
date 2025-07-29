@@ -11,30 +11,36 @@ import DNBN.spring.web.dto.response.CurationResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/curation")
+@RequestMapping("/curations")
 public class CurationController {
     private final CurationCommandService curationCommandService;
     private final MemberRepository memberRepository;
 
     @PostMapping("/generate")
     @Operation(
-            summary = "오늘의 큐레이션 생성 API",
-            description = "관심 지역 기반으로 큐레이션을 생성합니다."
+            summary = "이번주의 큐레이션 생성 API",
+            description = "관심 지역 기반으로 큐레이션을 자동 생성합니다. 매주 월요일 아침 9시에 자동 갱신됩니다."
     )
     public ApiResponse<CurationResponseDTO> generateCuration(@AuthenticationPrincipal MemberDetails memberDetails) {
         if (memberDetails == null) {
             throw new MemberHandler(ErrorStatus._UNAUTHORIZED);
         }
 
-        Member member = memberDetails.getMember(); // 또는 memberDetails.getId() 후 memberRepository 조회
+        Member member = memberDetails.getMember();
         CurationResponseDTO response = curationCommandService.generateCuration(member);
         return ApiResponse.onSuccess(response);
+    }
+
+    @GetMapping("")
+    @Operation(
+            summary = "큐레이션 리스트 조회 API",
+            description = "큐레이션 전체 리스트를 보여줍니다. - JWT 인증 필수"
+    )
+    public ApiResponse<CurationResponseDTO> getCurations() {
+        return null;
     }
 }

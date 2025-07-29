@@ -24,4 +24,16 @@ public class CurationConverter {
                 )
                 .build();
     }
+
+    public static CurationResponseDTO toCurationPreviewDTO(Curation curation) {
+        return CurationResponseDTO.builder()
+                .curationId(curation.getCurationId())
+                .memberId(curation.getMember().getId())
+                .regionId(curation.getRegion().getId())
+                .title(curation.getTitle())
+                .createdAt(curation.getCreatedAt())
+                .likeCount(curation.getLikeCount())
+                .commentCount(curation.getCommentCount())
+                .build();
+    }
 }
