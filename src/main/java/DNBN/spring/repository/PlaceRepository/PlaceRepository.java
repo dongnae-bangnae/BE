@@ -15,5 +15,14 @@ public interface PlaceRepository extends JpaRepository<Place, Long> {
 
     @Query("SELECT p FROM Place p WHERE p.region.id IN :regionIds")
     List<Place> findByRegionIds(@Param("regionIds") List<Long> regionIds);
+
+    @Query("""
+        SELECT DISTINCT p
+        FROM Place p
+        JOIN Article a ON a.place = p
+        WHERE p.region.id IN :regionIds
+    """)
+    List<Place> findPlacesWithArticlesByRegionIds(@Param("regionIds") List<Long> regionIds);
+
 }
 
