@@ -23,12 +23,12 @@ public class SavePlaceRepositoryImpl implements SavePlaceRepositoryCustom {
         builder.and(savePlace.category.categoryId.eq(categoryId));
 
         if (cursor != null) {
-            builder.and(savePlace.id.gt(cursor));
+            builder.and(savePlace.id.lt(cursor));
         }
 
         return jpaQueryFactory.selectFrom(savePlace)
                 .where(builder)
-                .orderBy(savePlace.id.asc())
+                .orderBy(savePlace.id.desc())
                 .limit(limit)
                 .fetch();
     }
