@@ -1,5 +1,7 @@
 package DNBN.spring.service.CurationService;
 
+import DNBN.spring.apiPayload.code.status.ErrorStatus;
+import DNBN.spring.apiPayload.exception.handler.CurationHandler;
 import DNBN.spring.converter.CurationConverter;
 import DNBN.spring.domain.Curation;
 import DNBN.spring.domain.Member;
@@ -33,14 +35,14 @@ public class CurationCommandServiceImpl implements CurationCommandService {
         // 관심 지역 3개 중 첫번째 관심지역 가져오기
         List<LikeRegion> likeRegions = likeRegionRepository.findByMember(member);
         if (likeRegions.isEmpty()) {
-            throw new IllegalStateException("관심 지역이 없습니다.");
+            throw new CurationHandler(ErrorStatus.CURATION_NO_LIKE_REGION);
         }
         Long regionId = likeRegions.get(0).getRegion().getId();
 
         // 관심 지역에 속한 모든 Place 조회
         List<Place> places = placeRepository.findByRegionId(regionId);
         if (places.size() < 3) {
-            throw new IllegalStateException("큐레이션 생성을 위한 장소가 부족합니다.");
+            throw new CurationHandler(ErrorStatus.CURATION_NOT_ENOUGH_PLACES);
         }
 
         // 랜덤으로 3개 선택

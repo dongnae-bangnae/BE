@@ -19,7 +19,7 @@ public class ChallengeQueryServiceImpl implements ChallengeQueryService {
     @Override
     public ChallengeResponseDTO.ChallengeDetailDTO getChallengeDetail(Long challengeId) {
         Challenge challenge = challengeRepository.findById(challengeId)
-                .orElseThrow(() -> new ChallengeHandler(ErrorStatus.CHALLENGE_NOT_FOUNDE));
+                .orElseThrow(() -> new ChallengeHandler(ErrorStatus.CHALLENGE_NOT_FOUND));
         return ChallengeConverter.challengeDetailDTO(challenge);
     }
 }

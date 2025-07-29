@@ -1,6 +1,8 @@
 package DNBN.spring.web.controller;
 
 import DNBN.spring.apiPayload.ApiResponse;
+import DNBN.spring.apiPayload.code.status.ErrorStatus;
+import DNBN.spring.apiPayload.exception.handler.MemberHandler;
 import DNBN.spring.domain.Member;
 import DNBN.spring.domain.MemberDetails;
 import DNBN.spring.repository.MemberRepository.MemberRepository;
@@ -28,7 +30,7 @@ public class CurationController {
     )
     public ApiResponse<CurationResponseDTO> generateCuration(@AuthenticationPrincipal MemberDetails memberDetails) {
         if (memberDetails == null) {
-            throw new IllegalArgumentException("인증되지 않은 사용자입니다.");
+            throw new MemberHandler(ErrorStatus._UNAUTHORIZED);
         }
 
         Member member = memberDetails.getMember(); // 또는 memberDetails.getId() 후 memberRepository 조회
