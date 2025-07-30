@@ -2,8 +2,6 @@ package DNBN.spring.web.dto;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -16,8 +14,11 @@ public class ArticleResponseDTO {
     private Long categoryId;
     private Long placeId;
     private Long regionId;
+    private String placeName;
+    private String pinCategory;
+    private String detailAddress;
     private String title;
-    private LocalDate date;
+    private String date;
     private String content;
     private String mainImageUuid;
     private List<String> imageUuids;
@@ -26,12 +27,15 @@ public class ArticleResponseDTO {
     private String createdAt;
     private String updatedAt;
 
-    public ArticleResponseDTO(Long articleId, Long memberId, Long categoryId, Long placeId, Long regionId, String title, LocalDate date, String content, String mainImageUuid, List<String> imageUuids, Long likeCount, Long spamCount, String createdAt, String updatedAt) {
+    public ArticleResponseDTO(Long articleId, Long memberId, Long categoryId, Long placeId, Long regionId, String placeName, String pinCategory, String detailAddress, String title, String date, String content, String mainImageUuid, List<String> imageUuids, Long likeCount, Long spamCount, String createdAt, String updatedAt) {
         this.articleId = articleId;
         this.memberId = memberId;
         this.categoryId = categoryId;
         this.placeId = placeId;
         this.regionId = regionId;
+        this.placeName = placeName;
+        this.pinCategory = pinCategory;
+        this.detailAddress = detailAddress;
         this.title = title;
         this.date = date;
         this.content = content;

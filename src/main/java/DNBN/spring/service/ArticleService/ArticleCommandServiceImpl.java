@@ -53,6 +53,11 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
         Place place = getPlace(request.placeId());
         Region region = getRegion(request.regionId());
 
+        // TODO: Place 업데이트 필요 🚩🚩
+        String placeName = request.placeName();
+        String pinCategory = request.pinCategory();
+        log.info("Creating new place with name: {}, pinCategory: {}", placeName, pinCategory);
+
         Article article = createArticleEntity(member, category, place, region, request);
         articleRepository.save(article);
 
@@ -65,8 +70,17 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
     public ArticleWithPhotos createArticle(Long memberId, ArticleWithLocationRequestDTO request, MultipartFile mainImage, List<MultipartFile> imageFiles) {
         Member member = getMember(memberId);
         Category category = getCategory(request.categoryId());
-        Place place = getPlace(request.placeId()); // TODO: ??????????
-        Region region = findOrCreateRegionByLatLng(request.latitude(), request.longitude()); // TODO: 🚩🚩🚩🚩🚩
+
+        // TODO: Place 및 Region 생성 로직 추가 필요 🚩🚩
+        String placeName = request.placeName();
+        String pinCategory = request.pinCategory();
+        String detailAddress = request.detailAddress();
+        Double latitude = request.latitude();
+        Double longitude = request.longitude();
+        log.info("Creating new place with name: {}, pinCategory: {}, detailAddress: {}, latitude: {}, longitude: {}", placeName, pinCategory, detailAddress, latitude, longitude);
+
+        Place place = getPlace(1L);
+        Region region = getRegion(1L);
 
         Article article = createArticleEntity(member, category, place, region, request);
         articleRepository.save(article);
@@ -94,6 +108,10 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
 
     // TODO: 팩토리 검토
     private Article createArticleEntity(Member member, Category category, Place place, Region region, ArticleRequestDTO request) {
+        // placeName, pinCategory 활용 예시 (추후 도메인/DB 반영 필요)
+        String placeName = request.placeName();
+        String pinCategory = request.pinCategory();
+        // ...기존 빌더 코드...
         return Article.builder()
                 .member(member)
                 .category(category)
@@ -104,6 +122,7 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
                 .content(request.content())
                 .likesCount(0L)
                 .spamCount(0L)
+                // 필요시 placeName, pinCategory를 Article에 저장하도록 확장 가능
                 .build();
     }
     private Article createArticleEntity(Member member, Category category, Place place, Region region, ArticleWithLocationRequestDTO request) {
@@ -176,22 +195,6 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
             throw new ArticlePhotoHandler(ErrorStatus.ARTICLE_PHOTO_S3_UPLOAD_FAILED);
         }
         return photos;
-    }
-
-    // TODO: SRP 위반
-    // TODO: 임시 ���역 생성 메소드 - 연결 후 삭제 필요
-    private Region findOrCreateRegionByLatLng(Double latitude, Double longitude) {
-        String province = "서울";
-        String city = "강남구";
-        String district = latitude + "," + longitude;
-        return regionRepository.findByProvinceAndCityAndDistrict(province, city, district)
-                .orElseGet(() -> regionRepository.save(
-                        Region.builder()
-                                .province(province)
-                                .city(city)
-                                .district(district)
-                                .build()
-                ));
     }
 
     @Override
