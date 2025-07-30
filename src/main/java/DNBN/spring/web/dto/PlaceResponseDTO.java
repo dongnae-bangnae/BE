@@ -45,6 +45,7 @@ public class PlaceResponseDTO {
         private Double latitude;
         private Double longitude;
         private String pinCategory;
+        private String address;
     }
 
     @Builder
