@@ -43,6 +43,7 @@ public class ArticleController {
         Long memberId = memberDetails.getMember().getId();
         ArticleCommandService.ArticleWithPhotos result = articleCommandService.createArticle(memberId, dto, mainImage, imageFiles);
         ArticleResponseDTO response = ArticleConverter.toArticleResponseDTO(result.article, result.photos);
+        // TODO: 게시글 API 응답 포맷을 ApiResponse.of로 통일
         return ApiResponse.onSuccess(response);
     }
 

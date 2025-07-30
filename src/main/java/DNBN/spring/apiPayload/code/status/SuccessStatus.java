@@ -26,6 +26,7 @@ public enum SuccessStatus implements BaseCode {
 
     // 댓글
     COMMENT_CREATE_SUCCESS(HttpStatus.OK, "COMMENT_CREATE_SUCCESS", "댓글이 정상적으로 작성되었습니다."),
+    COMMENT_UPDATE_SUCCESS(HttpStatus.OK, "COMMENT_UPDATE_SUCCESS", "댓글이 정상적으로 수정되었습니다."),
     COMMENT_DELETE_SUCCESS(HttpStatus.OK, "COMMENT_DELETE_SUCCESS", "댓글이 정상적으로 삭제되었습니다."),
 
     // 동네 검색

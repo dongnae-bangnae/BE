@@ -73,6 +73,6 @@ public class CommentController {
     ) {
         Long memberId = memberDetails.getMember().getId();
         CommentResponseDTO response = commentCommandService.updateComment(memberId, commentId, articleId, request);
-        return ApiResponse.of(SuccessStatus.COMMENT_CREATE_SUCCESS, response);
+        return ApiResponse.of(SuccessStatus.COMMENT_UPDATE_SUCCESS, response);
     }
 }

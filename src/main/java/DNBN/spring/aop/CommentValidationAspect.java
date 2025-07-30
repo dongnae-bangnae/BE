@@ -40,10 +40,15 @@ public class CommentValidationAspect {
     @Before("execution(* DNBN.spring.service.CommentService.CommentCommandServiceImpl.updateComment(..))")
     public void validateCommentContent(JoinPoint joinPoint) {
         Object[] args = joinPoint.getArgs();
-        CommentRequestDTO request = (CommentRequestDTO) args[3];
-        if (request.content() == null || request.content().length() < 2 || request.content().length() > 1000) {
+        Object dto = args[3];
+        String content = null;
+        if (dto instanceof DNBN.spring.web.dto.CommentRequestDTO req) {
+            content = req.content();
+        } else if (dto instanceof DNBN.spring.web.dto.CommentUpdateRequestDTO req) {
+            content = req.content();
+        }
+        if (content == null || content.length() < 2 || content.length() > 1000) {
             throw new CommentHandler(ErrorStatus.COMMENT_CONTENT_LENGTH_INVALID);
         }
     }
 }
-
