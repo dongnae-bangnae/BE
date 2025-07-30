@@ -12,6 +12,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -55,5 +56,22 @@ public class CommentController {
         Long memberId = memberDetails.getMember().getId();
         commentCommandService.deleteComment(memberId, commentId, articleId);
         return ApiResponse.of(SuccessStatus.COMMENT_DELETE_SUCCESS, null);
+    }
+
+    @PatchMapping("/{commentId}")
+    @Operation(
+        summary = "댓글 수정",
+        description = "댓글 내용을 수정합니다. JWT 인증 필요.",
+        security = @SecurityRequirement(name = "JWT TOKEN")
+    )
+    public ApiResponse<CommentResponseDTO> updateComment(
+            @AuthenticationPrincipal MemberDetails memberDetails,
+            @PathVariable Long articleId,
+            @PathVariable Long commentId,
+            @RequestBody @Valid CommentRequestDTO request
+    ) {
+        Long memberId = memberDetails.getMember().getId();
+        CommentResponseDTO response = commentCommandService.updateComment(memberId, commentId, articleId, request);
+        return ApiResponse.of(SuccessStatus.COMMENT_CREATE_SUCCESS, response);
     }
 }

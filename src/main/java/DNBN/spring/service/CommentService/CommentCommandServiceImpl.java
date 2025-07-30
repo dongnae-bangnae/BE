@@ -76,4 +76,26 @@ public class CommentCommandServiceImpl implements CommentCommandService {
 
         comment.delete();
     }
+
+    @Override
+    public CommentResponseDTO updateComment(Long memberId, Long commentId, Long articleId, CommentRequestDTO request) {
+        Comment comment = commentRepository.findById(commentId)
+            .orElseThrow(() -> new CommentHandler(ErrorStatus.COMMENT_NOT_FOUND));
+
+        if (!comment.getArticle().getArticleId().equals(articleId)) {
+            throw new ArticleHandler(ErrorStatus.ARTICLE_NOT_FOUND);
+        }
+        if (!comment.getMember().getId().equals(memberId)) {
+            throw new CommentHandler(ErrorStatus.COMMENT_FORBIDDEN);
+        }
+        if (comment.getDeletedAt() != null) {
+            throw new CommentHandler(ErrorStatus.COMMENT_ALREADY_DELETED);
+        }
+        if (request.content() == null || request.content().length() < CONTENT_MIN_LENGTH || request.content().length() > CONTENT_MAX_LENGTH) {
+            throw new CommentHandler(ErrorStatus.COMMENT_CONTENT_LENGTH_INVALID);
+        }
+        comment.updateContent(request.content());
+        // JPA dirty checking으로 자동 업데이트
+        return CommentConverter.toCommentResponseDTO(comment);
+    }
 }
