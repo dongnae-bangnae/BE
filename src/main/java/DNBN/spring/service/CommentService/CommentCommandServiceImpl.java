@@ -6,8 +6,10 @@ import DNBN.spring.apiPayload.exception.handler.CommentHandler;
 import DNBN.spring.converter.CommentConverter;
 import DNBN.spring.domain.Article;
 import DNBN.spring.domain.Comment;
+import DNBN.spring.domain.Member;
 import DNBN.spring.repository.ArticleRepository.ArticleRepository;
 import DNBN.spring.repository.CommentRepository.CommentRepository;
+import DNBN.spring.repository.MemberRepository.MemberRepository;
 import DNBN.spring.web.dto.CommentRequestDTO;
 import DNBN.spring.web.dto.CommentResponseDTO;
 import lombok.RequiredArgsConstructor;
@@ -23,12 +25,15 @@ public class CommentCommandServiceImpl implements CommentCommandService {
 
     private static final int CONTENT_MIN_LENGTH = 2;
     private static final int CONTENT_MAX_LENGTH = 1000;
+    private final MemberRepository memberRepository;
 
     @Override
     public CommentResponseDTO createComment(Long memberId, Long articleId, CommentRequestDTO request) {
 
         Article article = articleRepository.findById(articleId)
                 .orElseThrow(() -> new ArticleHandler(ErrorStatus.ARTICLE_NOT_FOUND));
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new ArticleHandler(ErrorStatus.MEMBER_NOT_FOUND));
 
         if (request.content() == null || request.content().length() < CONTENT_MIN_LENGTH || request.content().length() > CONTENT_MAX_LENGTH) {
             throw new CommentHandler(ErrorStatus.COMMENT_CONTENT_LENGTH_INVALID);
@@ -45,11 +50,30 @@ public class CommentCommandServiceImpl implements CommentCommandService {
         }
         Comment comment = Comment.builder()
                 .article(article)
+                .member(member)
                 .content(request.content())
                 .parentComment(parentComment)
                 .build();
 
         commentRepository.save(comment);
         return CommentConverter.toCommentResponseDTO(comment);
+    }
+
+    @Override
+    public void deleteComment(Long memberId, Long commentId, Long articleId) {
+        Comment comment = commentRepository.findById(commentId)
+            .orElseThrow(() -> new CommentHandler(ErrorStatus.COMMENT_NOT_FOUND));
+
+        if (!comment.getArticle().getArticleId().equals(articleId)) {
+            throw new ArticleHandler(ErrorStatus.ARTICLE_NOT_FOUND);
+        }
+        if (!comment.getMember().getId().equals(memberId)) {
+            throw new CommentHandler(ErrorStatus.COMMENT_FORBIDDEN);
+        }
+        if (comment.getDeletedAt() != null) {
+            throw new CommentHandler(ErrorStatus.COMMENT_ALREADY_DELETED);
+        }
+
+        comment.delete();
     }
 }
