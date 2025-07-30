@@ -4,8 +4,9 @@ import DNBN.spring.domain.Member;
 import DNBN.spring.web.dto.response.CurationResponseDTO;
 
 import java.time.LocalDate;
+import java.util.List;
 
 public interface CurationCommandService {
-    CurationResponseDTO generateCuration(Member member);
+    List<CurationResponseDTO.CurationDetailDTO> generateCurations();
     LocalDate getStartOfThisWeek();
 }

@@ -92,7 +92,7 @@ public enum ErrorStatus implements BaseErrorCode {
     CHALLENGE_NOT_FOUND(HttpStatus.NOT_FOUND, "CHALLENGE_4001", "챌린지가 존재하지 않습니다."),
 
     // 큐레이션
-    CURATION_NO_LIKE_REGION(HttpStatus.NOT_FOUND, "CURATION_4001", "관심지역이 존재하지 않습니다."),
+    CURATION_NO_VALID_REGION(HttpStatus.NOT_FOUND, "CURATION_4001", "지역이 존재하지 않습니다."),
     CURATION_NOT_ENOUGH_PLACES(HttpStatus.BAD_REQUEST, "CURATION_4002", "큐레이션 생성을 위한 장소가 부족합니다."),
     CURATION_NOT_FOUND(HttpStatus.NOT_FOUND,"CURATION_4003","큐레이션이 존재하지 않습니다. 먼저 생성 후 진행하세요.");
 
