@@ -2,6 +2,8 @@ package DNBN.spring.web.dto;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -24,6 +26,24 @@ public class ArticleResponseDTO {
     private String createdAt;
     private String updatedAt;
 
+    public ArticleResponseDTO(Long articleId, Long memberId, Long categoryId, Long placeId, Long regionId, String title, LocalDate date, String content, String mainImageUuid, List<String> imageUuids, Long likeCount, Long spamCount, String createdAt, String updatedAt) {
+        this.articleId = articleId;
+        this.memberId = memberId;
+        this.categoryId = categoryId;
+        this.placeId = placeId;
+        this.regionId = regionId;
+        this.title = title;
+        this.date = date;
+        this.content = content;
+        this.mainImageUuid = mainImageUuid;
+        // 방어적 복사
+        this.imageUuids = imageUuids == null ? null : List.copyOf(imageUuids);
+        this.likeCount = likeCount;
+        this.spamCount = spamCount;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+    }
+
     @Builder
     @Getter
     public static class ArticlePreviewDTO {
@@ -34,6 +54,16 @@ public class ArticleResponseDTO {
         private Long likes;
         private Long spam;
         private Long comments;
+
+        public ArticlePreviewDTO(Long articleId, String pinCategory, String imageUrl, String title, Long likes, Long spam, Long comments) {
+            this.articleId = articleId;
+            this.pinCategory = pinCategory;
+            this.imageUrl = imageUrl;
+            this.title = title;
+            this.likes = likes;
+            this.spam = spam;
+            this.comments = comments;
+        }
     }
 
     @Builder
@@ -43,7 +73,13 @@ public class ArticleResponseDTO {
         private Long cursor;
         private Long limit;
         private boolean hasNext;
+
+        public ArticleListDTO(List<ArticlePreviewDTO> articles, Long cursor, Long limit, boolean hasNext) {
+            // 방어적 복사
+            this.articles = articles == null ? null : List.copyOf(articles);
+            this.cursor = cursor;
+            this.limit = limit;
+            this.hasNext = hasNext;
+        }
     }
-
 }
-

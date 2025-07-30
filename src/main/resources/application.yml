@@ -102,3 +102,14 @@ cloud:
     credentials:
       accessKey: ${AWS_ACCESS_KEY}
       secretKey: ${AWS_SECRET_KEY}
+article:
+  validation:
+    title:
+      min-length: 2
+      max-length: 100
+    content:
+      min-length: 10
+      max-length: 5000
+    image:
+      max-count: 10
+      max-size: 10485760 # 10MB (byte)
