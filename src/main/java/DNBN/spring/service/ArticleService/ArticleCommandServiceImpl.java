@@ -56,7 +56,8 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
         // TODO: Place 업데이트 필요 🚩🚩
         String placeName = request.placeName();
         String pinCategory = request.pinCategory();
-        log.info("placeName: {}, pinCategory: {}", placeName, pinCategory);
+        String detailAddress = request.detailAddress();
+        log.info("Creating new place with name: {}, pinCategory: {}, detailAddress: {}", placeName, pinCategory, detailAddress);
 
         Article article = createArticleEntity(member, category, place, region, request);
         articleRepository.save(article);
@@ -74,9 +75,10 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
         // TODO: Place 및 Region 생성 로직 추가 필요 🚩🚩
         String placeName = request.placeName();
         String pinCategory = request.pinCategory();
+        String detailAddress = request.detailAddress();
         Double latitude = request.latitude();
         Double longitude = request.longitude();
-        log.info("Creating new place with name: {}, pinCategory: {}, latitude: {}, longitude: {}", placeName, pinCategory, latitude, longitude);
+        log.info("Creating new place with name: {}, pinCategory: {}, detailAddress: {}, latitude: {}, longitude: {}", placeName, pinCategory, detailAddress, latitude, longitude);
 
         Place place = getPlace(1L);
         Region region = getRegion(1L);

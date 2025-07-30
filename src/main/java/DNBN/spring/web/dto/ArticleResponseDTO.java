@@ -16,6 +16,7 @@ public class ArticleResponseDTO {
     private Long regionId;
     private String placeName;
     private String pinCategory;
+    private String detailAddress;
     private String title;
     private LocalDate date;
     private String content;
@@ -26,15 +27,18 @@ public class ArticleResponseDTO {
     private String createdAt;
     private String updatedAt;
 
-    public ArticleResponseDTO(Long articleId, Long memberId, Long categoryId, Long placeId, Long regionId, String title, LocalDate date, String content, String mainImageUuid, List<String> imageUuids, Long likeCount, Long spamCount, String createdAt, String updatedAt) {
+    public ArticleResponseDTO(Long articleId, Long memberId, Long categoryId, Long placeId, Long regionId, String placeName, String pinCategory, String title, LocalDate date, String content, String detailAddress, String mainImageUuid, List<String> imageUuids, Long likeCount, Long spamCount, String createdAt, String updatedAt) {
         this.articleId = articleId;
         this.memberId = memberId;
         this.categoryId = categoryId;
         this.placeId = placeId;
         this.regionId = regionId;
+        this.placeName = placeName;
+        this.pinCategory = pinCategory;
         this.title = title;
         this.date = date;
         this.content = content;
+        this.detailAddress = detailAddress;
         this.mainImageUuid = mainImageUuid;
         // 방어적 복사
         this.imageUuids = imageUuids == null ? null : List.copyOf(imageUuids);

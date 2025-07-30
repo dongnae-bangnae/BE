@@ -16,5 +16,6 @@ public record ArticleWithLocationRequestDTO(
     @NotNull(message = "경도는 필수입니다.") Double longitude,
     @NotBlank(message = "제목은 필수입니다.") String title,
     @NotNull(message = "날짜는 필수입니다.") LocalDate date,
-    @NotBlank(message = "내용은 필수입니다.") String content
+    @NotBlank(message = "내용은 필수입니다.") String content,
+    @NotBlank(message = "상세주소는 필수입니다.") String detailAddress
 ) {}
