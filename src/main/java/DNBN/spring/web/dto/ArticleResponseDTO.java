@@ -18,7 +18,7 @@ public class ArticleResponseDTO {
     private String pinCategory;
     private String detailAddress;
     private String title;
-    private LocalDate date;
+    private String date;
     private String content;
     private String mainImageUuid;
     private List<String> imageUuids;
@@ -27,7 +27,7 @@ public class ArticleResponseDTO {
     private String createdAt;
     private String updatedAt;
 
-    public ArticleResponseDTO(Long articleId, Long memberId, Long categoryId, Long placeId, Long regionId, String placeName, String pinCategory, String title, LocalDate date, String content, String detailAddress, String mainImageUuid, List<String> imageUuids, Long likeCount, Long spamCount, String createdAt, String updatedAt) {
+    public ArticleResponseDTO(Long articleId, Long memberId, Long categoryId, Long placeId, Long regionId, String placeName, String pinCategory, String title, String date, String content, String detailAddress, String mainImageUuid, List<String> imageUuids, Long likeCount, Long spamCount, String createdAt, String updatedAt) {
         this.articleId = articleId;
         this.memberId = memberId;
         this.categoryId = categoryId;
