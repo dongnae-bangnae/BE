@@ -1,5 +1,6 @@
 package DNBN.spring.service.ArticleService;
 
+import DNBN.spring.aop.annotation.ValidateS3ImageUpload;
 import DNBN.spring.apiPayload.code.status.ErrorStatus;
 import DNBN.spring.apiPayload.exception.handler.ArticleHandler;
 import DNBN.spring.apiPayload.exception.handler.ArticlePhotoHandler;
@@ -45,6 +46,7 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
     private final AmazonS3Manager s3Manager;
 
     @Override
+    @ValidateS3ImageUpload
     public ArticleWithPhotos createArticle(Long memberId, ArticleRequestDTO request, MultipartFile mainImage, List<MultipartFile> imageFiles) {
         Member member = getMember(memberId);
         Category category = getCategory(request.categoryId());
@@ -59,10 +61,11 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
     }
 
     @Override
+    @ValidateS3ImageUpload
     public ArticleWithPhotos createArticle(Long memberId, ArticleWithLocationRequestDTO request, MultipartFile mainImage, List<MultipartFile> imageFiles) {
         Member member = getMember(memberId);
         Category category = getCategory(request.categoryId());
-        Place place = getPlace(request.placeId()); // TODO: 🚩🚩🚩🚩🚩
+        Place place = getPlace(request.placeId()); // TODO: ??????????
         Region region = findOrCreateRegionByLatLng(request.latitude(), request.longitude()); // TODO: 🚩🚩🚩🚩🚩
 
         Article article = createArticleEntity(member, category, place, region, request);
@@ -176,7 +179,7 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
     }
 
     // TODO: SRP 위반
-    // TODO: 임시 지역 생성 메소드 - 연결 후 삭제 필요
+    // TODO: 임시 ���역 생성 메소드 - 연결 후 삭제 필요
     private Region findOrCreateRegionByLatLng(Double latitude, Double longitude) {
         String province = "서울";
         String city = "강남구";
