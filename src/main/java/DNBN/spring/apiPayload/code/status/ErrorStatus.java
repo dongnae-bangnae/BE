@@ -66,6 +66,8 @@ public enum ErrorStatus implements BaseErrorCode {
     CATEGORY_ALREADY_SAVED_FOR_PLACE(HttpStatus.CONFLICT, "SAVE_PLACE4001", "이미 해당 장소가 이 카테고리에 저장되어 있습니다."),
     PLACE_NOT_FOUND(HttpStatus.NOT_FOUND, "PLACE4001", "해당 장소를 찾을 수 없습니다."),
     COORDINATE_PRECISION_INVALID(HttpStatus.BAD_REQUEST, "PLACE4002", "소수점 5자리까지만 입력 가능합니다."),
+    PIN_CATEGORY_INVALID(HttpStatus.BAD_REQUEST, "PLACE4003", "유효하지 않은 핀 카테고리입니다."),
+
 
     //like
     POST_NOT_FOUND(HttpStatus.NOT_FOUND, "POST404", "해당 게시물을 찾을 수 없습니다."),

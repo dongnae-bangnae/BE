@@ -15,6 +15,7 @@ import DNBN.spring.domain.Category;
 import DNBN.spring.domain.Member;
 import DNBN.spring.domain.Place;
 import DNBN.spring.domain.Region;
+import DNBN.spring.domain.enums.PinCategory;
 import DNBN.spring.repository.ArticlePhotoRepository.ArticlePhotoRepository;
 import DNBN.spring.repository.ArticleRepository.ArticleRepository;
 import DNBN.spring.repository.CategoryRepository.CategoryRepository;
@@ -53,10 +54,17 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
         Place place = getPlace(request.placeId());
         Region region = getRegion(request.regionId());
 
-        // TODO: Place 업데이트 필요 🚩🚩
-        String placeName = request.placeName();
-        String pinCategory = request.pinCategory();
-        log.info("Creating new place with name: {}, pinCategory: {}", placeName, pinCategory);
+        // pinCategory 파싱 & 검증
+        PinCategory newPinCategory;
+        try {
+            newPinCategory = PinCategory.valueOf(request.pinCategory().toUpperCase());
+        } catch (IllegalArgumentException | NullPointerException e) {
+            throw new PlaceHandler(ErrorStatus.PIN_CATEGORY_INVALID);
+        }
+
+        // Place에 업데이트
+        place.updateTitle(request.placeName());
+        place.updatePinCategory(newPinCategory);
 
         Article article = createArticleEntity(member, category, place, region, request);
         articleRepository.save(article);
@@ -70,17 +78,26 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
     public ArticleWithPhotos createArticle(Long memberId, ArticleWithLocationRequestDTO request, MultipartFile mainImage, List<MultipartFile> imageFiles) {
         Member member = getMember(memberId);
         Category category = getCategory(request.categoryId());
+        Region region    = getRegion(request.regionId());
 
-        // TODO: Place 및 Region 생성 로직 추가 필요 🚩🚩
-        String placeName = request.placeName();
-        String pinCategory = request.pinCategory();
-        String detailAddress = request.detailAddress();
-        Double latitude = request.latitude();
-        Double longitude = request.longitude();
-        log.info("Creating new place with name: {}, pinCategory: {}, detailAddress: {}, latitude: {}, longitude: {}", placeName, pinCategory, detailAddress, latitude, longitude);
+        try {
+            PinCategory.valueOf(request.pinCategory().toUpperCase());
+        } catch (IllegalArgumentException | NullPointerException ex) {
+            throw new PlaceHandler(ErrorStatus.PIN_CATEGORY_INVALID);
+        }
 
-        Place place = getPlace(1L);
-        Region region = getRegion(1L);
+        // DTO 에서 넘어온 값으로 새 Place 생성
+        Place place = Place.builder()
+                .region(region)
+                .latitude(request.latitude())
+                .longitude(request.longitude())
+                .title(request.placeName())
+                .address(request.detailAddress())
+                .pinCategory(PinCategory.valueOf(request.pinCategory().toUpperCase()))
+                .build();
+
+        // DB에 Place 저장
+        place = placeRepository.save(place);
 
         Article article = createArticleEntity(member, category, place, region, request);
         articleRepository.save(article);
