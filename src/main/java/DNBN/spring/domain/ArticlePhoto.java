@@ -43,4 +43,9 @@ public class ArticlePhoto extends BaseEntity {
   private Boolean isMain = false;
 
   private LocalDateTime deletedAt;
+
+  public String getImageUrl() {
+    final String S3_BASE_URL = "https://dnbn-bucket.s3.ap-northeast-2.amazonaws.com/";
+    return S3_BASE_URL + this.fileKey;
+  }
 }

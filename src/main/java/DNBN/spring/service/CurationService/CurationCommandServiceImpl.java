@@ -76,7 +76,7 @@ public class CurationCommandServiceImpl implements CurationCommandService {
             if (!articles.isEmpty()) {
                 List<ArticlePhoto> photos = articlePhotoRepository.findAllByArticle(articles.get(0));
                 if (!photos.isEmpty()) {
-                    thumbnailImageUrl = photos.get(0).toString(); // 실제 이미지 URL 필드 사용
+                    thumbnailImageUrl = photos.get(0).getImageUrl(); // 실제 이미지 URL 필드 사용
                 }
             }
 
@@ -115,6 +115,7 @@ public class CurationCommandServiceImpl implements CurationCommandService {
                     .regionId(region.getId())
                     .regionName(region.getFullName())
                     .title(curation.getTitle())
+                    .thumbnailImageUrl(thumbnailImageUrl)
                     .createdAt(curation.getCreatedAt())
                     .likeCount(curation.getLikeCount())
                     .commentCount(curation.getCommentCount())
