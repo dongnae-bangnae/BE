@@ -56,8 +56,7 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
         // TODO: Place 업데이트 필요 🚩🚩
         String placeName = request.placeName();
         String pinCategory = request.pinCategory();
-        String detailAddress = request.detailAddress();
-        log.info("Creating new place with name: {}, pinCategory: {}, detailAddress: {}", placeName, pinCategory, detailAddress);
+        log.info("Creating new place with name: {}, pinCategory: {}", placeName, pinCategory);
 
         Article article = createArticleEntity(member, category, place, region, request);
         articleRepository.save(article);
