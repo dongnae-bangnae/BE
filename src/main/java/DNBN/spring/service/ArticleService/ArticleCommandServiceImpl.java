@@ -26,7 +26,6 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -36,18 +35,6 @@ import org.springframework.web.multipart.MultipartFile;
 @RequiredArgsConstructor
 @Transactional
 public class ArticleCommandServiceImpl implements ArticleCommandService {
-    @Value("${article.validation.image.max-count}")
-    private int maxImageCount;
-    @Value("${article.validation.image.max-size}")
-    private long maxImageSize;
-    @Value("${article.validation.title.min-length}")
-    private int titleMinLength;
-    @Value("${article.validation.title.max-length}")
-    private int titleMaxLength;
-    @Value("${article.validation.content.min-length}")
-    private int contentMinLength;
-    @Value("${article.validation.content.max-length}")
-    private int contentMaxLength;
 
     private final ArticleRepository articleRepository;
     private final ArticlePhotoRepository articlePhotoRepository;
@@ -57,7 +44,6 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
     private final RegionRepository regionRepository;
     private final AmazonS3Manager s3Manager;
 
-    // TODO: 함수 및 클래스로 분리하기 (아래의 오버로딩 함수 포함)
     @Override
     public ArticleWithPhotos createArticle(Long memberId, ArticleRequestDTO request, MultipartFile mainImage, List<MultipartFile> imageFiles) {
         Member member = getMember(memberId);
@@ -76,8 +62,8 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
     public ArticleWithPhotos createArticle(Long memberId, ArticleWithLocationRequestDTO request, MultipartFile mainImage, List<MultipartFile> imageFiles) {
         Member member = getMember(memberId);
         Category category = getCategory(request.categoryId());
-        Place place = getPlace(request.placeId());
-        Region region = findOrCreateRegionByLatLng(request.latitude(), request.longitude());
+        Place place = getPlace(request.placeId()); // TODO: 🚩🚩🚩🚩🚩
+        Region region = findOrCreateRegionByLatLng(request.latitude(), request.longitude()); // TODO: 🚩🚩🚩🚩🚩
 
         Article article = createArticleEntity(member, category, place, region, request);
         articleRepository.save(article);
@@ -102,6 +88,8 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
         return regionRepository.findById(regionId)
                 .orElseThrow(() -> new RegionHandler(ErrorStatus.REGION_NOT_FOUND));
     }
+
+    // TODO: 팩토리 검토
     private Article createArticleEntity(Member member, Category category, Place place, Region region, ArticleRequestDTO request) {
         return Article.builder()
                 .member(member)
@@ -128,6 +116,8 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
                 .spamCount(0L)
                 .build();
     }
+
+    // TODO: SRP 위반
     private List<ArticlePhoto> handleImages(Article article, Place place, Region region, MultipartFile mainImage, List<MultipartFile> imageFiles) {
         List<ArticlePhoto> photos = new ArrayList<>();
         List<String> uploadedKeys = new ArrayList<>();
@@ -185,10 +175,9 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
         return photos;
     }
 
-    // TODO: 지역 생성 API 구현 후 수정 필요
-    // 임시 지역 생성 메소드
+    // TODO: SRP 위반
+    // TODO: 임시 지역 생성 메소드 - 연결 후 삭제 필요
     private Region findOrCreateRegionByLatLng(Double latitude, Double longitude) {
-        // TODO: 실제 구현 필요 (예: 외부 행정구역 API 호출, DB 조회 등)
         String province = "서울";
         String city = "강남구";
         String district = latitude + "," + longitude;
