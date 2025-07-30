@@ -42,6 +42,8 @@ public class CurationCommandServiceImpl implements CurationCommandService {
             throw new CurationHandler(ErrorStatus.CURATION_NO_VALID_REGION);
         }
 
+        System.out.println(candidateRegions.size());
+
         // 랜덤 지역 선택
         Collections.shuffle(candidateRegions);
         List<Region> selectedRegions = candidateRegions.subList(0, Math.min(5, candidateRegions.size()));

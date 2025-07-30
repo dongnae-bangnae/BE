@@ -7,7 +7,6 @@ public class CurationConverter {
     public static CurationResponseDTO toCurationResponseDTO(Curation curation) {
         return CurationResponseDTO.builder()
                 .curationId(curation.getCurationId())
-                .memberId(curation.getMember().getId())
                 .regionId(curation.getRegion().getId())
                 .regionName(curation.getRegion().getFullName())
                 .title(curation.getTitle())
