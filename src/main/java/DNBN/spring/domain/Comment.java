@@ -54,4 +54,8 @@ public class Comment extends BaseEntity {
   private List<Comment> childComments = new ArrayList<>();
 
   private LocalDateTime deletedAt;
+
+  public void delete() {
+    this.deletedAt = java.time.LocalDateTime.now();
+  }
 }

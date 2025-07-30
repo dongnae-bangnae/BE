@@ -58,4 +58,19 @@ public class CommentCommandServiceImpl implements CommentCommandService {
         commentRepository.save(comment);
         return CommentConverter.toCommentResponseDTO(comment);
     }
+
+    @Override
+    public void deleteComment(Long memberId, Long commentId) {
+        Comment comment = commentRepository.findById(commentId)
+            .orElseThrow(() -> new CommentHandler(ErrorStatus.COMMENT_NOT_FOUND));
+
+        if (!comment.getMember().getId().equals(memberId)) {
+            throw new CommentHandler(ErrorStatus.COMMENT_FORBIDDEN);
+        }
+        if (comment.getDeletedAt() != null) {
+            throw new CommentHandler(ErrorStatus.COMMENT_ALREADY_DELETED);
+        }
+
+        comment.delete();
+    }
 }
