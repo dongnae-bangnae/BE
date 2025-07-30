@@ -13,6 +13,7 @@ import DNBN.spring.repository.CommentRepository.CommentRepository;
 import DNBN.spring.repository.MemberRepository.MemberRepository;
 import DNBN.spring.web.dto.CommentRequestDTO;
 import DNBN.spring.web.dto.CommentResponseDTO;
+import DNBN.spring.web.dto.CommentUpdateRequestDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -75,7 +76,7 @@ public class CommentCommandServiceImpl implements CommentCommandService {
 
     @Override
     @ValidateComment
-    public CommentResponseDTO updateComment(Long memberId, Long commentId, Long articleId, CommentRequestDTO request) {
+    public CommentResponseDTO updateComment(Long memberId, Long commentId, Long articleId, CommentUpdateRequestDTO request) {
         Comment comment = commentRepository.findById(commentId)
             .orElseThrow(() -> new CommentHandler(ErrorStatus.COMMENT_NOT_FOUND));
         comment.updateContent(request.content());

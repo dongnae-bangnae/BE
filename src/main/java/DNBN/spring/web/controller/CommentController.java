@@ -6,6 +6,7 @@ import DNBN.spring.domain.MemberDetails;
 import DNBN.spring.service.CommentService.CommentCommandService;
 import DNBN.spring.web.dto.CommentRequestDTO;
 import DNBN.spring.web.dto.CommentResponseDTO;
+import DNBN.spring.web.dto.CommentUpdateRequestDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
@@ -68,7 +69,7 @@ public class CommentController {
             @AuthenticationPrincipal MemberDetails memberDetails,
             @PathVariable Long articleId,
             @PathVariable Long commentId,
-            @RequestBody @Valid CommentRequestDTO request
+            @RequestBody @Valid CommentUpdateRequestDTO request
     ) {
         Long memberId = memberDetails.getMember().getId();
         CommentResponseDTO response = commentCommandService.updateComment(memberId, commentId, articleId, request);
