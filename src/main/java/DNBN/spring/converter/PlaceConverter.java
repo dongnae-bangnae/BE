@@ -33,6 +33,7 @@ public class PlaceConverter {
                         .latitude(p.getLatitude())
                         .longitude(p.getLongitude())
                         .pinCategory(p.getPinCategory().name())
+                        .address(p.getAddress())
                         .build())
                 .collect(Collectors.toList());
         return PlaceResponseDTO.MapPlacesResultDTO.builder()
