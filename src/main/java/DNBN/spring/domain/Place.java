@@ -8,6 +8,8 @@ import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,9 +30,27 @@ public class Place extends BaseEntity {
   @JoinColumn(name = "region_id", nullable = false)
   private Region region;
 
+  @Column(nullable = false, columnDefinition = "DECIMAL(8,5)")
   private Double latitude;
 
+  @Column(nullable = false, columnDefinition = "DECIMAL(8,5)")
   private Double longitude;
+
+  // 저장 전/수정 전마다 소수점 5자리로 반올림
+  @PrePersist
+  @PreUpdate
+  private void normalizeCoordinates() {
+    if (latitude != null) {
+      latitude = BigDecimal.valueOf(latitude)
+              .setScale(5, RoundingMode.HALF_UP)
+              .doubleValue();
+    }
+    if (longitude != null) {
+      longitude = BigDecimal.valueOf(longitude)
+              .setScale(5, RoundingMode.HALF_UP)
+              .doubleValue();
+    }
+  }
 
   @Column(nullable = false, length = 50)
   private String title;
