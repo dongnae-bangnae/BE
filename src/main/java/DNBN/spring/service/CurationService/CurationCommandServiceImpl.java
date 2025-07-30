@@ -123,7 +123,6 @@ public class CurationCommandServiceImpl implements CurationCommandService {
 
             resultList.add(dto);
         }
-
         return resultList;
     }
 

@@ -1,5 +1,6 @@
 package DNBN.spring.service.MemberService;
 
+import DNBN.spring.aop.annotation.ValidateS3ImageUpload;
 import DNBN.spring.apiPayload.code.status.ErrorStatus;
 import DNBN.spring.apiPayload.exception.handler.MemberHandler;
 import DNBN.spring.apiPayload.exception.handler.RegionHandler;
@@ -42,6 +43,7 @@ public class MemberCommandServiceImpl implements MemberCommandService {
 
     @Override
     @Transactional
+    @ValidateS3ImageUpload
     public Member onboardingMember(Long memberId, MemberRequestDTO.OnboardingDTO request, MultipartFile profileImage) {
         // 기존 회원이 존재하는지를 따짐
         Member member = memberRepository.findById(memberId)
@@ -167,7 +169,7 @@ public class MemberCommandServiceImpl implements MemberCommandService {
         }
 
 //        member.setNickname(newNickname);
-        member.updateNickname(newNickname); // 도메인 주도 설계(Domain-Driven Design) 원칙에 부합하도록
+        member.updateNickname(newNickname); // 도메인 ��도 설계(Domain-Driven Design) 원칙에 부합하도록
     }
 
     @Override
@@ -207,6 +209,7 @@ public class MemberCommandServiceImpl implements MemberCommandService {
 
     @Override
     @Transactional
+    @ValidateS3ImageUpload
     public MemberResponseDTO.ProfileImageUpdateResultDTO updateProfileImage(Long memberId, MultipartFile profileImage) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberHandler(ErrorStatus.MEMBER_NOT_FOUND));

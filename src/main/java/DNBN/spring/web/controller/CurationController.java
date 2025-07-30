@@ -45,6 +45,22 @@ public class CurationController {
 
         Member member = memberDetails.getMember();
         List<CurationResponseDTO> response = curationQueryService.getCurationsByMember(member.getId());
+
+        return ApiResponse.onSuccess(response);
+    }
+
+    @GetMapping("")
+    @Operation(
+            summary = "큐레이션 리스트 조회 API",
+            description = "큐레이션 전체 리스트를 보여줍니다. - JWT 인증 필수"
+    )
+    public ApiResponse<List<CurationResponseDTO>> getCurations(@AuthenticationPrincipal MemberDetails memberDetails) {
+        if (memberDetails == null) {
+            throw new MemberHandler(ErrorStatus._UNAUTHORIZED);
+        }
+
+        Member member = memberDetails.getMember();
+        List<CurationResponseDTO> response = curationQueryService.getCurationsByMember(member.getId());
         return ApiResponse.onSuccess(response);
     }
 }
