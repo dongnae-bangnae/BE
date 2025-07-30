@@ -2,8 +2,6 @@ package DNBN.spring.web.dto;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -16,6 +14,8 @@ public class ArticleResponseDTO {
     private Long categoryId;
     private Long placeId;
     private Long regionId;
+    private String placeName;
+    private String pinCategory;
     private String title;
     private LocalDate date;
     private String content;
