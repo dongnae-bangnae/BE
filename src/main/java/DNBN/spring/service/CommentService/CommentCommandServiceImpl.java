@@ -60,10 +60,13 @@ public class CommentCommandServiceImpl implements CommentCommandService {
     }
 
     @Override
-    public void deleteComment(Long memberId, Long commentId) {
+    public void deleteComment(Long memberId, Long commentId, Long articleId) {
         Comment comment = commentRepository.findById(commentId)
             .orElseThrow(() -> new CommentHandler(ErrorStatus.COMMENT_NOT_FOUND));
 
+        if (!comment.getArticle().getArticleId().equals(articleId)) {
+            throw new ArticleHandler(ErrorStatus.ARTICLE_NOT_FOUND);
+        }
         if (!comment.getMember().getId().equals(memberId)) {
             throw new CommentHandler(ErrorStatus.COMMENT_FORBIDDEN);
         }

@@ -53,7 +53,7 @@ public class CommentController {
             @PathVariable Long commentId
     ) {
         Long memberId = memberDetails.getMember().getId();
-        commentCommandService.deleteComment(memberId, commentId);
+        commentCommandService.deleteComment(memberId, commentId, articleId);
         return ApiResponse.of(SuccessStatus.COMMENT_DELETE_SUCCESS, null);
     }
 }

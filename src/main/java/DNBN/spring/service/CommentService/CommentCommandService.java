@@ -5,5 +5,5 @@ import DNBN.spring.web.dto.CommentResponseDTO;
 
 public interface CommentCommandService {
     CommentResponseDTO createComment(Long memberId, Long articleId, CommentRequestDTO request);
-    void deleteComment(Long memberId, Long commentId);
+    void deleteComment(Long memberId, Long commentId, Long articleId);
 }
