@@ -8,8 +8,10 @@ import DNBN.spring.domain.Member;
 import DNBN.spring.domain.Place;
 import DNBN.spring.domain.mapping.SavePlace;
 import DNBN.spring.repository.CategoryRepository.CategoryRepository;
+import DNBN.spring.repository.PlaceRepository.PlaceRepositoryCustom;
 import DNBN.spring.repository.SavePlaceRepository.SavePlaceRepository;
 import DNBN.spring.repository.SavePlaceRepository.SavePlaceRepositoryImpl;
+import DNBN.spring.web.dto.PlaceRequestDTO;
 import DNBN.spring.web.dto.PlaceResponseDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -24,6 +26,7 @@ public class PlaceQueryServiceImpl implements PlaceQueryService {
 
     private final CategoryRepository categoryRepository;
     private final SavePlaceRepository savePlaceRepository;
+    private final PlaceRepositoryCustom placeRepositoryCustom;
 
     @Override
     public PlaceResponseDTO.SavedPlaceListDTO getSavedPlaces(Long categoryId, Long memberId, Long cursor, Long limit) {
@@ -48,5 +51,28 @@ public class PlaceQueryServiceImpl implements PlaceQueryService {
                 .limit(limit)
                 .hasNext(hasNext)
                 .build();
+    }
+
+//    @Override
+//    public PlaceResponseDTO.MapPlacesResultDTO getPlacesInMapBounds(PlaceRequestDTO.MapSearchDTO request) {
+//        List<Place> places = placeRepositoryCustom.findAllInBounds(
+//                request.getLatMin(), request.getLatMax(),
+//                request.getLngMin(), request.getLngMax()
+//        );
+//        return PlaceConverter.toMapPlacesResult(places);
+//    }
+
+    @Override
+    public PlaceResponseDTO.MapPlacesResultDTO getPlacesInMapBounds(
+            Double latMin,
+            Double latMax,
+            Double lngMin,
+            Double lngMax
+    ) {
+        List<Place> places = placeRepositoryCustom.findAllInBounds(
+                latMin, latMax,
+                lngMin, lngMax
+        );
+        return PlaceConverter.toMapPlacesResult(places);
     }
 }

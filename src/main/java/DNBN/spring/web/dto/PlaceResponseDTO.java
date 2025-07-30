@@ -1,5 +1,6 @@
 package DNBN.spring.web.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -34,5 +35,21 @@ public class PlaceResponseDTO {
         private Long cursor;
         private Long limit;
         private boolean hasNext;
+    }
+
+    @Builder
+    @Getter
+    public static class MapPlaceDTO {
+        private Long placeId;
+        private String title;
+        private Double latitude;
+        private Double longitude;
+        private String pinCategory;
+    }
+
+    @Builder
+    @Getter
+    public static class MapPlacesResultDTO {
+        private List<MapPlaceDTO> places;
     }
 }
