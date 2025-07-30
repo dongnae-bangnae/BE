@@ -26,6 +26,10 @@ public class Comment extends BaseEntity {
   @JoinColumn(name = "article_id", nullable = false)
   private Article article;
 
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "member_id", nullable = false)
+  private Member member;
+
   @Builder.Default
   @Column(nullable = false, columnDefinition = "BIGINT DEFAULT 0")
   private Long likeCount = 0L;
@@ -50,4 +54,8 @@ public class Comment extends BaseEntity {
   private List<Comment> childComments = new ArrayList<>();
 
   private LocalDateTime deletedAt;
+
+  public void delete() {
+    this.deletedAt = java.time.LocalDateTime.now();
+  }
 }

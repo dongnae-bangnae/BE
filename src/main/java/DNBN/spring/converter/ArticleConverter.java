@@ -18,7 +18,7 @@ public class ArticleConverter {
                 .placeId(article.getPlace().getPlaceId())
                 .regionId(article.getRegion().getId())
                 .title(article.getTitle())
-                .date(article.getDate())
+                .date(article.getDate().toString())
                 .content(article.getContent())
                 .mainImageUuid(ArticlePhotoConverter.extractMainImageUuid(photos))
                 .imageUuids(ArticlePhotoConverter.extractImageUuids(photos))

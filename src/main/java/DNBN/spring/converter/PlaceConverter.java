@@ -1,5 +1,6 @@
 package DNBN.spring.converter;
 
+import DNBN.spring.domain.Place;
 import DNBN.spring.domain.mapping.SavePlace;
 import DNBN.spring.web.dto.PlaceResponseDTO;
 
@@ -22,5 +23,20 @@ public class PlaceConverter {
         return savePlaces.stream()
                 .map(PlaceConverter::toSavedPlacePreviewDTO)
                 .collect(Collectors.toList());
+    }
+
+    public static PlaceResponseDTO.MapPlacesResultDTO toMapPlacesResult(List<Place> places) {
+        List<PlaceResponseDTO.MapPlaceDTO> list = places.stream()
+                .map(p -> PlaceResponseDTO.MapPlaceDTO.builder()
+                        .placeId(p.getPlaceId())
+                        .title(p.getTitle())
+                        .latitude(p.getLatitude())
+                        .longitude(p.getLongitude())
+                        .pinCategory(p.getPinCategory().name())
+                        .build())
+                .collect(Collectors.toList());
+        return PlaceResponseDTO.MapPlacesResultDTO.builder()
+                .places(list)
+                .build();
     }
 }
