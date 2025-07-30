@@ -35,7 +35,7 @@ public class CurationCommandServiceImpl implements CurationCommandService {
     private final ArticlePhotoRepository articlePhotoRepository;
 
     @Override
-    public List<CurationResponseDTO> generateCurations() {
+    public List<CurationResponseDTO.CurationDetailDTO> generateCurations() {
         // 장소 3개 이상인 지역 조회
         List<Region> candidateRegions = regionRepository.findRegionsWithAtLeastThreePlaces();
         if (candidateRegions.isEmpty()) {
@@ -51,14 +51,14 @@ public class CurationCommandServiceImpl implements CurationCommandService {
         LocalDate startOfWeek = getStartOfThisWeek();
         LocalDate endOfWeek = startOfWeek.plusDays(6);
 
-        List<CurationResponseDTO> resultList = new ArrayList<>();
+        List<CurationResponseDTO.CurationDetailDTO> resultList = new ArrayList<>();
 
         // 이번 주에 생성된 큐레이션이 있는지 확인
         for (Region region : selectedRegions) {
             // 해당 지역에 이미 이번 주 큐레이션이 있는지 확인
             Optional<Curation> existing = curationRepository.findByRegionAndCreatedAtBetween(region, startOfWeek, endOfWeek);
             if (existing.isPresent()) {
-                resultList.add(CurationConverter.toCurationResponseDTO(existing.get()));
+                resultList.add(CurationConverter.toCurationDetailDTO(existing.get()));
                 continue;
             }
 
@@ -102,15 +102,15 @@ public class CurationCommandServiceImpl implements CurationCommandService {
             }
 
             // DTO 변환 및 추가
-            List<CurationResponseDTO.Places> dtoList = selectedPlaces.stream()
-                    .map(place -> CurationResponseDTO.Places.builder()
+            List<CurationResponseDTO.CurationDetailDTO.Places> dtoList = selectedPlaces.stream()
+                    .map(place -> CurationResponseDTO.CurationDetailDTO.Places.builder()
                             .likePlaceId(place.getPlaceId())
                             .name(place.getTitle())
                             .pinCategory(place.getPinCategory().name())
                             .build())
                     .toList();
 
-            CurationResponseDTO dto = CurationResponseDTO.builder()
+            CurationResponseDTO.CurationDetailDTO dto = CurationResponseDTO.CurationDetailDTO.builder()
                     .curationId(curation.getCurationId())
                     .regionId(region.getId())
                     .regionName(region.getFullName())

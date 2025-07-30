@@ -24,7 +24,7 @@ public class CurationQueryServiceImpl implements CurationQueryService {
     private final CurationRepository curationRepository;
 
     @Override
-    public List<CurationResponseDTO> getCurationsByMember(Long memberId) {
+    public List<CurationResponseDTO.CurationPreviewDTO> getCurationsByMember(Long memberId) {
         List<Curation> curations = curationRepository.findAllByOrderByCreatedAtDesc();
 
         if (curations.isEmpty()) {
@@ -32,7 +32,7 @@ public class CurationQueryServiceImpl implements CurationQueryService {
         }
 
         return curations.stream()
-                .map(CurationConverter::toCurationResponseDTO)
+                .map(CurationConverter::toCurationPreviewDTO)
                 .toList();
     }
 }

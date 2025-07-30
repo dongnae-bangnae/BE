@@ -7,6 +7,6 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface CurationCommandService {
-    List<CurationResponseDTO> generateCurations();
+    List<CurationResponseDTO.CurationDetailDTO> generateCurations();
     LocalDate getStartOfThisWeek();
 }

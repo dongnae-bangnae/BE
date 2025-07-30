@@ -28,23 +28,23 @@ public class CurationController {
             summary = "이번주의 큐레이션 생성 API",
             description = "관심 지역 기반으로 큐레이션을 자동 생성합니다. 매주 월요일 아침 9시에 자동 갱신됩니다."
     )
-    public ApiResponse<List<CurationResponseDTO>> generateCuration() {
-        List<CurationResponseDTO> response = curationCommandService.generateCurations();
+    public ApiResponse<List<CurationResponseDTO.CurationDetailDTO>> generateCuration() {
+        List<CurationResponseDTO.CurationDetailDTO> response = curationCommandService.generateCurations();
         return ApiResponse.onSuccess(response);
     }
 
     @GetMapping("")
     @Operation(
             summary = "큐레이션 리스트 조회 API",
-            description = "큐레이션 전체 리스트를 보여줍니다. - JWT 인증 필수"
+            description = "큐레이션 미리보기 전체 리스트를 보여줍니다. - JWT 인증 필수"
     )
-    public ApiResponse<List<CurationResponseDTO>> getCurations(@AuthenticationPrincipal MemberDetails memberDetails) {
+    public ApiResponse<List<CurationResponseDTO.CurationPreviewDTO>> getCurations(@AuthenticationPrincipal MemberDetails memberDetails) {
         if (memberDetails == null) {
             throw new MemberHandler(ErrorStatus._UNAUTHORIZED);
         }
 
         Member member = memberDetails.getMember();
-        List<CurationResponseDTO> response = curationQueryService.getCurationsByMember(member.getId());
+        List<CurationResponseDTO.CurationPreviewDTO> response = curationQueryService.getCurationsByMember(member.getId());
         return ApiResponse.onSuccess(response);
     }
 }
