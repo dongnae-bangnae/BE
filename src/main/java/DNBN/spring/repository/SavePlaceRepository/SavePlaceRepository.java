@@ -8,6 +8,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface SavePlaceRepository extends JpaRepository<SavePlace, Long>, SavePlaceRepositoryCustom {
-    List<SavePlace> findByCategory(Category category);
-    boolean existsByPlaceAndCategory(Place place, Category category);
+    boolean existsByPlace(Place place);
+    boolean existsByPlace_PlaceIdAndCategory_Member_Id(Long placeId, Long memberId);
 }
