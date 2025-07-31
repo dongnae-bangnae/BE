@@ -90,10 +90,14 @@ public class PlaceRestController {
             @Digits(integer = 3, fraction = 5, message = "COORDINATE_PRECISION_INVALID")
             Double lngMax
     ) {
-        placeQueryService.getPlacesInMapBounds(latMin, latMax, lngMin, lngMax);
-        return ResponseEntity.ok(ApiResponse.onSuccess(
-                placeQueryService.getPlacesInMapBounds(latMin, latMax, lngMin, lngMax)
-        ));
+        // 1) 토큰에서 memberId 추출
+        Long memberId = extractMemberIdFromToken(request);
+
+        // 2) 서비스에 memberId 포함하여 한 번만 호출
+        PlaceResponseDTO.MapPlacesResultDTO result = placeQueryService.getPlacesInMapBounds(memberId, latMin, latMax, lngMin, lngMax);
+
+        // 3) 응답 리턴
+        return ResponseEntity.ok(ApiResponse.onSuccess(result));
     }
 
     private Long extractMemberIdFromToken(HttpServletRequest request) {
