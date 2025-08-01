@@ -1,5 +1,6 @@
 package DNBN.spring.service.CommentService;
 
+import DNBN.spring.aop.annotation.ValidateComment;
 import DNBN.spring.apiPayload.code.status.ErrorStatus;
 import DNBN.spring.apiPayload.exception.handler.ArticleHandler;
 import DNBN.spring.apiPayload.exception.handler.CommentHandler;
@@ -12,6 +13,7 @@ import DNBN.spring.repository.CommentRepository.CommentRepository;
 import DNBN.spring.repository.MemberRepository.MemberRepository;
 import DNBN.spring.web.dto.CommentRequestDTO;
 import DNBN.spring.web.dto.CommentResponseDTO;
+import DNBN.spring.web.dto.CommentUpdateRequestDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +28,11 @@ public class CommentCommandServiceImpl implements CommentCommandService {
     private static final int CONTENT_MIN_LENGTH = 2;
     private static final int CONTENT_MAX_LENGTH = 1000;
     private final MemberRepository memberRepository;
+
+    private Comment getCommentOrThrow(Long commentId) {
+        return commentRepository.findById(commentId)
+            .orElseThrow(() -> new CommentHandler(ErrorStatus.COMMENT_NOT_FOUND));
+    }
 
     @Override
     public CommentResponseDTO createComment(Long memberId, Long articleId, CommentRequestDTO request) {
@@ -60,20 +67,19 @@ public class CommentCommandServiceImpl implements CommentCommandService {
     }
 
     @Override
+    @ValidateComment
     public void deleteComment(Long memberId, Long commentId, Long articleId) {
         Comment comment = commentRepository.findById(commentId)
             .orElseThrow(() -> new CommentHandler(ErrorStatus.COMMENT_NOT_FOUND));
-
-        if (!comment.getArticle().getArticleId().equals(articleId)) {
-            throw new ArticleHandler(ErrorStatus.ARTICLE_NOT_FOUND);
-        }
-        if (!comment.getMember().getId().equals(memberId)) {
-            throw new CommentHandler(ErrorStatus.COMMENT_FORBIDDEN);
-        }
-        if (comment.getDeletedAt() != null) {
-            throw new CommentHandler(ErrorStatus.COMMENT_ALREADY_DELETED);
-        }
-
         comment.delete();
+    }
+
+    @Override
+    @ValidateComment
+    public CommentResponseDTO updateComment(Long memberId, Long commentId, Long articleId, CommentUpdateRequestDTO request) {
+        Comment comment = commentRepository.findById(commentId)
+            .orElseThrow(() -> new CommentHandler(ErrorStatus.COMMENT_NOT_FOUND));
+        comment.updateContent(request.content());
+        return CommentConverter.toCommentResponseDTO(comment);
     }
 }
