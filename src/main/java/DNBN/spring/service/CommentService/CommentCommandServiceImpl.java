@@ -8,9 +8,11 @@ import DNBN.spring.converter.CommentConverter;
 import DNBN.spring.domain.Article;
 import DNBN.spring.domain.Comment;
 import DNBN.spring.domain.Member;
+import DNBN.spring.domain.Notification;
 import DNBN.spring.repository.ArticleRepository.ArticleRepository;
 import DNBN.spring.repository.CommentRepository.CommentRepository;
 import DNBN.spring.repository.MemberRepository.MemberRepository;
+import DNBN.spring.repository.NotificationRepository.NotificationRepository;
 import DNBN.spring.web.dto.CommentRequestDTO;
 import DNBN.spring.web.dto.CommentResponseDTO;
 import DNBN.spring.web.dto.CommentUpdateRequestDTO;
@@ -24,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class CommentCommandServiceImpl implements CommentCommandService {
     private final ArticleRepository articleRepository;
     private final CommentRepository commentRepository;
+    private final NotificationRepository notificationRepository;
 
     private static final int CONTENT_MIN_LENGTH = 2;
     private static final int CONTENT_MAX_LENGTH = 1000;
@@ -63,6 +66,19 @@ public class CommentCommandServiceImpl implements CommentCommandService {
                 .build();
 
         commentRepository.save(comment);
+
+        // (1) 원글 작성자
+        Member articleOwner = article.getMember();
+        // (2) 본인이 자신의 글에 댓글 단 경우 알림 보낼 필요 없으면 생략
+        if (!articleOwner.getId().equals(memberId)) {
+            Notification notification = Notification.builder()
+                    .member(articleOwner)
+                    .comment(comment)
+                    .hidden(false)
+                    .build();
+            notificationRepository.save(notification);
+        }
+
         return CommentConverter.toCommentResponseDTO(comment);
     }
 
@@ -72,6 +88,9 @@ public class CommentCommandServiceImpl implements CommentCommandService {
         Comment comment = commentRepository.findById(commentId)
             .orElseThrow(() -> new CommentHandler(ErrorStatus.COMMENT_NOT_FOUND));
         comment.delete();
+
+        notificationRepository.findByComment_CommentId(commentId)
+                .forEach(notificationRepository::delete);
     }
 
     @Override
