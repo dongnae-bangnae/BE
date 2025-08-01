@@ -63,6 +63,7 @@ public enum ErrorStatus implements BaseErrorCode {
 
     // 알림
     NOTIFICATION_NOT_FOUND(HttpStatus.NOT_FOUND, "NOTIFICATION4001", "알림을 찾을 수 없습니다."),
+    NOTIFICATION_ALREADY_HIDDEN(HttpStatus.CONFLICT, "NOTIFICATION4002", "이미 삭제된 알림입니다."),
 
     //like
     POST_NOT_FOUND(HttpStatus.NOT_FOUND, "POST404", "해당 게시물을 찾을 수 없습니다."),

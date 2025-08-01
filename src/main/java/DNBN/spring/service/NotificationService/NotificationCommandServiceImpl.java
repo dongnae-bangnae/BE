@@ -24,7 +24,10 @@ public class NotificationCommandServiceImpl implements NotificationCommandServic
             throw new GeneralException(ErrorStatus.ACCESS_DENIED);
         }
 
+        if (n.isHidden()) {
+            throw new GeneralException(ErrorStatus.NOTIFICATION_ALREADY_HIDDEN);
+        }
+
         n.setHidden(true);
-        // JPA 영속성 컨텍스트가 관리하므로 save() 불필요
     }
 }
