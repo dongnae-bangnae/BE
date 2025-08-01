@@ -25,7 +25,7 @@ public enum SuccessStatus implements BaseCode {
     SAVED_PLACE_CREATE_SUCCESS(HttpStatus.OK, "SAVE_PLACE2001", "장소가 카테고리에 성공적으로 저장되었습니다."),
 
     // 댓글
-    COMMENT_CREATE_SUCCESS(HttpStatus.CREATED, "COMMENT_CREATE_SUCCESS", "댓글이 정상적으로 작성되었습니다."),
+    COMMENT_CREATE_SUCCESS(HttpStatus.OK, "COMMENT_CREATE_SUCCESS", "댓글이 정상적으로 작성되었습니다."),
     COMMENT_DELETE_SUCCESS(HttpStatus.NO_CONTENT, "COMMENT_DELETE_SUCCESS", "댓글이 정상적으로 삭제되었습니다."),
 
     // 동네 검색
