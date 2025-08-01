@@ -17,7 +17,7 @@ public enum SuccessStatus implements BaseCode {
     MEMBER_ALREADY_LOGIN(HttpStatus.OK, "MEMBER2002", "이미 등록된 유저입니다."),
     MEMBER_ONBOARDING_SUCCESS(HttpStatus.CREATED, "MEMBER2003", "온보딩 정보를 저장했습니다."),
     MEMBER_INFO_RETRIEVED(HttpStatus.OK, "MEMBER2004", "유저 정보를 성공적으로 조회했습니다."),
-    MEMBER_LOGOUT_SUCCESS(HttpStatus.NO_CONTENT, "MEMBER2005", "로그아웃이 완료되었습니다."),
+    MEMBER_LOGOUT_SUCCESS(HttpStatus.OK, "MEMBER2005", "로그아웃이 완료되었습니다."),
     MEMBER_DELETE_SUCCESS(HttpStatus.NO_CONTENT, "MEMBER2006", "회원 탈퇴가 완료되었습니다."),
     MEMBER_PROFILE_IMAGE_UPDATED(HttpStatus.OK, "MEMBER2007", "프로필 이미지가 성공적으로 변경되었습니다."),
 
