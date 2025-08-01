@@ -63,9 +63,11 @@ public enum ErrorStatus implements BaseErrorCode {
     INVALID_PASSWORD(HttpStatus.UNAUTHORIZED, "PW4001", "잘못된 비밀번호입니다."),
 
     // 장소
-    CATEGORY_ALREADY_SAVED_FOR_PLACE(HttpStatus.CONFLICT, "SAVE_PLACE4001", "이미 해당 장소가 이 카테고리에 저장되어 있습니다."),
+    CATEGORY_ALREADY_SAVED_FOR_PLACE(HttpStatus.CONFLICT, "SAVE_PLACE4001", "이미 해당 장소가 저장되어 있습니다."),
     PLACE_NOT_FOUND(HttpStatus.NOT_FOUND, "PLACE4001", "해당 장소를 찾을 수 없습니다."),
     COORDINATE_PRECISION_INVALID(HttpStatus.BAD_REQUEST, "PLACE4002", "소수점 5자리까지만 입력 가능합니다."),
+    PIN_CATEGORY_INVALID(HttpStatus.BAD_REQUEST, "PLACE4003", "유효하지 않은 핀 카테고리입니다."),
+
 
     //like
     POST_NOT_FOUND(HttpStatus.NOT_FOUND, "POST404", "해당 게시물을 찾을 수 없습니다."),
@@ -92,7 +94,7 @@ public enum ErrorStatus implements BaseErrorCode {
     CHALLENGE_NOT_FOUND(HttpStatus.NOT_FOUND, "CHALLENGE_4001", "챌린지가 존재하지 않습니다."),
 
     // 큐레이션
-    CURATION_NO_LIKE_REGION(HttpStatus.NOT_FOUND, "CURATION_4001", "관심지역이 존재하지 않습니다."),
+    CURATION_NO_VALID_REGION(HttpStatus.NOT_FOUND, "CURATION_4001", "지역이 존재하지 않습니다."),
     CURATION_NOT_ENOUGH_PLACES(HttpStatus.BAD_REQUEST, "CURATION_4002", "큐레이션 생성을 위한 장소가 부족합니다."),
     CURATION_NOT_FOUND(HttpStatus.NOT_FOUND,"CURATION_4003","큐레이션이 존재하지 않습니다. 먼저 생성 후 진행하세요.");
 

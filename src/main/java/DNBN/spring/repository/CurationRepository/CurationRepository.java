@@ -12,12 +12,11 @@ import java.util.List;
 import java.util.Optional;
 
 public interface CurationRepository extends JpaRepository<Curation, Long> {
-    Optional<Curation> findByMemberAndRegionAndCreatedAtBetween(
-            Member member,
+    Optional<Curation> findByRegionAndCreatedAtBetween(
             Region region,
             LocalDate startOfWeek,
             LocalDate endOfWeek
     );
 
-    List<Curation> findByMemberId(Long memberId);
+    List<Curation> findAllByOrderByCreatedAtDesc();
 }

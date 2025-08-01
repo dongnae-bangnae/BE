@@ -24,15 +24,15 @@ public class CurationQueryServiceImpl implements CurationQueryService {
     private final CurationRepository curationRepository;
 
     @Override
-    public List<CurationResponseDTO> getCurationsByMember(Long memberId) {
-        List<Curation> curations = curationRepository.findByMemberId(memberId);
+    public List<CurationResponseDTO.CurationPreviewDTO> getCurationsByMember(Long memberId) {
+        List<Curation> curations = curationRepository.findAllByOrderByCreatedAtDesc();
 
         if (curations.isEmpty()) {
             throw new CurationHandler(ErrorStatus.CURATION_NOT_FOUND);
         }
 
         return curations.stream()
-                .map(CurationConverter::toCurationResponseDTO)
+                .map(CurationConverter::toCurationPreviewDTO)
                 .toList();
     }
 }

@@ -1,6 +1,7 @@
 package DNBN.spring.web.controller;
 
 import DNBN.spring.apiPayload.ApiResponse;
+import DNBN.spring.apiPayload.code.status.SuccessStatus;
 import DNBN.spring.converter.ArticleConverter;
 import DNBN.spring.domain.MemberDetails;
 import DNBN.spring.service.ArticleService.ArticleCommandService;
@@ -43,8 +44,7 @@ public class ArticleController {
         Long memberId = memberDetails.getMember().getId();
         ArticleCommandService.ArticleWithPhotos result = articleCommandService.createArticle(memberId, dto, mainImage, imageFiles);
         ArticleResponseDTO response = ArticleConverter.toArticleResponseDTO(result.article, result.photos);
-        // TODO: 게시글 API 응답 포맷을 ApiResponse.of로 통일
-        return ApiResponse.onSuccess(response);
+        return ApiResponse.of(SuccessStatus.ARTICLE_CREATE_SUCCESS, response);
     }
 
     @PostMapping(value = "/with-location", consumes = {"multipart/form-data"})
@@ -62,7 +62,7 @@ public class ArticleController {
         Long memberId = memberDetails.getMember().getId();
         ArticleCommandService.ArticleWithPhotos result = articleCommandService.createArticle(memberId, dto, mainImage, imageFiles);
         ArticleResponseDTO response = ArticleConverter.toArticleResponseDTO(result.article, result.photos);
-        return ApiResponse.onSuccess(response);
+        return ApiResponse.of(SuccessStatus.ARTICLE_CREATE_SUCCESS, response);
     }
 
     @DeleteMapping("/{articleId}")
@@ -77,6 +77,6 @@ public class ArticleController {
     ) {
         Long memberId = memberDetails.getMember().getId();
         articleCommandService.deleteArticle(memberId, articleId);
-        return ApiResponse.onSuccess(null);
+        return ApiResponse.of(SuccessStatus.ARTICLE_DELETE_SUCCESS, null);
     }
 }

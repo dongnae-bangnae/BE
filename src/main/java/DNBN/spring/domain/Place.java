@@ -58,6 +58,17 @@ public class Place extends BaseEntity {
   @Enumerated(EnumType.STRING)
   private PinCategory pinCategory;
 
+  @Column(nullable = false, length = 255)
+  private String address;
+
   @OneToMany(mappedBy = "place", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<SavePlace> savedPlaces = new ArrayList<>();
+
+  public void updatePinCategory(PinCategory newCategory) {
+    this.pinCategory = newCategory;
+  }
+
+  public void updateTitle(String newTitle) {
+    this.title = newTitle;
+  }
 }
