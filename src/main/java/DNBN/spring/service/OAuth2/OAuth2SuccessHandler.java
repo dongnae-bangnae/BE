@@ -63,6 +63,13 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
         /*
         // JSON 응답 방식 (SPA 등 API 호출용)
+        AuthResponseDTO.LoginResultDTO result = AuthResponseDTO.LoginResultDTO.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .memberId(member.getId())
+                .isOnboardingCompleted(member.isOnboardingCompleted())
+                .build();
+
         ApiResponse<AuthResponseDTO.LoginResultDTO> apiResponse;
         if (member.isOnboardingCompleted()) {
             apiResponse = ApiResponse.of(SuccessStatus.MEMBER_ALREADY_LOGIN, result);
@@ -73,14 +80,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         response.setContentType("application/json;charset=UTF-8");
         response.setStatus(HttpServletResponse.SC_OK);
         response.getWriter().write(objectMapper.writeValueAsString(apiResponse));
-
-        AuthResponseDTO.LoginResultDTO result = AuthResponseDTO.LoginResultDTO.builder()
-                .accessToken(accessToken)
-                .refreshToken(refreshToken)
-                .memberId(member.getId())
-                .isOnboardingCompleted(member.isOnboardingCompleted())
-                .build();
-         */
+        */
 
         // 쿠키로 프론트에게 내려주기
         boolean isOnboardingCompleted = member.isOnboardingCompleted();
