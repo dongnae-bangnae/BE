@@ -5,6 +5,7 @@ import DNBN.spring.apiPayload.code.status.SuccessStatus;
 import DNBN.spring.converter.ArticleConverter;
 import DNBN.spring.domain.MemberDetails;
 import DNBN.spring.service.ArticleService.ArticleCommandService;
+import DNBN.spring.service.ArticleService.ArticleQueryService;
 import DNBN.spring.web.dto.ArticleRequestDTO;
 import DNBN.spring.web.dto.ArticleResponseDTO;
 import DNBN.spring.web.dto.ArticleWithLocationRequestDTO;
@@ -15,6 +16,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,6 +30,7 @@ import org.springframework.web.multipart.MultipartFile;
 @SecurityRequirement(name = "JWT TOKEN")
 public class ArticleController {
     private final ArticleCommandService articleCommandService;
+    private final ArticleQueryService articleQueryService;
 
     @PostMapping(consumes = {"multipart/form-data"})
     @Operation(
@@ -78,5 +81,16 @@ public class ArticleController {
         Long memberId = memberDetails.getMember().getId();
         articleCommandService.deleteArticle(memberId, articleId);
         return ApiResponse.of(SuccessStatus.ARTICLE_DELETE_SUCCESS, null);
+    }
+
+    @GetMapping("/{articleId}")
+    @Operation(
+        summary = "게시물 상세 조회",
+        description = "게시물 상세페이지를 조회합니다.",
+        security = @SecurityRequirement(name = "JWT TOKEN")
+    )
+    public ApiResponse<ArticleResponseDTO.ArticleDetailDTO> getArticleDetail(@PathVariable Long articleId) {
+        ArticleResponseDTO.ArticleDetailDTO response = articleQueryService.getArticleDetail(articleId);
+        return ApiResponse.of(SuccessStatus.ARTICLE_READ_SUCCESS, response);
     }
 }

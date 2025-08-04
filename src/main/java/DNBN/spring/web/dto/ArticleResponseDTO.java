@@ -40,7 +40,6 @@ public class ArticleResponseDTO {
         this.date = date;
         this.content = content;
         this.mainImageUuid = mainImageUuid;
-        // 방어적 복사
         this.imageUuids = imageUuids == null ? null : List.copyOf(imageUuids);
         this.likeCount = likeCount;
         this.spamCount = spamCount;
@@ -79,11 +78,52 @@ public class ArticleResponseDTO {
         private boolean hasNext;
 
         public ArticleListDTO(List<ArticlePreviewDTO> articles, Long cursor, Long limit, boolean hasNext) {
-            // 방어적 복사
             this.articles = articles == null ? null : List.copyOf(articles);
             this.cursor = cursor;
             this.limit = limit;
             this.hasNext = hasNext;
+        }
+    }
+
+    @Builder
+    @Getter
+    public static class ArticleDetailDTO {
+        private Long articleId;
+        private Long memberId;
+        private Long categoryId;
+        private Long placeId;
+        private Long regionId;
+        private String placeName;
+        private String pinCategory;
+        private String detailAddress;
+        private String title;
+        private String date;
+        private String content;
+        private String mainImageUuid;
+        private List<String> imageUuids;
+        private Long likeCount;
+        private Long spamCount;
+        private String createdAt;
+        private String updatedAt;
+
+        public ArticleDetailDTO(Long articleId, Long memberId, Long categoryId, Long placeId, Long regionId, String placeName, String pinCategory, String detailAddress, String title, String date, String content, String mainImageUuid, List<String> imageUuids, Long likeCount, Long spamCount, String createdAt, String updatedAt) {
+            this.articleId = articleId;
+            this.memberId = memberId;
+            this.categoryId = categoryId;
+            this.placeId = placeId;
+            this.regionId = regionId;
+            this.placeName = placeName;
+            this.pinCategory = pinCategory;
+            this.detailAddress = detailAddress;
+            this.title = title;
+            this.date = date;
+            this.content = content;
+            this.mainImageUuid = mainImageUuid;
+            this.imageUuids = imageUuids == null ? null : List.copyOf(imageUuids);
+            this.likeCount = likeCount;
+            this.spamCount = spamCount;
+            this.createdAt = createdAt;
+            this.updatedAt = updatedAt;
         }
     }
 }

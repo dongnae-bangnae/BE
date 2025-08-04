@@ -85,4 +85,26 @@ public class ArticleConverter {
                 .hasNext(hasNext)
                 .build();
     }
+
+    public static ArticleResponseDTO.ArticleDetailDTO toArticleDetailDTO(Article article, List<ArticlePhoto> photos) {
+        return ArticleResponseDTO.ArticleDetailDTO.builder()
+                .articleId(article.getArticleId())
+                .memberId(article.getMember().getId())
+                .categoryId(article.getCategory().getCategoryId())
+                .placeId(article.getPlace().getPlaceId())
+                .regionId(article.getRegion().getId())
+                .placeName(article.getPlace().getTitle())
+                .pinCategory(article.getPlace().getPinCategory().name())
+                .detailAddress(article.getPlace().getAddress())
+                .title(article.getTitle())
+                .date(article.getDate().toString())
+                .content(article.getContent())
+                .mainImageUuid(ArticlePhotoConverter.extractMainImageUuid(photos))
+                .imageUuids(ArticlePhotoConverter.extractImageUuids(photos))
+                .likeCount(article.getLikesCount())
+                .spamCount(article.getSpamCount())
+                .createdAt(article.getCreatedAt().toString())
+                .updatedAt(article.getUpdatedAt().toString())
+                .build();
+    }
 }
