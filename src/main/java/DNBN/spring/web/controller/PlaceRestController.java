@@ -47,7 +47,7 @@ public class PlaceRestController {
     }
 
     @Operation(
-            summary      = "지도 화면 내 핀 등록된 장소 조회",
+            summary      = "지도 화면 내 핀 등록된 장소 목록 조회",
             description  = "현재 보고 있는 지도의 경계(위도/경도 범위) 안에 핀이 등록된 모든 장소를 반환합니다."
     )
     @GetMapping("/map")

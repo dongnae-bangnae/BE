@@ -5,6 +5,7 @@ import DNBN.spring.apiPayload.exception.GeneralException;
 import DNBN.spring.domain.*;
 import DNBN.spring.repository.ArticleRepository.ArticleRepository;
 import DNBN.spring.repository.MemberRepository.MemberRepository;
+import DNBN.spring.repository.NotificationRepository.NotificationRepository;
 import DNBN.spring.web.dto.SpamResponseDTO;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +17,8 @@ public class ArticleSpamService {
     private final ArticleRepository articleRepository;
     private final MemberRepository memberRepository;
     private final DNBN.spring.repository.ArticleSpamRepository.ArticleSpamRepository articleSpamRepository;
+    private final NotificationRepository notificationRepository;
+
     @Transactional
     public SpamResponseDTO spamArticle(Long articleId, Long memberId) {
         Article article = articleRepository.findById(articleId)
@@ -39,6 +42,21 @@ public class ArticleSpamService {
         articleSpamRepository.save(articleSpam);
         article.increaseSpamCount();
         long spamsCount = article.getSpamCount();
+
+        // 2) 10회·20회 단위면 알림 생성
+        if (spamsCount == 10 || spamsCount == 20) {
+            notificationRepository.save(Notification.builder()
+                    .member(article.getMember())
+                    .article(article)
+                    .hidden(false)
+                    .build());
+        }
+
+        // 3) 20회 때 글 soft-delete
+        if (spamsCount == 20) {
+            article.delete();  // BaseEntity.deletedAt 세팅
+        }
+
         return SpamResponseDTO.of(articleId, spamsCount);
     }
 
