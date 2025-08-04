@@ -22,7 +22,7 @@ public class NotificationRestController {
     private final NotificationQueryService querySvc;
     private final NotificationCommandService cmdSvc;
 
-    @Operation(summary = "댓글 알림 조회", description = "댓글 알림 목록을 커서 기반 페이징으로 조회합니다.")
+    @Operation(summary = "댓글 알림 목록 조회", description = "댓글 알림 목록을 커서 기반 페이징으로 조회합니다.")
     @GetMapping("/comments")
     public ApiResponse<NotificationResponseDTO.commentListDTO> listComments(
             @AuthenticationPrincipal MemberDetails user,
@@ -51,7 +51,7 @@ public class NotificationRestController {
         return ApiResponse.onSuccess(null);
     }
 
-    @Operation(summary="광고 의심 알림 조회", description="광고 의심 횟수(10회,20회) 단위로 생성된 알림을 커서 기반 조회합니다.")
+    @Operation(summary="광고 의심 알림 목록 조회", description="광고 의심 횟수(10회,20회) 단위로 생성된 알림을 커서 기반 조회합니다.")
     @GetMapping("/spams")
     public ApiResponse<NotificationResponseDTO.SpamListDTO> listSpams(
             @AuthenticationPrincipal MemberDetails user,
