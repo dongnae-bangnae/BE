@@ -16,14 +16,33 @@ public class NotificationRepositoryImpl implements NotificationRepositoryCustom 
     private final QNotification notif = QNotification.notification;
 
     @Override
-    public List<Notification> findByMemberAndHiddenFalseWithCursor(Long memberId, Long cursor, Long limit) {
+    public List<Notification> findCommentByMemberAndHiddenFalseWithCursor(Long memberId, Long cursor, Long limit) {
         BooleanBuilder b = new BooleanBuilder()
                 .and(notif.member.id.eq(memberId))
-                .and(notif.hidden.isFalse());
+                .and(notif.hidden.isFalse())
+                .and(notif.comment.isNotNull()); // 댓글 알림만
         if (cursor != null) {
             b.and(notif.id.lt(cursor));
         }
-        return query.selectFrom(notif)
+        return query
+                .selectFrom(notif)
+                .where(b)
+                .orderBy(notif.id.desc())
+                .limit(limit + 1)
+                .fetch();
+    }
+
+    @Override
+    public List<Notification> findSpamByMemberAndHiddenFalseWithCursor(Long memberId, Long cursor, Long limit) {
+        BooleanBuilder b = new BooleanBuilder()
+                .and(notif.member.id.eq(memberId))
+                .and(notif.hidden.isFalse())
+                .and(notif.comment.isNull());  // comment == null → 스팸 알림
+        if (cursor != null) {
+            b.and(notif.id.lt(cursor));
+        }
+        return query
+                .selectFrom(notif)
                 .where(b)
                 .orderBy(notif.id.desc())
                 .limit(limit + 1)

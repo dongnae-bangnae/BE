@@ -10,7 +10,7 @@ public class NotificationResponseDTO {
 
     @Getter
     @Builder
-    public static class Response {
+    public static class commentResponse {
         private Long notificationId;
         private Long articleId;
         private String articleTitle;
@@ -21,8 +21,26 @@ public class NotificationResponseDTO {
 
     @Getter
     @Builder
-    public static class ListDTO {
-        private List<Response> notifications;
+    public static class commentListDTO {
+        private List<commentResponse> notifications;
+        private Long cursor;
+        private Long limit;
+        private boolean hasNext;
+    }
+
+    @Getter
+    @Builder
+    public static class SpamResponse {
+        private Long notificationId;
+        private Long articleId;
+        private String articleTitle;
+        private Long spamCount;
+    }
+
+    @Getter
+    @Builder
+    public static class SpamListDTO {
+        private List<SpamResponse> notifications;
         private Long cursor;
         private Long limit;
         private boolean hasNext;
