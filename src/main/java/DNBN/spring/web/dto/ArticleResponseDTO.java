@@ -1,6 +1,5 @@
 package DNBN.spring.web.dto;
 
-import java.time.LocalDate;
 import java.util.List;
 import lombok.Builder;
 import lombok.Getter;
@@ -8,26 +7,26 @@ import lombok.Getter;
 @Getter
 @Builder
 public class ArticleResponseDTO {
-    // TODO: inner Class로 변경
-    private Long articleId;
-    private Long memberId;
-    private Long categoryId;
-    private Long placeId;
-    private Long regionId;
-    private String placeName;
-    private String pinCategory;
-    private String detailAddress;
-    private String title;
-    private String date;
-    private String content;
-    private String mainImageUuid;
-    private List<String> imageUuids;
-    private Long likeCount;
-    private Long spamCount;
-    private String createdAt;
-    private String updatedAt;
+    private final Long articleId;
+    private final Long memberId;
+    private final Long categoryId;
+    private final Long placeId;
+    private final Long regionId;
+    private final String placeName;
+    private final String pinCategory;
+    private final String detailAddress;
+    private final String title;
+    private final String date;
+    private final String content;
+    private final String mainImageUuid;
+    private final List<String> imageUuids;
+    private final Long likeCount;
+    private final Long spamCount;
+    private final String createdAt;
+    private final String updatedAt;
 
-    public ArticleResponseDTO(Long articleId, Long memberId, Long categoryId, Long placeId, Long regionId, String placeName, String pinCategory, String detailAddress, String title, String date, String content, String mainImageUuid, List<String> imageUuids, Long likeCount, Long spamCount, String createdAt, String updatedAt) {
+    @Builder
+    private ArticleResponseDTO(Long articleId, Long memberId, Long categoryId, Long placeId, Long regionId, String placeName, String pinCategory, String detailAddress, String title, String date, String content, String mainImageUuid, List<String> imageUuids, Long likeCount, Long spamCount, String createdAt, String updatedAt) {
         this.articleId = articleId;
         this.memberId = memberId;
         this.categoryId = categoryId;
@@ -40,7 +39,6 @@ public class ArticleResponseDTO {
         this.date = date;
         this.content = content;
         this.mainImageUuid = mainImageUuid;
-        // 방어적 복사
         this.imageUuids = imageUuids == null ? null : List.copyOf(imageUuids);
         this.likeCount = likeCount;
         this.spamCount = spamCount;
@@ -51,15 +49,15 @@ public class ArticleResponseDTO {
     @Builder
     @Getter
     public static class ArticlePreviewDTO {
-        private Long articleId;
-        private String pinCategory;
-        private String imageUrl;
-        private String title;
-        private Long likes;
-        private Long spam;
-        private Long comments;
+        private final Long articleId;
+        private final String pinCategory;
+        private final String imageUrl;
+        private final String title;
+        private final Long likes;
+        private final Long spam;
+        private final Long comments;
 
-        public ArticlePreviewDTO(Long articleId, String pinCategory, String imageUrl, String title, Long likes, Long spam, Long comments) {
+        private ArticlePreviewDTO(Long articleId, String pinCategory, String imageUrl, String title, Long likes, Long spam, Long comments) {
             this.articleId = articleId;
             this.pinCategory = pinCategory;
             this.imageUrl = imageUrl;
@@ -73,17 +71,58 @@ public class ArticleResponseDTO {
     @Builder
     @Getter
     public static class ArticleListDTO {
-        private List<ArticlePreviewDTO> articles;
-        private Long cursor;
-        private Long limit;
-        private boolean hasNext;
+        private final List<ArticlePreviewDTO> articles;
+        private final Long cursor;
+        private final Long limit;
+        private final boolean hasNext;
 
-        public ArticleListDTO(List<ArticlePreviewDTO> articles, Long cursor, Long limit, boolean hasNext) {
-            // 방어적 복사
+        private ArticleListDTO(List<ArticlePreviewDTO> articles, Long cursor, Long limit, boolean hasNext) {
             this.articles = articles == null ? null : List.copyOf(articles);
             this.cursor = cursor;
             this.limit = limit;
             this.hasNext = hasNext;
+        }
+    }
+
+    @Builder
+    @Getter
+    public static class ArticleDetailDTO {
+        private final Long articleId;
+        private final Long memberId;
+        private final Long categoryId;
+        private final Long placeId;
+        private final Long regionId;
+        private final String placeName;
+        private final String pinCategory;
+        private final String detailAddress;
+        private final String title;
+        private final String date;
+        private final String content;
+        private final String mainImageUuid;
+        private final List<String> imageUuids;
+        private final Long likeCount;
+        private final Long spamCount;
+        private final String createdAt;
+        private final String updatedAt;
+
+        private ArticleDetailDTO(Long articleId, Long memberId, Long categoryId, Long placeId, Long regionId, String placeName, String pinCategory, String detailAddress, String title, String date, String content, String mainImageUuid, List<String> imageUuids, Long likeCount, Long spamCount, String createdAt, String updatedAt) {
+            this.articleId = articleId;
+            this.memberId = memberId;
+            this.categoryId = categoryId;
+            this.placeId = placeId;
+            this.regionId = regionId;
+            this.placeName = placeName;
+            this.pinCategory = pinCategory;
+            this.detailAddress = detailAddress;
+            this.title = title;
+            this.date = date;
+            this.content = content;
+            this.mainImageUuid = mainImageUuid;
+            this.imageUuids = imageUuids == null ? null : List.copyOf(imageUuids);
+            this.likeCount = likeCount;
+            this.spamCount = spamCount;
+            this.createdAt = createdAt;
+            this.updatedAt = updatedAt;
         }
     }
 }

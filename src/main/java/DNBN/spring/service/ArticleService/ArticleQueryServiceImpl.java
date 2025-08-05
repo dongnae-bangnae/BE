@@ -97,4 +97,15 @@ public class ArticleQueryServiceImpl implements ArticleQueryService {
 
         return ArticleConverter.toListDTO(previews, limit, hasNext);
     }
+
+    @Override
+    public ArticleResponseDTO.ArticleDetailDTO getArticleDetail(Long articleId) {
+        Article article = articleRepository.findById(articleId)
+                .orElseThrow(() -> new ArticleHandler(ErrorStatus.ARTICLE_NOT_FOUND));
+        if (article.getDeletedAt() != null) {
+            throw new ArticleHandler(ErrorStatus.ARTICLE_ALREADY_DELETED);
+        }
+        List<ArticlePhoto> photos = articlePhotoRepository.findAllByArticle(article);
+        return ArticleConverter.toArticleDetailDTO(article, photos);
+    }
 }
