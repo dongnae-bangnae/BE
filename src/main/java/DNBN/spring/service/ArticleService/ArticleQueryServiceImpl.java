@@ -108,4 +108,12 @@ public class ArticleQueryServiceImpl implements ArticleQueryService {
         List<ArticlePhoto> photos = articlePhotoRepository.findAllByArticle(article);
         return ArticleConverter.toArticleDetailDTO(article, photos);
     }
+
+    @Override
+    public List<ArticleResponseDTO.ArticleListItemDTO> getArticleList(Long memberId, Long regionId, Long cursor, Long limit) {
+        // regionId 기준으로 게시글 목록 조회 (soft delete 제외, cursor paging)
+        List<Article> articles = articleRepository.findAllByRegion_IdIn(List.of(regionId), PageRequest.of(0, limit.intValue(), Sort.by(Sort.Direction.DESC, "createdAt"))).getContent();
+        // TODO: cursor, limit, soft delete, 실제 페이징/정렬 로직 필요시 커스텀 쿼리로 대체
+        return articles.stream().map(article -> ArticleConverter.toArticleListItemDTO(article, memberId)).toList();
+    }
 }

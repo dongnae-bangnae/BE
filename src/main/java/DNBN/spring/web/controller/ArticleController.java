@@ -93,4 +93,21 @@ public class ArticleController {
         ArticleResponseDTO.ArticleDetailDTO response = articleQueryService.getArticleDetail(articleId);
         return ApiResponse.of(SuccessStatus.ARTICLE_READ_SUCCESS, response);
     }
+
+    @GetMapping
+    @Operation(
+        summary = "게시물 목록 조회",
+        description = "게시물 목록을 조회합니다. JWT 인증 필요.",
+        security = @SecurityRequirement(name = "JWT TOKEN")
+    )
+    public ApiResponse<List<ArticleResponseDTO.ArticleListItemDTO>> getArticleList(
+            @AuthenticationPrincipal MemberDetails memberDetails,
+            Long regionId,
+            Long cursor,
+            Long limit
+    ) {
+        Long memberId = memberDetails.getMember().getId();
+        List<ArticleResponseDTO.ArticleListItemDTO> articles = articleQueryService.getArticleList(memberId, regionId, cursor, limit);
+        return ApiResponse.of(SuccessStatus.ARTICLE_READ_SUCCESS, articles);
+    }
 }

@@ -107,4 +107,25 @@ public class ArticleConverter {
                 .updatedAt(article.getUpdatedAt().toString())
                 .build();
     }
+
+    public static ArticleResponseDTO.ArticleListItemDTO toArticleListItemDTO(Article article, Long loginMemberId) {
+        return ArticleResponseDTO.ArticleListItemDTO.builder()
+                .memberId(article.getMember().getId())
+                .articleId(article.getArticleId())
+                .regionId(article.getRegion().getId())
+                .placeId(article.getPlace().getPlaceId())
+                .nickname(article.getMember().getNickname())
+                .title(article.getTitle())
+                .pinCategory(article.getPlace().getPinCategory().name())
+                .mainImageUuid(null) // TODO: 대표 이미지 추출 로직 필요
+                .likeCount(article.getLikesCount())
+                .spamCount(article.getSpamCount())
+                .commentCount(article.getCommentCount())
+                .isLiked(false) // TODO: 좋아요 여부 조회
+                .isSpammed(false) // TODO: 스팸 여부 조회
+                .isMine(loginMemberId != null && loginMemberId.equals(article.getMember().getId()))
+                .createdAt(article.getCreatedAt().toString())
+                .updatedAt(article.getUpdatedAt().toString())
+                .build();
+    }
 }
