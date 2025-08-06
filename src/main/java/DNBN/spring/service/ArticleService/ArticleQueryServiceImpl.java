@@ -163,7 +163,7 @@ public class ArticleQueryServiceImpl implements ArticleQueryService {
                 // 내 글 여부
                 boolean isMine = memberId.equals(article.getMember().getId());
 
-                log.info("articleId: {}, isLiked: {}, isSpammed: {}, isMine: {}", articleId, isLiked, isSpammed, isMine);
+                log.debug("articleId: {}, isLiked: {}, isSpammed: {}, isMine: {}", articleId, isLiked, isSpammed, isMine);
                 return ArticleConverter.toArticleListItemDTO(article, mainImageUuid, isLiked, isSpammed, isMine);
             })
             .toList();
