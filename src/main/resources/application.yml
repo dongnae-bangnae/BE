@@ -72,11 +72,7 @@ spring:
       maxRequestSize: 100MB  # 한 번에 최대 업로드 가능 용량
       # resolve-lazily 옵션 설명:
       # false (기본값): 파일 파싱이 컨트롤러 진입 전에 이뤄짐
-      #   - 파일 크기 초과 등 예외가 Spring의 ExceptionHandler(@ExceptionHandler)에서 처리됨
-      #   - 대부분의 서비스에서 사용하는 일반적인 방식
       # true: 파일 파싱을 컨트롤러 파라미터 바인딩 시점으로 미룸
-      #   - 인증/권한 체크 전에 파일 파싱을 막고 싶을 때 사용(보안 목적)
-      #   - 이 경우 파일 크기 초과 등 예외가 ExceptionHandler까지 도달하지 않고, 더 앞단(서블릿 컨테이너 등)에서 처리됨
       resolve-lazily: false
 server:
   forward-headers-strategy: framework

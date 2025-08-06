@@ -28,6 +28,7 @@ import DNBN.spring.web.dto.ArticleResponseDTO;
 import DNBN.spring.web.dto.response.PostResponseDTO;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -41,6 +42,8 @@ import java.util.List;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class ArticleQueryServiceImpl implements ArticleQueryService {
+    private static final String DEFAULT_IMAGE_UUID = "ae383fd6-4211-496b-a631-827954b03306";
+
     private final ArticleRepository articleRepository;
     private final LikeRegionRepository likeRegionRepository;
     private final CategoryRepository categoryRepository;
@@ -122,7 +125,7 @@ public class ArticleQueryServiceImpl implements ArticleQueryService {
                 // 대표 이미지
                 String mainImageUuid = articlePhotoRepository.findFirstByArticleAndIsMainTrue(article)
                     .map(ArticlePhoto::getFileKey)
-                    .orElse("ae383fd6-4211-496b-a631-827954b03306"); // 기본 이미지 Uuid
+                    .orElseGet(() -> DEFAULT_IMAGE_UUID);
                 // 좋아요 여부
                 boolean isLiked = articleLikeRepository.existsById(
                     new ArticleLikeId(article.getArticleId(), memberId)
