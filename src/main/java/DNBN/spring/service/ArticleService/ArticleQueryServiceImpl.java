@@ -122,7 +122,7 @@ public class ArticleQueryServiceImpl implements ArticleQueryService {
         // TODO: 검증 로직 추가
         
         // TODO: Cursor 기반 페이징 변경
-        List<Article> articles = articleRepository.findAllByPlace_IdIn(List.of(placeId), PageRequest.of(0, limit.intValue(), Sort.by(Sort.Direction.DESC, "createdAt"))).getContent();
+        List<Article> articles = articleRepository.findAllByPlace_PlaceIdIn(List.of(placeId), PageRequest.of(0, limit.intValue(), Sort.by(Sort.Direction.DESC, "createdAt"))).getContent();
 
         return articles.stream()
             .map(article -> {
@@ -136,7 +136,7 @@ public class ArticleQueryServiceImpl implements ArticleQueryService {
                 );
                 // 스팸 여부
                 boolean isSpammed = articleSpamRepository.existsById(
-                    new DNBN.spring.domain.ArticleSpamId(article.getArticleId(), memberId)
+                    new ArticleSpamId(article.getArticleId(), memberId)
                 );
                 // 내 글 여부
                 boolean isMine = memberId != null && memberId.equals(article.getMember().getId());

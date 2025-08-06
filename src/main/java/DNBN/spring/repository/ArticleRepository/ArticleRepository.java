@@ -18,9 +18,10 @@ public interface ArticleRepository extends JpaRepository<Article, Long> {
     List<Article> findAllByPlace(Place place);
     List<Article> findAllByRegion(Region region);
 
+    // TODO: PK 변수명 통일 필요 (id, placeId 등)
     Page<Article> findAllByRegion_IdIn(List<Long> regionIds, Pageable pageable);
 
-    Page<Article> findAllByPlace_IdIn(List<Long> placeIds, Pageable pageable);
+    Page<Article> findAllByPlace_PlaceIdIn(List<Long> placeIds, Pageable pageable);
 
     Optional<Article> findTopByHashtagOrderByLikesCountDescCreatedAtAsc(String keyword);
 
