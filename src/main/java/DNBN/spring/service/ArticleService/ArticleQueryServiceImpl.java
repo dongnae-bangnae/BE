@@ -46,6 +46,7 @@ import java.util.List;
 @Transactional(readOnly = true)
 public class ArticleQueryServiceImpl implements ArticleQueryService {
     private static final String DEFAULT_IMAGE_UUID = "ae383fd6-4211-496b-a631-827954b03306";
+    private static final long DEFAULT_LIMIT = 10L;
 
     private final ArticleRepository articleRepository;
     private final LikeRegionRepository likeRegionRepository;
@@ -122,14 +123,16 @@ public class ArticleQueryServiceImpl implements ArticleQueryService {
 
     @Override
     public List<ArticleResponseDTO.ArticleListItemDTO> getArticleList(Long memberId, Long placeId, Long cursor, Long limit) {
+        long effectiveLimit = (limit != null) ? limit : DEFAULT_LIMIT; // limit가 null인 경우 기본값 설정
 
         Member member = memberRepository.findById(memberId)
             .orElseThrow(() -> new MemberHandler(ErrorStatus.MEMBER_NOT_FOUND));
         Place place = placeRepository.findPlaceByPlaceId(placeId)
             .orElseThrow(() -> new ArticleHandler(ErrorStatus.PLACE_NOT_FOUND));
         
-        // TODO: Cursor 기반 페이징 변경
-        List<Article> articles = articleRepository.findAllByPlace_PlaceIdIn(List.of(placeId), PageRequest.of(0, limit.intValue(), Sort.by(Sort.Direction.DESC, "createdAt"))).getContent();
+        List<Article> articles = articleRepositoryCustom.findArticlesByPlaceWithCursor(placeId, cursor, effectiveLimit + 1);
+        boolean hasNext = articles.size() > effectiveLimit;
+        if (hasNext) articles.remove(articles.size() - 1);
 
         return articles.stream()
             .map(article -> {

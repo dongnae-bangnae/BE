@@ -34,4 +34,24 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
                 .limit(limit)
                 .fetch();
     }
+
+    @Override
+    public List<Article> findArticlesByPlaceWithCursor(Long placeId, Long cursor, Long limit) {
+        QArticle article = QArticle.article;
+
+        BooleanBuilder builder = new BooleanBuilder();
+        builder.and(article.place.placeId.eq(placeId));
+        builder.and(article.deletedAt.isNull());
+
+        if (cursor != null) {
+            builder.and(article.articleId.lt(cursor));
+        }
+
+        return queryFactory
+            .selectFrom(article)
+            .where(builder)
+            .orderBy(article.createdAt.desc()) // 정적 필드로 정렬 (SQL Injection 위험 없음)
+            .limit(limit)
+            .fetch();
+    }
 }

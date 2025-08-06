@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -102,9 +103,9 @@ public class ArticleController {
     )
     public ApiResponse<List<ArticleResponseDTO.ArticleListItemDTO>> getArticleList(
             @AuthenticationPrincipal MemberDetails memberDetails,
-            Long placeId,
-            Long cursor,
-            Long limit
+            @RequestParam("placeId") Long placeId,
+            @RequestParam(value = "cursor", required = false) Long cursor,
+            @RequestParam(value = "limit", required = false) Long limit
     ) {
         Long memberId = memberDetails.getMember().getId();
         List<ArticleResponseDTO.ArticleListItemDTO> articles = articleQueryService.getArticleList(memberId, placeId, cursor, limit);
