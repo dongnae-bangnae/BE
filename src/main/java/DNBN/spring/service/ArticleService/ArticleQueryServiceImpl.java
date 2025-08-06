@@ -29,6 +29,7 @@ import DNBN.spring.web.dto.ArticleResponseDTO;
 import DNBN.spring.web.dto.response.PostResponseDTO;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -39,6 +40,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -131,21 +133,24 @@ public class ArticleQueryServiceImpl implements ArticleQueryService {
 
         return articles.stream()
             .map(article -> {
+                Long articleId = article.getArticleId();
+
                 // 대표 이미지
                 String mainImageUuid = articlePhotoRepository.findFirstByArticleAndIsMainTrue(article)
                     .map(ArticlePhoto::getFileKey)
                     .orElseGet(() -> DEFAULT_IMAGE_UUID);
                 // 좋아요 여부
                 boolean isLiked = articleLikeRepository.existsById(
-                    new ArticleLikeId(article.getArticleId(), memberId)
+                    new ArticleLikeId(articleId, memberId)
                 );
                 // 스팸 여부
                 boolean isSpammed = articleSpamRepository.existsById(
-                    new ArticleSpamId(article.getArticleId(), memberId)
+                    new ArticleSpamId(articleId, memberId)
                 );
                 // 내 글 여부
                 boolean isMine = memberId.equals(article.getMember().getId());
 
+                log.info("articleId: {}, isLiked: {}, isSpammed: {}, isMine: {}", articleId, isLiked, isSpammed, isMine);
                 return ArticleConverter.toArticleListItemDTO(article, mainImageUuid, isLiked, isSpammed, isMine);
             })
             .toList();
