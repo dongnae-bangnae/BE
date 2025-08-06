@@ -19,6 +19,7 @@ import DNBN.spring.repository.CategoryRepository.CategoryRepository;
 import DNBN.spring.repository.CommentRepository.CommentRepository;
 import DNBN.spring.repository.LikeRegionRepository.LikeRegionRepository;
 import DNBN.spring.repository.MemberRepository.MemberRepository;
+import DNBN.spring.repository.PlaceRepository.PlaceRepository;
 import DNBN.spring.repository.RegionRepository.RegionRepository;
 import DNBN.spring.repository.ArticleLikeRepository.ArticleLikeRepository;
 import DNBN.spring.repository.ArticleSpamRepository.ArticleSpamRepository;
@@ -53,6 +54,7 @@ public class ArticleQueryServiceImpl implements ArticleQueryService {
     private final MemberRepository memberRepository;
     private final ArticleLikeRepository articleLikeRepository;
     private final ArticleSpamRepository articleSpamRepository;
+    private final PlaceRepository placeRepository;
 
     @Override
     public Page<Article> getArticleListByRegion(Long memberId, Integer page) {
@@ -119,7 +121,10 @@ public class ArticleQueryServiceImpl implements ArticleQueryService {
     @Override
     public List<ArticleResponseDTO.ArticleListItemDTO> getArticleList(Long memberId, Long placeId, Long cursor, Long limit) {
 
-        // TODO: 검증 로직 추가
+        Member member = memberRepository.findById(memberId)
+            .orElseThrow(() -> new MemberHandler(ErrorStatus.MEMBER_NOT_FOUND));
+        Place place = placeRepository.findPlaceByPlaceId(placeId)
+            .orElseThrow(() -> new ArticleHandler(ErrorStatus.PLACE_NOT_FOUND));
         
         // TODO: Cursor 기반 페이징 변경
         List<Article> articles = articleRepository.findAllByPlace_PlaceIdIn(List.of(placeId), PageRequest.of(0, limit.intValue(), Sort.by(Sort.Direction.DESC, "createdAt"))).getContent();
@@ -139,7 +144,7 @@ public class ArticleQueryServiceImpl implements ArticleQueryService {
                     new ArticleSpamId(article.getArticleId(), memberId)
                 );
                 // 내 글 여부
-                boolean isMine = memberId != null && memberId.equals(article.getMember().getId());
+                boolean isMine = memberId.equals(article.getMember().getId());
 
                 return ArticleConverter.toArticleListItemDTO(article, mainImageUuid, isLiked, isSpammed, isMine);
             })
