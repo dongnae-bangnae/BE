@@ -3,6 +3,8 @@ package DNBN.spring.service.ArticleService;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+import DNBN.spring.apiPayload.exception.handler.ArticleHandler;
+import DNBN.spring.apiPayload.exception.handler.MemberHandler;
 import DNBN.spring.repository.ArticleLikeRepository.ArticleLikeRepository;
 import DNBN.spring.repository.ArticlePhotoRepository.ArticlePhotoRepository;
 import DNBN.spring.repository.ArticleRepository.ArticleRepository;
@@ -369,5 +371,39 @@ class ArticleQueryServiceImplTest {
     // cursor가 -1일 때도 정상적으로 조회되는지 검증
     assertEquals(1, result.size());
     assertEquals(article.getArticleId(), result.get(0).getArticleId());
+  }
+
+  /*
+   * Member가 존재하지 않을 때 예외 발생 검증
+   */
+  @Test
+  void getArticleList_멤버없음_예외() {
+    // given
+    Long memberId = 1L;
+    Long placeId = 2L;
+    when(memberRepository.findById(memberId)).thenReturn(Optional.empty());
+
+    // when & then
+    assertThrows(MemberHandler.class, () -> {
+      articleQueryService.getArticleList(memberId, placeId, null, null);
+    });
+  }
+
+  /*
+   * Place가 존재하지 않을 때 예외 발생 검증
+   */
+  @Test
+  void getArticleList_장소없음_예외() {
+    // given
+    Long memberId = 1L;
+    Long placeId = 2L;
+    Member member = Member.builder().id(memberId).nickname("테스터").build();
+    when(memberRepository.findById(memberId)).thenReturn(Optional.of(member));
+    when(placeRepository.findPlaceByPlaceId(placeId)).thenReturn(Optional.empty());
+
+    // when & then
+    assertThrows(ArticleHandler.class, () -> {
+      articleQueryService.getArticleList(memberId, placeId, null, null);
+    });
   }
 }
