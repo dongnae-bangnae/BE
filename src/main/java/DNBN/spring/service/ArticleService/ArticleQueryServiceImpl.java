@@ -45,7 +45,10 @@ import java.util.List;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class ArticleQueryServiceImpl implements ArticleQueryService {
-    private static final String DEFAULT_IMAGE_UUID = "ae383fd6-4211-496b-a631-827954b03306";
+
+    @Value("${article.default-image-uuid}")
+    private String defaultImageUuid;
+
     private static final long DEFAULT_LIMIT = 10L;
 
     private final ArticleRepository articleRepository;
@@ -151,7 +154,7 @@ public class ArticleQueryServiceImpl implements ArticleQueryService {
                 // 대표 이미지
                 String mainImageUuid = articlePhotoRepository.findFirstByArticleAndIsMainTrue(article)
                     .map(ArticlePhoto::getFileKey)
-                    .orElseGet(() -> DEFAULT_IMAGE_UUID);
+                    .orElseGet(() -> defaultImageUuid);
                 // 좋아요 여부
                 boolean isLiked = articleLikeRepository.existsById(
                     new ArticleLikeId(articleId, memberId)
