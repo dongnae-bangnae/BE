@@ -108,7 +108,7 @@ public class ArticleConverter {
                 .build();
     }
 
-    public static ArticleResponseDTO.ArticleListItemDTO toArticleListItemDTO(Article article, Long loginMemberId) {
+    public static ArticleResponseDTO.ArticleListItemDTO toArticleListItemDTO(Article article, String mainImageUuid, boolean isLiked, boolean isSpammed, boolean isMine) {
         return ArticleResponseDTO.ArticleListItemDTO.builder()
                 .memberId(article.getMember().getId())
                 .articleId(article.getArticleId())
@@ -117,13 +117,13 @@ public class ArticleConverter {
                 .nickname(article.getMember().getNickname())
                 .title(article.getTitle())
                 .pinCategory(article.getPlace().getPinCategory().name())
-                .mainImageUuid(null) // TODO: 대표 이미지 추출 로직 필요
+                .mainImageUuid(mainImageUuid)
                 .likeCount(article.getLikesCount())
                 .spamCount(article.getSpamCount())
                 .commentCount(article.getCommentCount())
-                .isLiked(false) // TODO: 좋아요 여부 조회
-                .isSpammed(false) // TODO: 스팸 여부 조회
-                .isMine(loginMemberId != null && loginMemberId.equals(article.getMember().getId()))
+                .isLiked(isLiked)
+                .isSpammed(isSpammed)
+                .isMine(isMine)
                 .createdAt(article.getCreatedAt().toString())
                 .updatedAt(article.getUpdatedAt().toString())
                 .build();

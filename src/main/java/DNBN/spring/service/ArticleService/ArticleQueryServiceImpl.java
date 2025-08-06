@@ -20,6 +20,8 @@ import DNBN.spring.repository.CommentRepository.CommentRepository;
 import DNBN.spring.repository.LikeRegionRepository.LikeRegionRepository;
 import DNBN.spring.repository.MemberRepository.MemberRepository;
 import DNBN.spring.repository.RegionRepository.RegionRepository;
+import DNBN.spring.repository.ArticleLikeRepository.ArticleLikeRepository;
+import DNBN.spring.repository.ArticleSpamRepository.ArticleSpamRepository;
 
 import DNBN.spring.web.dto.ArticleResponseDTO;
 
@@ -46,6 +48,8 @@ public class ArticleQueryServiceImpl implements ArticleQueryService {
     private final ArticlePhotoRepository articlePhotoRepository;
     private final ArticleRepositoryCustom articleRepositoryCustom;
     private final MemberRepository memberRepository;
+    private final ArticleLikeRepository articleLikeRepository;
+    private final ArticleSpamRepository articleSpamRepository;
 
     @Override
     public Page<Article> getArticleListByRegion(Long memberId, Integer page) {
@@ -111,9 +115,21 @@ public class ArticleQueryServiceImpl implements ArticleQueryService {
 
     @Override
     public List<ArticleResponseDTO.ArticleListItemDTO> getArticleList(Long memberId, Long regionId, Long cursor, Long limit) {
-        // regionId 기준으로 게시글 목록 조회 (soft delete 제외, cursor paging)
         List<Article> articles = articleRepository.findAllByRegion_IdIn(List.of(regionId), PageRequest.of(0, limit.intValue(), Sort.by(Sort.Direction.DESC, "createdAt"))).getContent();
-        // TODO: cursor, limit, soft delete, 실제 페이징/정렬 로직 필요시 커스텀 쿼리로 대체
-        return articles.stream().map(article -> ArticleConverter.toArticleListItemDTO(article, memberId)).toList();
+        return articles.stream().map(article -> {
+            // 대표 이미지
+            String mainImageUuid = articlePhotoRepository.findAllByArticle(article).stream()
+                .filter(ArticlePhoto::getIsMain)
+                .findFirst()
+                .map(ArticlePhoto::getFileKey)
+                .orElse(null);
+            // 좋아요 여부
+            boolean isLiked = articleLikeRepository.existsById(new ArticleLikeId(article.getArticleId(), memberId));
+            // 스팸 여부
+            boolean isSpammed = articleSpamRepository.existsById(new DNBN.spring.domain.ArticleSpamId(article.getArticleId(), memberId));
+            // 내 글 여부
+            boolean isMine = memberId != null && memberId.equals(article.getMember().getId());
+            return ArticleConverter.toArticleListItemDTO(article, mainImageUuid, isLiked, isSpammed, isMine);
+        }).toList();
     }
 }
