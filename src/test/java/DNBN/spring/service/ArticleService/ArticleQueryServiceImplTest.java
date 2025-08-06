@@ -46,11 +46,13 @@ class ArticleQueryServiceImplTest {
 
   private static final String DEFAULT_IMAGE_UUID = "ae383fd6-4211-496b-a631-827954b03306";
 
+  private Member member;
+  private Place place;
+  private Region region;
+
   @BeforeEach
   void setUp() {
     MockitoAnnotations.openMocks(this);
-    // @Value 필드 수동 주입
-    articleQueryService.getClass().getDeclaredFields();
     try {
       var field = ArticleQueryServiceImpl.class.getDeclaredField("defaultImageUuid");
       field.setAccessible(true);
@@ -58,6 +60,9 @@ class ArticleQueryServiceImplTest {
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
+    member = Member.builder().id(1L).nickname("테스터").build();
+    place = Place.builder().placeId(2L).title("장소").pinCategory(PinCategory.CAFE).address("주소").build();
+    region = Region.builder().id(100L).build();
   }
 
   /*
@@ -71,13 +76,11 @@ class ArticleQueryServiceImplTest {
     Long cursor = null;
     Long limit = 2L;
 
-    Member member = Member.builder().id(memberId).nickname("테스터").build();
-    Place place = Place.builder().placeId(placeId).title("장소").pinCategory(PinCategory.CAFE).address("주소").build();
     Article article1 = Article.builder()
         .articleId(10L)
         .member(member)
         .place(place)
-        .region(Region.builder().id(100L).build())
+        .region(region)
         .title("제목1")
         .content("내용1")
         .likesCount(5L)
@@ -89,7 +92,7 @@ class ArticleQueryServiceImplTest {
         .articleId(9L)
         .member(member)
         .place(place)
-        .region(Region.builder().id(100L).build())
+        .region(region)
         .title("제목2")
         .content("내용2")
         .likesCount(3L)
@@ -132,7 +135,30 @@ class ArticleQueryServiceImplTest {
   }
 
   /*
-    * 삭제된 게시물은 제외하고 조회되는지 검증
+    * 게시물이 없을 때 빈 리스트가 반환되는지 검증
+   */
+  @Test
+  void getArticleList_게시물없을때_빈리스트_반환() {
+    // given
+    Long memberId = 1L;
+    Long placeId = 2L;
+    Long cursor = null;
+    Long limit = 5L;
+
+    when(memberRepository.findById(memberId)).thenReturn(Optional.of(member));
+    when(placeRepository.findPlaceByPlaceId(placeId)).thenReturn(Optional.of(place));
+    when(articleRepositoryCustom.findArticlesByPlaceWithCursor(placeId, cursor, limit + 1)).thenReturn(List.of());
+
+    // when
+    List<ArticleResponseDTO.ArticleListItemDTO> result = articleQueryService.getArticleList(memberId, placeId, cursor, limit);
+
+    // then
+    assertNotNull(result);
+    assertTrue(result.isEmpty());
+  }
+
+  /*
+    * Soft Delete로 삭제 처리된 게시물을 제외하고 조회되는지 검증
    */
   @Test
   void getArticleList_삭제된_게시물_제외_정상_조회() throws Exception {
@@ -142,14 +168,11 @@ class ArticleQueryServiceImplTest {
     Long cursor = null;
     Long limit = 3L;
 
-    Member member = Member.builder().id(memberId).nickname("테스터").build();
-    Place place = Place.builder().placeId(placeId).title("장소").pinCategory(PinCategory.CAFE).address("주소").build();
-
     Article article1 = Article.builder()
         .articleId(10L)
         .member(member)
         .place(place)
-        .region(Region.builder().id(100L).build())
+        .region(region)
         .title("제목1")
         .content("내용1")
         .likesCount(5L)
@@ -162,7 +185,7 @@ class ArticleQueryServiceImplTest {
         .articleId(9L)
         .member(member)
         .place(place)
-        .region(Region.builder().id(100L).build())
+        .region(region)
         .title("제목2")
         .content("내용2")
         .likesCount(3L)
@@ -175,7 +198,7 @@ class ArticleQueryServiceImplTest {
         .articleId(8L)
         .member(member)
         .place(place)
-        .region(Region.builder().id(100L).build())
+        .region(region)
         .title("삭제된글")
         .content("삭제됨")
         .likesCount(3L)
@@ -228,13 +251,11 @@ class ArticleQueryServiceImplTest {
     Long cursor = null;
     Long limit = 1L;
 
-    Member member = Member.builder().id(memberId).nickname("테스터").build();
-    Place place = Place.builder().placeId(placeId).title("장소").pinCategory(PinCategory.CAFE).address("주소").build();
     Article article = Article.builder()
         .articleId(10L)
         .member(member)
         .place(place)
-        .region(Region.builder().id(100L).build())
+        .region(region)
         .title("제목")
         .content("내용")
         .likesCount(1L)
@@ -280,13 +301,11 @@ class ArticleQueryServiceImplTest {
     Long cursor = null;
     Long limit = null; // limit null
 
-    Member member = Member.builder().id(memberId).nickname("테스터").build();
-    Place place = Place.builder().placeId(placeId).title("장소").pinCategory(PinCategory.CAFE).address("주소").build();
     Article article = Article.builder()
         .articleId(10L)
         .member(member)
         .place(place)
-        .region(Region.builder().id(100L).build())
+        .region(region)
         .title("제목")
         .content("내용")
         .likesCount(0L)
@@ -332,13 +351,11 @@ class ArticleQueryServiceImplTest {
     Long cursor = -1L;
     Long limit = 1L;
 
-    Member member = Member.builder().id(memberId).nickname("테스터").build();
-    Place place = Place.builder().placeId(placeId).title("장소").pinCategory(PinCategory.CAFE).address("주소").build();
     Article article = Article.builder()
         .articleId(10L)
         .member(member)
         .place(place)
-        .region(Region.builder().id(100L).build())
+        .region(region)
         .title("제목")
         .content("내용")
         .likesCount(0L)
@@ -397,7 +414,6 @@ class ArticleQueryServiceImplTest {
     // given
     Long memberId = 1L;
     Long placeId = 2L;
-    Member member = Member.builder().id(memberId).nickname("테스터").build();
     when(memberRepository.findById(memberId)).thenReturn(Optional.of(member));
     when(placeRepository.findPlaceByPlaceId(placeId)).thenReturn(Optional.empty());
 
