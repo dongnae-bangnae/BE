@@ -83,6 +83,10 @@ public class ArticleQueryServiceImpl implements ArticleQueryService {
     public ArticleResponseDTO.ArticleListDTO getArticlesByCategory(Long categoryId, Long memberId, Long cursor, Long limit) {
         long effectiveLimit = (limit != null) ? limit : DEFAULT_LIMIT;
 
+        if (cursor == null || cursor == -1L) {
+            cursor = null;
+        }
+
         // 1. 사용자 확인
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberHandler(ErrorStatus.MEMBER_NOT_FOUND));
@@ -126,6 +130,10 @@ public class ArticleQueryServiceImpl implements ArticleQueryService {
     @Override
     public List<ArticleResponseDTO.ArticleListItemDTO> getArticleList(Long memberId, Long placeId, Long cursor, Long limit) {
         long effectiveLimit = (limit != null) ? limit : DEFAULT_LIMIT; // limit가 null인 경우 기본값 설정
+
+        if (cursor == null || cursor == -1L) {
+            cursor = null;
+        }
 
         Member member = memberRepository.findById(memberId)
             .orElseThrow(() -> new MemberHandler(ErrorStatus.MEMBER_NOT_FOUND));
