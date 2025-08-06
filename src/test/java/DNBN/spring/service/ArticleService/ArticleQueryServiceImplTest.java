@@ -49,6 +49,7 @@ class ArticleQueryServiceImplTest {
   private Member member;
   private Place place;
   private Region region;
+  private Category category;
 
   @BeforeEach
   void setUp() {
@@ -63,46 +64,28 @@ class ArticleQueryServiceImplTest {
     member = Member.builder().id(1L).nickname("테스터").build();
     place = Place.builder().placeId(2L).title("장소").pinCategory(PinCategory.CAFE).address("주소").build();
     region = Region.builder().id(100L).build();
+    category = Category.builder().categoryId(3L).name("카테고리").member(member).build();
   }
 
-  /*
-    * 일반적인 게시글 조회 검증
+  /**
+   * Article 생성을 위한 팩토리 메서드
    */
-  @Test
-  void getArticleList_정상_조회() throws NoSuchFieldException, IllegalAccessException {
-    // given
-    Long memberId = 1L;
-    Long placeId = 2L;
-    Long cursor = null;
-    Long limit = 2L;
-
-    Article article1 = Article.builder()
-        .articleId(10L)
+  private Article createArticle(Long articleId, String title, String content, Long likesCount, Long spamCount, Long commentCount) {
+    Article article = Article.builder()
+        .articleId(articleId)
         .member(member)
         .place(place)
         .region(region)
-        .title("제목1")
-        .content("내용1")
-        .likesCount(5L)
-        .spamCount(0L)
-        .commentCount(1L)
-        .date(LocalDate.now())
-        .build();
-    Article article2 = Article.builder()
-        .articleId(9L)
-        .member(member)
-        .place(place)
-        .region(region)
-        .title("제목2")
-        .content("내용2")
-        .likesCount(3L)
-        .spamCount(1L)
-        .commentCount(2L)
+        .category(category)
+        .title(title)
+        .content(content)
+        .likesCount(likesCount)
+        .spamCount(spamCount)
+        .commentCount(commentCount)
         .date(LocalDate.now())
         .build();
 
-    // createdAt, updatedAt 필드 설정
-    for (Article article : List.of(article1, article2)) {
+    try {
       Field createdAtField = Article.class.getSuperclass().getDeclaredField("createdAt");
       createdAtField.setAccessible(true);
       createdAtField.set(article, LocalDateTime.now());
@@ -110,7 +93,41 @@ class ArticleQueryServiceImplTest {
       Field updatedAtField = Article.class.getSuperclass().getDeclaredField("updatedAt");
       updatedAtField.setAccessible(true);
       updatedAtField.set(article, LocalDateTime.now());
+    } catch (Exception e) {
+      throw new RuntimeException("Article 생성 중 오류 발생", e);
     }
+
+    return article;
+  }
+
+  /**
+   * 삭제된 Article 생성을 위한 팩토리 메서드
+   */
+  private Article createDeletedArticle(Long articleId, String title, String content, Long likesCount, Long spamCount, Long commentCount) {
+    Article article = createArticle(articleId, title, content, likesCount, spamCount, commentCount);
+    try {
+      Field deletedAtField = Article.class.getDeclaredField("deletedAt");
+      deletedAtField.setAccessible(true);
+      deletedAtField.set(article, LocalDateTime.now());
+    } catch (Exception e) {
+      throw new RuntimeException("Article 삭제 필드 설정 중 오류 발생", e);
+    }
+    return article;
+  }
+
+  /*
+    * 일반적인 게시글 조회 검증
+   */
+  @Test
+  void getArticleList_정상_조회() {
+    // given
+    Long memberId = 1L;
+    Long placeId = 2L;
+    Long cursor = null;
+    Long limit = 2L;
+
+    Article article1 = createArticle(10L, "제목1", "내용1", 5L, 0L, 1L);
+    Article article2 = createArticle(9L, "제목2", "내용2", 3L, 1L, 2L);
 
     List<Article> articles = List.of(article1, article2);
 
@@ -161,66 +178,16 @@ class ArticleQueryServiceImplTest {
     * Soft Delete로 삭제 처리된 게시물을 제외하고 조회되는지 검증
    */
   @Test
-  void getArticleList_삭제된_게시물_제외_정상_조회() throws Exception {
+  void getArticleList_삭제된_게시물_제외_정상_조회() {
     // given
     Long memberId = 1L;
     Long placeId = 2L;
     Long cursor = null;
     Long limit = 3L;
 
-    Article article1 = Article.builder()
-        .articleId(10L)
-        .member(member)
-        .place(place)
-        .region(region)
-        .title("제목1")
-        .content("내용1")
-        .likesCount(5L)
-        .spamCount(0L)
-        .commentCount(1L)
-        .date(LocalDate.now())
-        .build();
-
-    Article article2 = Article.builder()
-        .articleId(9L)
-        .member(member)
-        .place(place)
-        .region(region)
-        .title("제목2")
-        .content("내용2")
-        .likesCount(3L)
-        .spamCount(1L)
-        .commentCount(2L)
-        .date(LocalDate.now())
-        .build();
-
-    Article deletedArticle = Article.builder()
-        .articleId(8L)
-        .member(member)
-        .place(place)
-        .region(region)
-        .title("삭제된글")
-        .content("삭제됨")
-        .likesCount(3L)
-        .spamCount(4L)
-        .commentCount(5L)
-        .date(LocalDate.now())
-        .build();
-
-    // deletedAt, createdAt, updatedAt 필드 설정
-    Field deletedAtField = Article.class.getDeclaredField("deletedAt");
-    deletedAtField.setAccessible(true);
-    deletedAtField.set(deletedArticle, LocalDateTime.now());
-
-    for (Article article : List.of(article1, article2, deletedArticle)) {
-      Field createdAtField = Article.class.getSuperclass().getDeclaredField("createdAt");
-      createdAtField.setAccessible(true);
-      createdAtField.set(article, LocalDateTime.now());
-
-      Field updatedAtField = Article.class.getSuperclass().getDeclaredField("updatedAt");
-      updatedAtField.setAccessible(true);
-      updatedAtField.set(article, LocalDateTime.now());
-    }
+    Article article1 = createArticle(10L, "제목1", "내용1", 5L, 0L, 1L);
+    Article article2 = createArticle(9L, "제목2", "내용2", 3L, 1L, 2L);
+    Article deletedArticle = createDeletedArticle(8L, "삭제된글", "삭제됨", 3L, 4L, 5L);
 
     List<Article> articles = List.of(article1, article2);
 
@@ -244,33 +211,14 @@ class ArticleQueryServiceImplTest {
     * 좋아요/스팸 처리를 한 게시글일 때, true로 반환되는지 검증
    */
   @Test
-  void getArticleList_좋아요_스팸_여부_검증() throws Exception {
+  void getArticleList_좋아요_스팸_여부_검증() {
     // given
     Long memberId = 1L;
     Long placeId = 2L;
     Long cursor = null;
     Long limit = 1L;
 
-    Article article = Article.builder()
-        .articleId(10L)
-        .member(member)
-        .place(place)
-        .region(region)
-        .title("제목")
-        .content("내용")
-        .likesCount(1L)
-        .spamCount(1L)
-        .commentCount(0L)
-        .date(LocalDate.now())
-        .build();
-
-    Field createdAtField = Article.class.getSuperclass().getDeclaredField("createdAt");
-    createdAtField.setAccessible(true);
-    createdAtField.set(article, LocalDateTime.now());
-    Field updatedAtField = Article.class.getSuperclass().getDeclaredField("updatedAt");
-    updatedAtField.setAccessible(true);
-    updatedAtField.set(article, LocalDateTime.now());
-
+    Article article = createArticle(10L, "제목", "내용", 1L, 1L, 0L);
     List<Article> articles = List.of(article);
 
     when(memberRepository.findById(memberId)).thenReturn(Optional.of(member));
@@ -294,33 +242,14 @@ class ArticleQueryServiceImplTest {
     * limit가 null인 경우, 기본 limit(10)으로 처리되어야 하며 정상적으로 조회되는지 검증
    */
   @Test
-  void getArticleList_cursor_limit_null_정상_조회() throws Exception {
+  void getArticleList_cursor_limit_null_정상_조회() {
     // given
     Long memberId = 1L;
     Long placeId = 2L;
     Long cursor = null;
     Long limit = null; // limit null
 
-    Article article = Article.builder()
-        .articleId(10L)
-        .member(member)
-        .place(place)
-        .region(region)
-        .title("제목")
-        .content("내용")
-        .likesCount(0L)
-        .spamCount(0L)
-        .commentCount(0L)
-        .date(LocalDate.now())
-        .build();
-
-    Field createdAtField = Article.class.getSuperclass().getDeclaredField("createdAt");
-    createdAtField.setAccessible(true);
-    createdAtField.set(article, LocalDateTime.now());
-    Field updatedAtField = Article.class.getSuperclass().getDeclaredField("updatedAt");
-    updatedAtField.setAccessible(true);
-    updatedAtField.set(article, LocalDateTime.now());
-
+    Article article = createArticle(10L, "제목", "내용", 0L, 0L, 0L);
     List<Article> articles = List.of(article);
 
     when(memberRepository.findById(memberId)).thenReturn(Optional.of(member));
@@ -344,33 +273,14 @@ class ArticleQueryServiceImplTest {
     * cursor가 -1인 경우, null로 처리되어 정상적으로 조회되는지 검증
    */
   @Test
-  void getArticleList_cursor_마이너스1_정상_조회() throws Exception {
+  void getArticleList_cursor_마이너스1_정상_조회() {
     // given
     Long memberId = 1L;
     Long placeId = 2L;
     Long cursor = -1L;
     Long limit = 1L;
 
-    Article article = Article.builder()
-        .articleId(10L)
-        .member(member)
-        .place(place)
-        .region(region)
-        .title("제목")
-        .content("내용")
-        .likesCount(0L)
-        .spamCount(0L)
-        .commentCount(0L)
-        .date(LocalDate.now())
-        .build();
-
-    Field createdAtField = Article.class.getSuperclass().getDeclaredField("createdAt");
-    createdAtField.setAccessible(true);
-    createdAtField.set(article, LocalDateTime.now());
-    Field updatedAtField = Article.class.getSuperclass().getDeclaredField("updatedAt");
-    updatedAtField.setAccessible(true);
-    updatedAtField.set(article, LocalDateTime.now());
-
+    Article article = createArticle(10L, "제목", "내용", 0L, 0L, 0L);
     List<Article> articles = List.of(article);
 
     when(memberRepository.findById(memberId)).thenReturn(Optional.of(member));
@@ -423,3 +333,4 @@ class ArticleQueryServiceImplTest {
     });
   }
 }
+
