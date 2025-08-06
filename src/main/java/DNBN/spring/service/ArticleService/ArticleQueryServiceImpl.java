@@ -116,20 +116,26 @@ public class ArticleQueryServiceImpl implements ArticleQueryService {
     @Override
     public List<ArticleResponseDTO.ArticleListItemDTO> getArticleList(Long memberId, Long regionId, Long cursor, Long limit) {
         List<Article> articles = articleRepository.findAllByRegion_IdIn(List.of(regionId), PageRequest.of(0, limit.intValue(), Sort.by(Sort.Direction.DESC, "createdAt"))).getContent();
-        return articles.stream().map(article -> {
-            // 대표 이미지
-            String mainImageUuid = articlePhotoRepository.findAllByArticle(article).stream()
-                .filter(ArticlePhoto::getIsMain)
-                .findFirst()
-                .map(ArticlePhoto::getFileKey)
-                .orElse(null);
-            // 좋아요 여부
-            boolean isLiked = articleLikeRepository.existsById(new ArticleLikeId(article.getArticleId(), memberId));
-            // 스팸 여부
-            boolean isSpammed = articleSpamRepository.existsById(new DNBN.spring.domain.ArticleSpamId(article.getArticleId(), memberId));
-            // 내 글 여부
-            boolean isMine = memberId != null && memberId.equals(article.getMember().getId());
-            return ArticleConverter.toArticleListItemDTO(article, mainImageUuid, isLiked, isSpammed, isMine);
-        }).toList();
+
+        return articles.stream()
+            .map(article -> {
+                // 대표 이미지
+                String mainImageUuid = articlePhotoRepository.findFirstByArticleAndIsMainTrue(article)
+                    .map(ArticlePhoto::getFileKey)
+                    .orElse("ae383fd6-4211-496b-a631-827954b03306"); // 기본 이미지 Uuid
+                // 좋아요 여부
+                boolean isLiked = articleLikeRepository.existsById(
+                    new ArticleLikeId(article.getArticleId(), memberId)
+                );
+                // 스팸 여부
+                boolean isSpammed = articleSpamRepository.existsById(
+                    new DNBN.spring.domain.ArticleSpamId(article.getArticleId(), memberId)
+                );
+                // 내 글 여부
+                boolean isMine = memberId != null && memberId.equals(article.getMember().getId());
+
+                return ArticleConverter.toArticleListItemDTO(article, mainImageUuid, isLiked, isSpammed, isMine);
+            })
+            .toList();
     }
 }
