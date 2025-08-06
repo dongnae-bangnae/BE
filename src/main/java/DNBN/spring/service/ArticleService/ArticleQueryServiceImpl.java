@@ -117,8 +117,12 @@ public class ArticleQueryServiceImpl implements ArticleQueryService {
     }
 
     @Override
-    public List<ArticleResponseDTO.ArticleListItemDTO> getArticleList(Long memberId, Long regionId, Long cursor, Long limit) {
-        List<Article> articles = articleRepository.findAllByRegion_IdIn(List.of(regionId), PageRequest.of(0, limit.intValue(), Sort.by(Sort.Direction.DESC, "createdAt"))).getContent();
+    public List<ArticleResponseDTO.ArticleListItemDTO> getArticleList(Long memberId, Long placeId, Long cursor, Long limit) {
+
+        // TODO: 검증 로직 추가
+        
+        // TODO: Cursor 기반 페이징 변경
+        List<Article> articles = articleRepository.findAllByPlace_IdIn(List.of(placeId), PageRequest.of(0, limit.intValue(), Sort.by(Sort.Direction.DESC, "createdAt"))).getContent();
 
         return articles.stream()
             .map(article -> {
