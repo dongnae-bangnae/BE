@@ -102,12 +102,12 @@ public class ArticleController {
     )
     public ApiResponse<List<ArticleResponseDTO.ArticleListItemDTO>> getArticleList(
             @AuthenticationPrincipal MemberDetails memberDetails,
-            Long regionId,
+            Long placeId,
             Long cursor,
             Long limit
     ) {
         Long memberId = memberDetails.getMember().getId();
-        List<ArticleResponseDTO.ArticleListItemDTO> articles = articleQueryService.getArticleList(memberId, regionId, cursor, limit);
+        List<ArticleResponseDTO.ArticleListItemDTO> articles = articleQueryService.getArticleList(memberId, placeId, cursor, limit);
         return ApiResponse.of(SuccessStatus.ARTICLE_READ_SUCCESS, articles);
     }
 }
