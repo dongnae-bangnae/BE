@@ -1,14 +1,10 @@
 package DNBN.spring.repository.CommentRepository;
 
 import DNBN.spring.domain.Comment;
-import DNBN.spring.domain.Article;
-import DNBN.spring.domain.Member;
-import DNBN.spring.domain.Place;
-import DNBN.spring.domain.Region;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.repository.query.Param;
 import java.util.List;
 
-public interface CommentRepository extends JpaRepository<Comment, Long> {
-    List<Comment> findAllByArticle(Article article);
+public interface CommentRepository extends JpaRepository<Comment, Long>, CommentRepositoryCustom {
+    List<Comment> findAllByArticle(DNBN.spring.domain.Article article);
 }
-
