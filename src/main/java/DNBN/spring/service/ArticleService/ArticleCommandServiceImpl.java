@@ -50,6 +50,7 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
 
     @Override
     @ValidateS3ImageUpload
+    @ValidateArticle
     public ArticleWithPhotos createArticle(Long memberId, ArticleRequestDTO request, MultipartFile mainImage, List<MultipartFile> imageFiles) {
         Member member = getMember(memberId);
         Category category = getCategory(request.categoryId());
@@ -78,6 +79,7 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
     // TODO: OCP 위반
     @Override
     @ValidateS3ImageUpload
+    @ValidateArticle
     public ArticleWithPhotos createArticle(Long memberId, ArticleWithLocationRequestDTO request, MultipartFile mainImage, List<MultipartFile> imageFiles) {
         Member member = getMember(memberId);
         Category category = getCategory(request.categoryId());
@@ -216,6 +218,7 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
 
     @Override
     @ValidateS3ImageUpload
+    @ValidateArticle
     public ArticleWithPhotos updateArticle(Long memberId, Long articleId, ArticleUpdateRequestDTO request, MultipartFile mainImage, List<MultipartFile> imageFiles) {
         Article article = articleRepository.findById(articleId)
                 .orElseThrow(() -> new ArticleHandler(ErrorStatus.ARTICLE_NOT_FOUND));
@@ -281,6 +284,7 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
 
 
     @Override
+    @ValidateArticle
     public void deleteArticle(Long memberId, Long articleId) {
         Article article = articleRepository.findById(articleId)
                 .orElseThrow(() -> new ArticleHandler(ErrorStatus.ARTICLE_NOT_FOUND));
