@@ -265,6 +265,14 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
             Category category = getCategory(request.categoryId());
             article.setCategory(category);
         }
+        if (request.regionId() != null) {
+            Region region = getRegion(request.regionId());
+            article.setRegion(region);
+        }
+        if (request.placeId() != null) {
+            Place place = getPlace(request.placeId());
+            article.setPlace(place);
+        }
     }
 
     // TODO: 책임 분리
