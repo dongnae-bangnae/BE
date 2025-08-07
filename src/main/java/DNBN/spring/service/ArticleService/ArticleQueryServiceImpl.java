@@ -19,13 +19,18 @@ import DNBN.spring.repository.CategoryRepository.CategoryRepository;
 import DNBN.spring.repository.CommentRepository.CommentRepository;
 import DNBN.spring.repository.LikeRegionRepository.LikeRegionRepository;
 import DNBN.spring.repository.MemberRepository.MemberRepository;
+import DNBN.spring.repository.PlaceRepository.PlaceRepository;
 import DNBN.spring.repository.RegionRepository.RegionRepository;
+import DNBN.spring.repository.ArticleLikeRepository.ArticleLikeRepository;
+import DNBN.spring.repository.ArticleSpamRepository.ArticleSpamRepository;
 
 import DNBN.spring.web.dto.ArticleResponseDTO;
 
 import DNBN.spring.web.dto.response.PostResponseDTO;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -35,10 +40,17 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class ArticleQueryServiceImpl implements ArticleQueryService {
+
+    @Value("${article.default-image-uuid}")
+    private String defaultImageUuid;
+
+    private static final long DEFAULT_LIMIT = 10L;
+
     private final ArticleRepository articleRepository;
     private final LikeRegionRepository likeRegionRepository;
     private final CategoryRepository categoryRepository;
@@ -46,6 +58,9 @@ public class ArticleQueryServiceImpl implements ArticleQueryService {
     private final ArticlePhotoRepository articlePhotoRepository;
     private final ArticleRepositoryCustom articleRepositoryCustom;
     private final MemberRepository memberRepository;
+    private final ArticleLikeRepository articleLikeRepository;
+    private final ArticleSpamRepository articleSpamRepository;
+    private final PlaceRepository placeRepository;
 
     @Override
     public Page<Article> getArticleListByRegion(Long memberId, Integer page) {
@@ -69,6 +84,12 @@ public class ArticleQueryServiceImpl implements ArticleQueryService {
 
     @Override
     public ArticleResponseDTO.ArticleListDTO getArticlesByCategory(Long categoryId, Long memberId, Long cursor, Long limit) {
+        long effectiveLimit = (limit != null) ? limit : DEFAULT_LIMIT;
+
+        if (cursor == null || cursor == -1L) {
+            cursor = null;
+        }
+
         // 1. 사용자 확인
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberHandler(ErrorStatus.MEMBER_NOT_FOUND));
@@ -78,9 +99,9 @@ public class ArticleQueryServiceImpl implements ArticleQueryService {
                 .orElseThrow(() -> new CategoryHandler(ErrorStatus._FORBIDDEN));
 
         // 3. 게시물 조회 (limit + 1 조회로 hasNext 판별)
-        List<Article> articles = articleRepositoryCustom.findArticlesByCategoryWithCursor(categoryId, cursor, limit + 1);
+        List<Article> articles = articleRepositoryCustom.findArticlesByCategoryWithCursor(categoryId, cursor, effectiveLimit + 1);
 
-        boolean hasNext = articles.size() > limit;
+        boolean hasNext = articles.size() > effectiveLimit;
         if (hasNext) articles.remove(articles.size() - 1);
 
         // 4. 변환
@@ -107,5 +128,47 @@ public class ArticleQueryServiceImpl implements ArticleQueryService {
         }
         List<ArticlePhoto> photos = articlePhotoRepository.findAllByArticle(article);
         return ArticleConverter.toArticleDetailDTO(article, photos);
+    }
+
+    @Override
+    public List<ArticleResponseDTO.ArticleListItemDTO> getArticleList(Long memberId, Long placeId, Long cursor, Long limit) {
+        long effectiveLimit = (limit != null) ? limit : DEFAULT_LIMIT; // limit가 null인 경우 기본값 설정
+
+        if (cursor == null || cursor == -1L) {
+            cursor = null;
+        }
+
+        Member member = memberRepository.findById(memberId)
+            .orElseThrow(() -> new MemberHandler(ErrorStatus.MEMBER_NOT_FOUND));
+        Place place = placeRepository.findPlaceByPlaceId(placeId)
+            .orElseThrow(() -> new ArticleHandler(ErrorStatus.PLACE_NOT_FOUND));
+        
+        List<Article> articles = articleRepositoryCustom.findArticlesByPlaceWithCursor(placeId, cursor, effectiveLimit + 1);
+        boolean hasNext = articles.size() > effectiveLimit;
+        if (hasNext) articles.remove(articles.size() - 1);
+
+        return articles.stream()
+            .map(article -> {
+                Long articleId = article.getArticleId();
+
+                // 대표 이미지
+                String mainImageUuid = articlePhotoRepository.findFirstByArticleAndIsMainTrue(article)
+                    .map(ArticlePhoto::getFileKey)
+                    .orElseGet(() -> defaultImageUuid);
+                // 좋아요 여부
+                boolean isLiked = articleLikeRepository.existsById(
+                    new ArticleLikeId(articleId, memberId)
+                );
+                // 스팸 여부
+                boolean isSpammed = articleSpamRepository.existsById(
+                    new ArticleSpamId(articleId, memberId)
+                );
+                // 내 글 여부
+                boolean isMine = memberId.equals(article.getMember().getId());
+
+                log.debug("articleId: {}, isLiked: {}, isSpammed: {}, isMine: {}", articleId, isLiked, isSpammed, isMine);
+                return ArticleConverter.toArticleListItemDTO(article, mainImageUuid, isLiked, isSpammed, isMine);
+            })
+            .toList();
     }
 }

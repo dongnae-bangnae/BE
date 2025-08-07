@@ -125,4 +125,44 @@ public class ArticleResponseDTO {
             this.updatedAt = updatedAt;
         }
     }
+
+    @Builder
+    @Getter
+    public static class ArticleListItemDTO {
+        private final Long memberId;
+        private final Long articleId;
+        private final Long regionId;
+        private final Long placeId;
+        private final String nickname;
+        private final String title;
+        private final String pinCategory;
+        private final String mainImageUuid;
+        private final Long likeCount;
+        private final Long spamCount;
+        private final Long commentCount;
+        private final Boolean isLiked;
+        private final Boolean isSpammed;
+        private final Boolean isMine;
+        private final String createdAt;
+        private final String updatedAt;
+
+        private ArticleListItemDTO(Long memberId, Long articleId, Long regionId, Long placeId, String nickname, String title, String pinCategory, String mainImageUuid, Long likeCount, Long spamCount, Long commentCount, Boolean isLiked, Boolean isSpammed, Boolean isMine, String createdAt, String updatedAt) {
+            this.memberId = memberId;
+            this.articleId = articleId;
+            this.regionId = regionId;
+            this.placeId = placeId;
+            this.nickname = nickname;
+            this.title = title;
+            this.pinCategory = pinCategory;
+            this.mainImageUuid = mainImageUuid;
+            this.likeCount = likeCount;
+            this.spamCount = spamCount;
+            this.commentCount = commentCount;
+            this.isLiked = isLiked;
+            this.isSpammed = isSpammed;
+            this.isMine = isMine;
+            this.createdAt = createdAt;
+            this.updatedAt = updatedAt;
+        }
+    }
 }

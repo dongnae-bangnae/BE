@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -92,5 +93,22 @@ public class ArticleController {
     public ApiResponse<ArticleResponseDTO.ArticleDetailDTO> getArticleDetail(@PathVariable Long articleId) {
         ArticleResponseDTO.ArticleDetailDTO response = articleQueryService.getArticleDetail(articleId);
         return ApiResponse.of(SuccessStatus.ARTICLE_READ_SUCCESS, response);
+    }
+
+    @GetMapping
+    @Operation(
+        summary = "게시물 목록 조회",
+        description = "게시물 목록을 조회합니다. JWT 인증 필요.",
+        security = @SecurityRequirement(name = "JWT TOKEN")
+    )
+    public ApiResponse<List<ArticleResponseDTO.ArticleListItemDTO>> getArticleList(
+            @AuthenticationPrincipal MemberDetails memberDetails,
+            @RequestParam("placeId") Long placeId,
+            @RequestParam(value = "cursor", required = false) Long cursor,
+            @RequestParam(value = "limit", required = false) Long limit
+    ) {
+        Long memberId = memberDetails.getMember().getId();
+        List<ArticleResponseDTO.ArticleListItemDTO> articles = articleQueryService.getArticleList(memberId, placeId, cursor, limit);
+        return ApiResponse.of(SuccessStatus.ARTICLE_READ_SUCCESS, articles);
     }
 }

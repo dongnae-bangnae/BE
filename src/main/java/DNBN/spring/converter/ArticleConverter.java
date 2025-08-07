@@ -107,4 +107,25 @@ public class ArticleConverter {
                 .updatedAt(article.getUpdatedAt().toString())
                 .build();
     }
+
+    public static ArticleResponseDTO.ArticleListItemDTO toArticleListItemDTO(Article article, String mainImageUuid, boolean isLiked, boolean isSpammed, boolean isMine) {
+        return ArticleResponseDTO.ArticleListItemDTO.builder()
+                .memberId(article.getMember().getId())
+                .articleId(article.getArticleId())
+                .regionId(article.getRegion().getId())
+                .placeId(article.getPlace().getPlaceId())
+                .nickname(article.getMember().getNickname())
+                .title(article.getTitle())
+                .pinCategory(article.getPlace().getPinCategory().name())
+                .mainImageUuid(mainImageUuid)
+                .likeCount(article.getLikesCount())
+                .spamCount(article.getSpamCount())
+                .commentCount(article.getCommentCount())
+                .isLiked(isLiked)
+                .isSpammed(isSpammed)
+                .isMine(isMine)
+                .createdAt(article.getCreatedAt().toString())
+                .updatedAt(article.getUpdatedAt().toString())
+                .build();
+    }
 }
