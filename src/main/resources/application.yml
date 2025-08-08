@@ -110,3 +110,8 @@ article:
       max-count: 10
       max-size: 10485760 # 10MB (byte)
   default-image-uuid: ae383fd6-4211-496b-a631-827954b03306
+  comment:
+    validation:
+      content:
+        min-length: 2
+        max-length: 1000
