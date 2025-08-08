@@ -17,8 +17,7 @@ import org.springframework.stereotype.Component;
 public class CommentValidationAspect {
     private final CommentRepository commentRepository;
 
-    @Before("execution(* DNBN.spring.service.CommentService.CommentCommandServiceImpl.deleteComment(..)) || " +
-            "execution(* DNBN.spring.service.CommentService.CommentCommandServiceImpl.updateComment(..))")
+    @Before("@annotation(DNBN.spring.aop.annotation.ValidateComment)")
     public void validateComment(JoinPoint joinPoint) {
         Object[] args = joinPoint.getArgs();
         Long memberId = (Long) args[0];
@@ -37,7 +36,7 @@ public class CommentValidationAspect {
         }
     }
 
-    @Before("execution(* DNBN.spring.service.CommentService.CommentCommandServiceImpl.updateComment(..))")
+    @Before("@annotation(DNBN.spring.aop.annotation.ValidateComment)")
     public void validateCommentContent(JoinPoint joinPoint) {
         Object[] args = joinPoint.getArgs();
         Object dto = args[3];
