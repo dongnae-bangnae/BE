@@ -81,9 +81,31 @@ public class Article extends BaseEntity {
         this.deletedAt = java.time.LocalDateTime.now();
     }
 
+  public void setTitle(String title) {
+    this.title = title;
+  }
+
+  public void setContent(String content) {
+    this.content = content;
+  }
+
+  public void setDate(LocalDate date) {
+    this.date = date;
+  }
+
+  public void setCategory(Category category) {
+    this.category = category;
+  }
+
+  public void setPlace(Place place) {
+    this.place = place;
+  }
+
+  public void setRegion(Region region) {
+    this.region = region;
+  }
+
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "challengeId")
   private Challenge challenge;
 }
-
-

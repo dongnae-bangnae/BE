@@ -8,6 +8,7 @@ import DNBN.spring.service.ArticleService.ArticleCommandService;
 import DNBN.spring.service.ArticleService.ArticleQueryService;
 import DNBN.spring.web.dto.ArticleRequestDTO;
 import DNBN.spring.web.dto.ArticleResponseDTO;
+import DNBN.spring.web.dto.ArticleUpdateRequestDTO;
 import DNBN.spring.web.dto.ArticleWithLocationRequestDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -67,6 +69,25 @@ public class ArticleController {
         ArticleCommandService.ArticleWithPhotos result = articleCommandService.createArticle(memberId, dto, mainImage, imageFiles);
         ArticleResponseDTO response = ArticleConverter.toArticleResponseDTO(result.article, result.photos);
         return ApiResponse.of(SuccessStatus.ARTICLE_CREATE_SUCCESS, response);
+    }
+
+    @PutMapping(value = "/{articleId}", consumes = {"multipart/form-data"})
+    @Operation(
+            summary = "게시물 수정",
+            description = "기존 게시물을 수정합니다. JWT 인증 필요. 본인 게시물만 수정 가능합니다.",
+            security = @SecurityRequirement(name = "JWT TOKEN")
+    )
+    public ApiResponse<ArticleResponseDTO> updateArticle(
+            @AuthenticationPrincipal MemberDetails memberDetails,
+            @PathVariable Long articleId,
+            @RequestPart("request") @Valid ArticleUpdateRequestDTO dto,
+            @RequestPart(value = "mainImage", required = false) MultipartFile mainImage,
+            @RequestPart(value = "imageFiles", required = false) List<MultipartFile> imageFiles
+    ) {
+        Long memberId = memberDetails.getMember().getId();
+        ArticleCommandService.ArticleWithPhotos result = articleCommandService.updateArticle(memberId, articleId, dto, mainImage, imageFiles);
+        ArticleResponseDTO response = ArticleConverter.toArticleResponseDTO(result.article, result.photos);
+        return ApiResponse.of(SuccessStatus.ARTICLE_UPDATE_SUCCESS, response);
     }
 
     @DeleteMapping("/{articleId}")

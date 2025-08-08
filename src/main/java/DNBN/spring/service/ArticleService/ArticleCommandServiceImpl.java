@@ -24,6 +24,8 @@ import DNBN.spring.repository.PlaceRepository.PlaceRepository;
 import DNBN.spring.repository.RegionRepository.RegionRepository;
 import DNBN.spring.web.dto.ArticleRequestDTO;
 import DNBN.spring.web.dto.ArticleWithLocationRequestDTO;
+import DNBN.spring.web.dto.ArticleUpdateRequestDTO;
+import DNBN.spring.aop.annotation.ValidateArticle;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -48,6 +50,7 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
 
     @Override
     @ValidateS3ImageUpload
+    @ValidateArticle
     public ArticleWithPhotos createArticle(Long memberId, ArticleRequestDTO request, MultipartFile mainImage, List<MultipartFile> imageFiles) {
         Member member = getMember(memberId);
         Category category = getCategory(request.categoryId());
@@ -73,8 +76,10 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
         return new ArticleWithPhotos(article, photos);
     }
 
+    // TODO: OCP 위반
     @Override
     @ValidateS3ImageUpload
+    @ValidateArticle
     public ArticleWithPhotos createArticle(Long memberId, ArticleWithLocationRequestDTO request, MultipartFile mainImage, List<MultipartFile> imageFiles) {
         Member member = getMember(memberId);
         Category category = getCategory(request.categoryId());
@@ -123,12 +128,10 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
                 .orElseThrow(() -> new RegionHandler(ErrorStatus.REGION_NOT_FOUND));
     }
 
-    // TODO: 팩토리 검토
+    // TODO: 생성 책임 분리
     private Article createArticleEntity(Member member, Category category, Place place, Region region, ArticleRequestDTO request) {
-        // placeName, pinCategory 활용 예시 (추후 도메인/DB 반영 필요)
         String placeName = request.placeName();
         String pinCategory = request.pinCategory();
-        // ...기존 빌더 코드...
         return Article.builder()
                 .member(member)
                 .category(category)
@@ -139,7 +142,6 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
                 .content(request.content())
                 .likesCount(0L)
                 .spamCount(0L)
-                // 필요시 placeName, pinCategory를 Article에 저장하도록 확장 가능
                 .build();
     }
     private Article createArticleEntity(Member member, Category category, Place place, Region region, ArticleWithLocationRequestDTO request) {
@@ -215,6 +217,82 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
     }
 
     @Override
+    @ValidateS3ImageUpload
+    @ValidateArticle
+    public ArticleWithPhotos updateArticle(Long memberId, Long articleId, ArticleUpdateRequestDTO request, MultipartFile mainImage, List<MultipartFile> imageFiles) {
+        Article article = articleRepository.findById(articleId)
+                .orElseThrow(() -> new ArticleHandler(ErrorStatus.ARTICLE_NOT_FOUND));
+
+        // 수정 권한 확인
+        if (!article.getMember().getId().equals(memberId)) {
+            throw new ArticleHandler(ErrorStatus.ARTICLE_FORBIDDEN);
+        }
+        // 이미 삭제된 게시물인지 확인
+        if (article.getDeletedAt() != null) {
+            throw new ArticleHandler(ErrorStatus.ARTICLE_ALREADY_DELETED);
+        }
+
+        updateArticleEntity(article, request);
+        updatePlaceEntity(article.getPlace(), request);
+
+        List<ArticlePhoto> photos = articlePhotoRepository.findAllByArticle(article);
+        // 새로운 이미지가 제공된 경우, 기존 이미지 삭제 후 새로 추가
+        if ((mainImage != null && !mainImage.isEmpty()) || (imageFiles != null && !imageFiles.isEmpty())) {
+            // 기존 이미지 S3에서 삭제 및 DB에서 삭제
+            for (ArticlePhoto photo : photos) {
+                s3Manager.deleteFile(photo.getFileKey());
+                articlePhotoRepository.delete(photo);
+            }
+            // 새 이미지 업로드 및 저장
+            photos = handleImages(article, article.getPlace(), article.getRegion(), mainImage, imageFiles);
+        }
+
+        return new ArticleWithPhotos(article, photos);
+    }
+
+    // TODO: 책임 분리
+    private void updateArticleEntity(Article article, ArticleUpdateRequestDTO request) {
+        if (request.title() != null) {
+            article.setTitle(request.title());
+        }
+        if (request.content() != null) {
+            article.setContent(request.content());
+        }
+        if (request.date() != null) {
+            article.setDate(request.date());
+        }
+        if (request.categoryId() != null) {
+            Category category = getCategory(request.categoryId());
+            article.setCategory(category);
+        }
+        if (request.regionId() != null) {
+            Region region = getRegion(request.regionId());
+            article.setRegion(region);
+        }
+        if (request.placeId() != null) {
+            Place place = getPlace(request.placeId());
+            article.setPlace(place);
+        }
+    }
+
+    // TODO: 책임 분리
+    private void updatePlaceEntity(Place place, ArticleUpdateRequestDTO request) {
+        if (request.placeName() != null) {
+            place.updateTitle(request.placeName());
+        }
+        if (request.pinCategory() != null) {
+            try {
+                PinCategory newPinCategory = PinCategory.valueOf(request.pinCategory().toUpperCase());
+                place.updatePinCategory(newPinCategory);
+            } catch (IllegalArgumentException e) {
+                throw new PlaceHandler(ErrorStatus.PIN_CATEGORY_INVALID);
+            }
+        }
+    }
+
+
+    @Override
+    @ValidateArticle
     public void deleteArticle(Long memberId, Long articleId) {
         Article article = articleRepository.findById(articleId)
                 .orElseThrow(() -> new ArticleHandler(ErrorStatus.ARTICLE_NOT_FOUND));
