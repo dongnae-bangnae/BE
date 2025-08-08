@@ -3,6 +3,7 @@ package DNBN.spring.service.ArticleService;
 import DNBN.spring.domain.Article;
 import DNBN.spring.domain.ArticlePhoto;
 import DNBN.spring.web.dto.ArticleRequestDTO;
+import DNBN.spring.web.dto.ArticleUpdateRequestDTO;
 import DNBN.spring.web.dto.ArticleWithLocationRequestDTO;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -11,6 +12,8 @@ import org.springframework.web.multipart.MultipartFile;
 public interface ArticleCommandService {
     ArticleWithPhotos createArticle(Long memberId, ArticleRequestDTO request, MultipartFile mainImage, List<MultipartFile> imageFiles);
     ArticleWithPhotos createArticle(Long memberId, ArticleWithLocationRequestDTO request, MultipartFile mainImage, List<MultipartFile> imageFiles);
+
+    ArticleWithPhotos updateArticle(Long memberId, Long articleId, ArticleUpdateRequestDTO request, MultipartFile mainImage, List<MultipartFile> imageFiles);
 
     void deleteArticle(Long memberId, Long articleId);
 

@@ -37,9 +37,12 @@ public enum SuccessStatus implements BaseCode {
 
     // 게시물 관련 응답
     ARTICLE_CREATE_SUCCESS(HttpStatus.CREATED, "ARTICLE_CREATE_SUCCESS", "게시물이 정상적으로 작성되었습니다."),
+
+    ARTICLE_READ_SUCCESS(HttpStatus.OK, "ARTICLE_READ_SUCCESS", "게시물 상세페이지가 정상적으로 조회되었습니다."),
+    ARTICLE_DELETE_SUCCESS(HttpStatus.NO_CONTENT, "ARTICLE_DELETE_SUCCESS", "게시물이 정상적으로 삭제되었습니다."),
+    ARTICLE_UPDATE_SUCCESS(HttpStatus.OK, "ARTICLE_UPDATE_SUCCESS", "게시물이 정상적으로 수정되었습니다.")
     ARTICLE_READ_SUCCESS(HttpStatus.OK, "ARTICLE_READ_SUCCESS", "게시물 상세페이지가 정상적으로 조회되었습니다."), // TODO: 상세 조회와 목록 조회 구분
-    ARTICLE_DELETE_SUCCESS(HttpStatus.NO_CONTENT, "ARTICLE_DELETE_SUCCESS", "게시물이 정상적으로 삭제되었습니다.")
-    ;
+    ARTICLE_DELETE_SUCCESS(HttpStatus.NO_CONTENT, "ARTICLE_DELETE_SUCCESS", "게시물이 정상적으로 삭제되었습니다.");
 
     private final HttpStatus httpStatus;
     private final String code;
