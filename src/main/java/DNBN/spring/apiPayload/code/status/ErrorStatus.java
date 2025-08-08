@@ -82,6 +82,7 @@ public enum ErrorStatus implements BaseErrorCode {
 
     // 댓글
     COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "COMMENT4001", "댓글을 찾을 수 없습니다."),
+    COMMENT_CONTENT_NULL_ERROR(HttpStatus.BAD_REQUEST, "COMMENT4005", "댓글 내용이 비어 있습니다."),
     COMMENT_CONTENT_LENGTH_INVALID(HttpStatus.BAD_REQUEST, "COMMENT4002", "댓글 내용은 1~1000자여야 합니다."),
     COMMENT_FORBIDDEN(HttpStatus.FORBIDDEN, "COMMENT4003", "해당 댓글에 대한 권한이 없습니다."),
     COMMENT_ALREADY_DELETED(HttpStatus.CONFLICT, "COMMENT4004", "이미 삭제된 댓글입니다."),
