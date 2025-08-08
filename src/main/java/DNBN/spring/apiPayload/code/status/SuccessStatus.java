@@ -28,16 +28,21 @@ public enum SuccessStatus implements BaseCode {
     COMMENT_CREATE_SUCCESS(HttpStatus.CREATED, "COMMENT_CREATE_SUCCESS", "댓글이 정상적으로 작성되었습니다."),
     COMMENT_UPDATE_SUCCESS(HttpStatus.OK, "COMMENT_UPDATE_SUCCESS", "댓글이 정상적으로 수정되었습니다."),
     COMMENT_DELETE_SUCCESS(HttpStatus.NO_CONTENT, "COMMENT_DELETE_SUCCESS", "댓글이 정상적으로 삭제되었습니다."),
+    COMMENT_READ_SUCCESS(HttpStatus.OK, "COMMENT_READ_SUCCESS", "댓글을 정상적으로 조회했습니다."),
+    COMMENT_REPLY_READ_SUCCESS(HttpStatus.OK, "COMMENT_REPLY_READ_SUCCESS", "대댓글을 정상적으로 조회했습니다."),
+    COMMENT_LIST_READ_SUCCESS(HttpStatus.OK, "COMMENT_LIST_READ_SUCCESS", "댓글 목록을 정상적으로 조회했습니다."),
 
     // 동네 검색
     REGION_SEARCH_SUCCESS(HttpStatus.OK, "REGION2001", "지역 검색 결과입니다."),
 
     // 게시물 관련 응답
     ARTICLE_CREATE_SUCCESS(HttpStatus.CREATED, "ARTICLE_CREATE_SUCCESS", "게시물이 정상적으로 작성되었습니다."),
+
     ARTICLE_READ_SUCCESS(HttpStatus.OK, "ARTICLE_READ_SUCCESS", "게시물 상세페이지가 정상적으로 조회되었습니다."),
     ARTICLE_DELETE_SUCCESS(HttpStatus.NO_CONTENT, "ARTICLE_DELETE_SUCCESS", "게시물이 정상적으로 삭제되었습니다."),
     ARTICLE_UPDATE_SUCCESS(HttpStatus.OK, "ARTICLE_UPDATE_SUCCESS", "게시물이 정상적으로 수정되었습니다.")
-    ;
+    ARTICLE_READ_SUCCESS(HttpStatus.OK, "ARTICLE_READ_SUCCESS", "게시물 상세페이지가 정상적으로 조회되었습니다."), // TODO: 상세 조회와 목록 조회 구분
+    ARTICLE_DELETE_SUCCESS(HttpStatus.NO_CONTENT, "ARTICLE_DELETE_SUCCESS", "게시물이 정상적으로 삭제되었습니다.");
 
     private final HttpStatus httpStatus;
     private final String code;

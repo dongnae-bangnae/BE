@@ -4,6 +4,7 @@ import DNBN.spring.domain.common.BaseEntity;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
@@ -49,7 +50,7 @@ public class Comment extends BaseEntity {
   @JoinColumn(name = "parent_comment_id")
   private Comment parentComment;
 
-  @OneToMany(mappedBy = "parentComment", cascade = CascadeType.ALL)
+  @OneToMany(mappedBy = "parentComment", cascade = CascadeType.ALL, orphanRemoval = true)
   @Builder.Default
   private List<Comment> childComments = new ArrayList<>();
 
