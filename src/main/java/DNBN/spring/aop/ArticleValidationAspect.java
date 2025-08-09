@@ -2,6 +2,10 @@ package DNBN.spring.aop;
 
 import DNBN.spring.apiPayload.code.status.ErrorStatus;
 import DNBN.spring.apiPayload.exception.handler.ArticleHandler;
+import DNBN.spring.apiPayload.exception.handler.PlaceHandler;
+import DNBN.spring.domain.Article;
+import DNBN.spring.domain.enums.PinCategory;
+import DNBN.spring.repository.ArticleRepository.ArticleRepository;
 import DNBN.spring.web.dto.ArticleRequestDTO;
 import DNBN.spring.web.dto.ArticleUpdateRequestDTO;
 import DNBN.spring.web.dto.ArticleWithLocationRequestDTO;
@@ -9,6 +13,7 @@ import java.util.Objects;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Component;
@@ -16,35 +21,46 @@ import org.springframework.stereotype.Component;
 @Aspect
 @Component
 public class ArticleValidationAspect {
-    @Value("${article.validation.title.min-length}")
-    private int titleMinLength;
-    @Value("${article.validation.title.max-length}")
-    private int titleMaxLength;
-    @Value("${article.validation.content.min-length}")
-    private int contentMinLength;
-    @Value("${article.validation.content.max-length}")
-    private int contentMaxLength;
+    @Autowired
+    private ArticleRepository articleRepository;
 
     @Before("@annotation(DNBN.spring.aop.annotation.ValidateArticle)")
     public void validateArticle(JoinPoint joinPoint) {
-      Object[] args = joinPoint.getArgs();
-      Object dto = extractDto(args); // null 검증 생략
+        Object[] args = joinPoint.getArgs();
+        Object dto = extractDto(args);
+        Long memberId = extractLongArg(args, 0, "memberId");
+        Long articleId = extractLongArg(args, 1, "articleId");
 
-      Pair<String, String> titleAndContent = null;
-      // DTO가 Record인 경우만 구현 (Article의 request DTO는 모두 Record)
-      if (dto != null && dto.getClass().isRecord()) {
-        titleAndContent = extractTitleAndContentFromRecord(dto);
-      }
+        // PinCategory 검증
+        validatePinCategory(dto);
 
-      // title과 content 길이 검증
-      String title = Objects.requireNonNull(titleAndContent).getFirst();
-      String content = titleAndContent.getSecond();
-      validateLength(title, titleMinLength, titleMaxLength,
-          ErrorStatus.ARTICLE_TITLE_NULL_ERROR, ErrorStatus.ARTICLE_TITLE_LENGTH_VALIDATION_ERROR);
-      validateLength(content, contentMinLength, contentMaxLength,
-          ErrorStatus.ARTICLE_CONTENT_NULL_ERROR, ErrorStatus.ARTICLE_CONTENT_LENGTH_VALIDATION_ERROR);
+        // 권한 및 삭제 여부 검증 (수정/삭제 시)
+        if (articleId != null) {
+            Article article = articleRepository.findById(articleId)
+                .orElseThrow(() -> new ArticleHandler(ErrorStatus.ARTICLE_NOT_FOUND));
+            if (!article.getMember().getId().equals(memberId)) {
+                throw new ArticleHandler(ErrorStatus.ARTICLE_FORBIDDEN);
+            }
+            if (article.getDeletedAt() != null) {
+                throw new ArticleHandler(ErrorStatus.ARTICLE_ALREADY_DELETED);
+            }
+        }
     }
-    
+
+    private void validatePinCategory(Object dto) {
+        if (dto == null) return;
+        try {
+            var pinCategoryMethod = dto.getClass().getMethod("pinCategory");
+            String pinCategory = (String) pinCategoryMethod.invoke(dto);
+            if (pinCategory == null) throw new PlaceHandler(ErrorStatus.PIN_CATEGORY_INVALID);
+            PinCategory.valueOf(pinCategory.toUpperCase());
+        } catch (NoSuchMethodException e) {
+            // pinCategory 필드가 없는 DTO는 무시
+        } catch (Exception e) {
+            throw new PlaceHandler(ErrorStatus.PIN_CATEGORY_INVALID);
+        }
+    }
+
     private Object extractDto(Object[] args) {
         for (Object arg : args) {
             if (arg instanceof ArticleRequestDTO ||
@@ -77,5 +93,11 @@ public class ArticleValidationAspect {
             throw new ArticleHandler(lengthErrorStatus);
         }
     }
-    
+
+    private Long extractLongArg(Object[] args, int idx, String name) {
+        if (args.length > idx && args[idx] instanceof Long value) {
+            return value;
+        }
+        return null;
+    }
 }

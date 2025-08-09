@@ -25,14 +25,14 @@ public enum ErrorStatus implements BaseErrorCode {
     INVALID_IMAGE_TYPE(HttpStatus.BAD_REQUEST, "IMAGE4006", "이미지 형식의 파일만 업로드할 수 있습니다."),
     IMAGE_FILE_TOO_LARGE(HttpStatus.BAD_REQUEST, "IMAGE4007", "이미지 파일은 10MB 이하로 업로드해주세요."),
     
-    // 게시물
+    // article
     ARTICLE_NOT_FOUND(HttpStatus.NOT_FOUND, "ARTICLE4001", "게시글이 없습니다."),
-    ARTICLE_TITLE_LENGTH_VALIDATION_ERROR(HttpStatus.BAD_REQUEST, "ARTICLE4002", "제목은 2~100자여야 합니다."),
-    ARTICLE_CONTENT_LENGTH_VALIDATION_ERROR(HttpStatus.BAD_REQUEST, "ARTICLE4003", "내용은 10~5000자여야 합니다."),
+    ARTICLE_TITLE_LENGTH_INVALID(HttpStatus.BAD_REQUEST, "ARTICLE4002", "제목은 2~100자여야 합니다."),
+    ARTICLE_CONTENT_LENGTH_INVALID(HttpStatus.BAD_REQUEST, "ARTICLE4003", "내용은 10~5000자여야 합니다."),
     ARTICLE_FORBIDDEN(HttpStatus.FORBIDDEN, "ARTICLE4004", "해당 게시글에 대한 권한이 없습니다."),
     ARTICLE_ALREADY_DELETED(HttpStatus.CONFLICT, "ARTICLE4005", "이미 삭제된 게시글입니다."),
-    ARTICLE_TITLE_NULL_ERROR(HttpStatus.BAD_REQUEST, "ARTICLE4006", "제목은 필수입니다."),
-    ARTICLE_CONTENT_NULL_ERROR(HttpStatus.BAD_REQUEST, "ARTICLE4007", "내용은 필수입니다."),
+    ARTICLE_TITLE_NULL_ERROR(HttpStatus.BAD_REQUEST, "ARTICLE4006", "제목이 비어 있습니다."),
+    ARTICLE_CONTENT_NULL_ERROR(HttpStatus.BAD_REQUEST, "ARTICLE4007", "내용이 비어 있습니다."),
 
     // articlePhoto & S3
     ARTICLE_PHOTO_MAIN_IMAGE_REQUIRED(HttpStatus.BAD_REQUEST, "ARTICLEPHOTO4002", "대표 이미지는 필수입니다."),
@@ -88,6 +88,7 @@ public enum ErrorStatus implements BaseErrorCode {
     COMMENT_CONTENT_LENGTH_INVALID(HttpStatus.BAD_REQUEST, "COMMENT4002", "댓글 내용은 1~1000자여야 합니다."),
     COMMENT_FORBIDDEN(HttpStatus.FORBIDDEN, "COMMENT4003", "해당 댓글에 대한 권한이 없습니다."),
     COMMENT_ALREADY_DELETED(HttpStatus.CONFLICT, "COMMENT4004", "이미 삭제된 댓글입니다."),
+    COMMENT_TITLE_LENGTH_INVALID(HttpStatus.BAD_REQUEST, "COMMENT4006", "댓글 제목은 2~100자여야 합니다."),
 
     // 챌린지
     CHALLENGE_NOT_FOUND(HttpStatus.NOT_FOUND, "CHALLENGE_4001", "챌린지가 존재하지 않습니다."),

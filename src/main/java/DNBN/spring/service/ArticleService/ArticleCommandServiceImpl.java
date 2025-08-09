@@ -1,5 +1,6 @@
 package DNBN.spring.service.ArticleService;
 
+import DNBN.spring.aop.annotation.ValidateArticle;
 import DNBN.spring.aop.annotation.ValidateS3ImageUpload;
 import DNBN.spring.apiPayload.code.status.ErrorStatus;
 import DNBN.spring.apiPayload.exception.handler.ArticleHandler;
@@ -22,10 +23,11 @@ import DNBN.spring.repository.CategoryRepository.CategoryRepository;
 import DNBN.spring.repository.MemberRepository.MemberRepository;
 import DNBN.spring.repository.PlaceRepository.PlaceRepository;
 import DNBN.spring.repository.RegionRepository.RegionRepository;
+import DNBN.spring.validation.ContentLengthValidator;
+import DNBN.spring.validation.TitleLengthValidator;
 import DNBN.spring.web.dto.ArticleRequestDTO;
-import DNBN.spring.web.dto.ArticleWithLocationRequestDTO;
 import DNBN.spring.web.dto.ArticleUpdateRequestDTO;
-import DNBN.spring.aop.annotation.ValidateArticle;
+import DNBN.spring.web.dto.ArticleWithLocationRequestDTO;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -47,6 +49,8 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
     private final PlaceRepository placeRepository;
     private final RegionRepository regionRepository;
     private final AmazonS3Manager s3Manager;
+    private final TitleLengthValidator titleLengthValidator;
+    private final ContentLengthValidator contentLengthValidator;
 
     @Override
     @ValidateS3ImageUpload
@@ -57,17 +61,12 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
         Place place = getPlace(request.placeId());
         Region region = getRegion(request.regionId());
 
-        // pinCategory 파싱 & 검증
-        PinCategory newPinCategory;
-        try {
-            newPinCategory = PinCategory.valueOf(request.pinCategory().toUpperCase());
-        } catch (IllegalArgumentException | NullPointerException e) {
-            throw new PlaceHandler(ErrorStatus.PIN_CATEGORY_INVALID);
-        }
-
         // Place에 업데이트
         place.updateTitle(request.placeName());
-        place.updatePinCategory(newPinCategory);
+        place.updatePinCategory(PinCategory.valueOf(request.pinCategory().toUpperCase()));
+
+        titleLengthValidator.validateArticleTitle(request.title());
+        contentLengthValidator.validateArticleContent(request.content());
 
         Article article = createArticleEntity(member, category, place, region, request);
         articleRepository.save(article);
@@ -76,7 +75,6 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
         return new ArticleWithPhotos(article, photos);
     }
 
-    // TODO: OCP 위반
     @Override
     @ValidateS3ImageUpload
     @ValidateArticle
@@ -85,13 +83,9 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
         Category category = getCategory(request.categoryId());
         Region region    = getRegion(request.regionId());
 
-        try {
-            PinCategory.valueOf(request.pinCategory().toUpperCase());
-        } catch (IllegalArgumentException | NullPointerException ex) {
-            throw new PlaceHandler(ErrorStatus.PIN_CATEGORY_INVALID);
-        }
+        titleLengthValidator.validateArticleTitle(request.title());
+        contentLengthValidator.validateArticleContent(request.content());
 
-        // DTO 에서 넘어온 값으로 새 Place 생성
         Place place = Place.builder()
                 .region(region)
                 .latitude(request.latitude())
@@ -101,7 +95,6 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
                 .pinCategory(PinCategory.valueOf(request.pinCategory().toUpperCase()))
                 .build();
 
-        // DB에 Place 저장
         place = placeRepository.save(place);
 
         Article article = createArticleEntity(member, category, place, region, request);
@@ -109,6 +102,11 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
 
         List<ArticlePhoto> photos = handleImages(article, place, region, mainImage, imageFiles);
         return new ArticleWithPhotos(article, photos);
+    }
+
+    private Article getArticle(Long articleId) {
+        return articleRepository.findById(articleId)
+                .orElseThrow(() -> new ArticleHandler(ErrorStatus.ARTICLE_NOT_FOUND));
     }
 
     private Member getMember(Long memberId) {
@@ -128,10 +126,8 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
                 .orElseThrow(() -> new RegionHandler(ErrorStatus.REGION_NOT_FOUND));
     }
 
-    // TODO: 생성 책임 분리
+    // TODO: 팩토리 검토
     private Article createArticleEntity(Member member, Category category, Place place, Region region, ArticleRequestDTO request) {
-        String placeName = request.placeName();
-        String pinCategory = request.pinCategory();
         return Article.builder()
                 .member(member)
                 .category(category)
@@ -223,15 +219,6 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
         Article article = articleRepository.findById(articleId)
                 .orElseThrow(() -> new ArticleHandler(ErrorStatus.ARTICLE_NOT_FOUND));
 
-        // 수정 권한 확인
-        if (!article.getMember().getId().equals(memberId)) {
-            throw new ArticleHandler(ErrorStatus.ARTICLE_FORBIDDEN);
-        }
-        // 이미 삭제된 게시물인지 확인
-        if (article.getDeletedAt() != null) {
-            throw new ArticleHandler(ErrorStatus.ARTICLE_ALREADY_DELETED);
-        }
-
         updateArticleEntity(article, request);
         updatePlaceEntity(article.getPlace(), request);
 
@@ -296,12 +283,6 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
     public void deleteArticle(Long memberId, Long articleId) {
         Article article = articleRepository.findById(articleId)
                 .orElseThrow(() -> new ArticleHandler(ErrorStatus.ARTICLE_NOT_FOUND));
-        if (!article.getMember().getId().equals(memberId)) {
-            throw new ArticleHandler(ErrorStatus.ARTICLE_FORBIDDEN);
-        }
-        if (article.getDeletedAt() != null) {
-            throw new ArticleHandler(ErrorStatus.ARTICLE_ALREADY_DELETED);
-        }
         article.delete(); // dirty checking
     }
 }
