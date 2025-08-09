@@ -29,9 +29,23 @@ public class CommentValidationAspect {
         Long memberId = extractLongArg(args, 0, "memberId");
         Long commentId = extractLongArg(args, 1, "commentId");
         Long articleId = extractLongArg(args, 2, "articleId");
-        Comment comment = commentRepository.findById(commentId)
-            .orElseThrow(() -> new CommentHandler(ErrorStatus.COMMENT_NOT_FOUND));
-        validateCommentOwnership(comment, memberId, articleId);
+        Comment comment = null;
+        // createComment의 경우 parentCommentId만 존재
+        if (commentId != null) {
+            comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new CommentHandler(ErrorStatus.COMMENT_NOT_FOUND));
+            validateCommentOwnership(comment, memberId, articleId);
+        } else {
+            // createComment: parentCommentId 검증
+            CommentRequestDTO requestDto = (CommentRequestDTO) extractDto(args);
+            if (requestDto != null && requestDto.parentCommentId() != null) {
+                Comment parentComment = commentRepository.findById(requestDto.parentCommentId())
+                    .orElseThrow(() -> new CommentHandler(ErrorStatus.COMMENT_NOT_FOUND));
+                if (!parentComment.getArticle().getArticleId().equals(articleId)) {
+                    throw new CommentHandler(ErrorStatus.COMMENT_FORBIDDEN);
+                }
+            }
+        }
     }
 
     private Long extractLongArg(Object[] args, int idx, String name) {

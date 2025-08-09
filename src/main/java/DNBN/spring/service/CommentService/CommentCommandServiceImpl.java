@@ -54,10 +54,7 @@ public class CommentCommandServiceImpl implements CommentCommandService {
         if (request.parentCommentId() != null) {
             parentComment = commentRepository.findById(request.parentCommentId())
                     .orElseThrow(() -> new CommentHandler(ErrorStatus.COMMENT_NOT_FOUND));
-
-            if (!parentComment.getArticle().getArticleId().equals(articleId)) {
-                throw new CommentHandler(ErrorStatus.COMMENT_FORBIDDEN);
-            }
+            // parentComment의 articleId 일치 검증은 Aspect에서 처리
         }
         Comment comment = Comment.builder()
                 .article(article)
