@@ -54,23 +54,16 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
 
     @Override
     @ValidateS3ImageUpload
+    @ValidateArticle
     public ArticleWithPhotos createArticle(Long memberId, ArticleRequestDTO request, MultipartFile mainImage, List<MultipartFile> imageFiles) {
         Member member = getMember(memberId);
         Category category = getCategory(request.categoryId());
         Place place = getPlace(request.placeId());
         Region region = getRegion(request.regionId());
 
-        // pinCategory 파싱 & 검증
-        PinCategory newPinCategory;
-        try {
-            newPinCategory = PinCategory.valueOf(request.pinCategory().toUpperCase());
-        } catch (IllegalArgumentException | NullPointerException e) {
-            throw new PlaceHandler(ErrorStatus.PIN_CATEGORY_INVALID);
-        }
-
         // Place에 업데이트
         place.updateTitle(request.placeName());
-        place.updatePinCategory(newPinCategory);
+        place.updatePinCategory(PinCategory.valueOf(request.pinCategory().toUpperCase()));
 
         titleLengthValidator.validateArticleTitle(request.title());
         contentLengthValidator.validateArticleContent(request.content());
@@ -84,16 +77,11 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
 
     @Override
     @ValidateS3ImageUpload
+    @ValidateArticle
     public ArticleWithPhotos createArticle(Long memberId, ArticleWithLocationRequestDTO request, MultipartFile mainImage, List<MultipartFile> imageFiles) {
         Member member = getMember(memberId);
         Category category = getCategory(request.categoryId());
         Region region    = getRegion(request.regionId());
-
-        try {
-            PinCategory.valueOf(request.pinCategory().toUpperCase());
-        } catch (IllegalArgumentException | NullPointerException ex) {
-            throw new PlaceHandler(ErrorStatus.PIN_CATEGORY_INVALID);
-        }
 
         titleLengthValidator.validateArticleTitle(request.title());
         contentLengthValidator.validateArticleContent(request.content());
@@ -114,6 +102,11 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
 
         List<ArticlePhoto> photos = handleImages(article, place, region, mainImage, imageFiles);
         return new ArticleWithPhotos(article, photos);
+    }
+
+    private Article getArticle(Long articleId) {
+        return articleRepository.findById(articleId)
+                .orElseThrow(() -> new ArticleHandler(ErrorStatus.ARTICLE_NOT_FOUND));
     }
 
     private Member getMember(Long memberId) {
@@ -226,15 +219,6 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
         Article article = articleRepository.findById(articleId)
                 .orElseThrow(() -> new ArticleHandler(ErrorStatus.ARTICLE_NOT_FOUND));
 
-        // 수정 권한 확인
-        if (!article.getMember().getId().equals(memberId)) {
-            throw new ArticleHandler(ErrorStatus.ARTICLE_FORBIDDEN);
-        }
-        // 이미 삭제된 게시물인지 확인
-        if (article.getDeletedAt() != null) {
-            throw new ArticleHandler(ErrorStatus.ARTICLE_ALREADY_DELETED);
-        }
-
         updateArticleEntity(article, request);
         updatePlaceEntity(article.getPlace(), request);
 
@@ -299,12 +283,6 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
     public void deleteArticle(Long memberId, Long articleId) {
         Article article = articleRepository.findById(articleId)
                 .orElseThrow(() -> new ArticleHandler(ErrorStatus.ARTICLE_NOT_FOUND));
-        if (!article.getMember().getId().equals(memberId)) {
-            throw new ArticleHandler(ErrorStatus.ARTICLE_FORBIDDEN);
-        }
-        if (article.getDeletedAt() != null) {
-            throw new ArticleHandler(ErrorStatus.ARTICLE_ALREADY_DELETED);
-        }
         article.delete(); // dirty checking
     }
 }
