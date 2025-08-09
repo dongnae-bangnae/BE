@@ -16,14 +16,6 @@ import org.springframework.stereotype.Component;
 @Aspect
 @Component
 public class ArticleValidationAspect {
-    @Value("${article.validation.title.min-length}")
-    private int titleMinLength;
-    @Value("${article.validation.title.max-length}")
-    private int titleMaxLength;
-    @Value("${article.validation.content.min-length}")
-    private int contentMinLength;
-    @Value("${article.validation.content.max-length}")
-    private int contentMaxLength;
 
     @Before("@annotation(DNBN.spring.aop.annotation.ValidateArticle)")
     public void validateArticle(JoinPoint joinPoint) {
@@ -35,14 +27,6 @@ public class ArticleValidationAspect {
       if (dto != null && dto.getClass().isRecord()) {
         titleAndContent = extractTitleAndContentFromRecord(dto);
       }
-
-      // title과 content 길이 검증
-      String title = Objects.requireNonNull(titleAndContent).getFirst();
-      String content = titleAndContent.getSecond();
-      validateLength(title, titleMinLength, titleMaxLength,
-          ErrorStatus.ARTICLE_TITLE_NULL_ERROR, ErrorStatus.ARTICLE_TITLE_LENGTH_VALIDATION_ERROR);
-      validateLength(content, contentMinLength, contentMaxLength,
-          ErrorStatus.ARTICLE_CONTENT_NULL_ERROR, ErrorStatus.ARTICLE_CONTENT_LENGTH_VALIDATION_ERROR);
     }
     
     private Object extractDto(Object[] args) {
