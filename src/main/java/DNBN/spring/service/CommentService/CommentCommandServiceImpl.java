@@ -13,6 +13,8 @@ import DNBN.spring.repository.ArticleRepository.ArticleRepository;
 import DNBN.spring.repository.CommentRepository.CommentRepository;
 import DNBN.spring.repository.MemberRepository.MemberRepository;
 import DNBN.spring.repository.NotificationRepository.NotificationRepository;
+import DNBN.spring.validation.ContentLengthValidator;
+import DNBN.spring.validation.TitleLengthValidator;
 import DNBN.spring.web.dto.CommentRequestDTO;
 import DNBN.spring.web.dto.CommentResponseDTO;
 import DNBN.spring.web.dto.CommentUpdateRequestDTO;
@@ -27,6 +29,8 @@ public class CommentCommandServiceImpl implements CommentCommandService {
     private final ArticleRepository articleRepository;
     private final CommentRepository commentRepository;
     private final NotificationRepository notificationRepository;
+    private final ContentLengthValidator contentLengthValidator;
+    private final TitleLengthValidator titleLengthValidator;
 
     private static final int CONTENT_MIN_LENGTH = 2;
     private static final int CONTENT_MAX_LENGTH = 1000;
@@ -39,15 +43,12 @@ public class CommentCommandServiceImpl implements CommentCommandService {
 
     @Override
     public CommentResponseDTO createComment(Long memberId, Long articleId, CommentRequestDTO request) {
-
         Article article = articleRepository.findById(articleId)
                 .orElseThrow(() -> new ArticleHandler(ErrorStatus.ARTICLE_NOT_FOUND));
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new ArticleHandler(ErrorStatus.MEMBER_NOT_FOUND));
 
-        if (request.content() == null || request.content().length() < CONTENT_MIN_LENGTH || request.content().length() > CONTENT_MAX_LENGTH) {
-            throw new CommentHandler(ErrorStatus.COMMENT_CONTENT_LENGTH_INVALID);
-        }
+        contentLengthValidator.validateCommentContent(request.content());
 
         Comment parentComment = null;
         if (request.parentCommentId() != null) {
@@ -98,6 +99,9 @@ public class CommentCommandServiceImpl implements CommentCommandService {
     public CommentResponseDTO updateComment(Long memberId, Long commentId, Long articleId, CommentUpdateRequestDTO request) {
         Comment comment = commentRepository.findById(commentId)
             .orElseThrow(() -> new CommentHandler(ErrorStatus.COMMENT_NOT_FOUND));
+
+        contentLengthValidator.validateCommentContent(request.content());
+
         comment.updateContent(request.content());
         return CommentConverter.toCommentResponseDTO(comment);
     }

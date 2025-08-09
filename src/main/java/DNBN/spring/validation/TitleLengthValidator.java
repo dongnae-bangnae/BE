@@ -1,6 +1,7 @@
 package DNBN.spring.validation;
 
 import DNBN.spring.apiPayload.code.status.ErrorStatus;
+import DNBN.spring.apiPayload.exception.handler.ArticleHandler;
 import DNBN.spring.apiPayload.exception.handler.CommentHandler;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,9 +19,9 @@ public class TitleLengthValidator {
         return title != null && title.length() >= articleTitleMinLength && title.length() <= articleTitleMaxLength;
     }
 
-    public void validateCommentTitle(String title) {
-        if (title == null || title.length() < 2 || title.length() > 100) {
-            throw new CommentHandler(ErrorStatus.COMMENT_TITLE_LENGTH_INVALID);
+    public void validateArticleTitle(String content) {
+        if (!isValidArticleTitle(content)) {
+            throw new ArticleHandler(ErrorStatus.ARTICLE_TITLE_LENGTH_INVALID);
         }
     }
 }

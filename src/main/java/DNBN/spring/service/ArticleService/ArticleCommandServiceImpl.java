@@ -1,5 +1,6 @@
 package DNBN.spring.service.ArticleService;
 
+import DNBN.spring.aop.annotation.ValidateArticle;
 import DNBN.spring.aop.annotation.ValidateS3ImageUpload;
 import DNBN.spring.apiPayload.code.status.ErrorStatus;
 import DNBN.spring.apiPayload.exception.handler.ArticleHandler;
@@ -22,10 +23,11 @@ import DNBN.spring.repository.CategoryRepository.CategoryRepository;
 import DNBN.spring.repository.MemberRepository.MemberRepository;
 import DNBN.spring.repository.PlaceRepository.PlaceRepository;
 import DNBN.spring.repository.RegionRepository.RegionRepository;
+import DNBN.spring.validation.ContentLengthValidator;
+import DNBN.spring.validation.TitleLengthValidator;
 import DNBN.spring.web.dto.ArticleRequestDTO;
-import DNBN.spring.web.dto.ArticleWithLocationRequestDTO;
 import DNBN.spring.web.dto.ArticleUpdateRequestDTO;
-import DNBN.spring.aop.annotation.ValidateArticle;
+import DNBN.spring.web.dto.ArticleWithLocationRequestDTO;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -47,10 +49,11 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
     private final PlaceRepository placeRepository;
     private final RegionRepository regionRepository;
     private final AmazonS3Manager s3Manager;
+    private final TitleLengthValidator titleLengthValidator;
+    private final ContentLengthValidator contentLengthValidator;
 
     @Override
     @ValidateS3ImageUpload
-    @ValidateArticle
     public ArticleWithPhotos createArticle(Long memberId, ArticleRequestDTO request, MultipartFile mainImage, List<MultipartFile> imageFiles) {
         Member member = getMember(memberId);
         Category category = getCategory(request.categoryId());
@@ -69,6 +72,9 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
         place.updateTitle(request.placeName());
         place.updatePinCategory(newPinCategory);
 
+        titleLengthValidator.validateArticleTitle(request.title());
+        contentLengthValidator.validateArticleContent(request.content());
+
         Article article = createArticleEntity(member, category, place, region, request);
         articleRepository.save(article);
 
@@ -76,10 +82,8 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
         return new ArticleWithPhotos(article, photos);
     }
 
-    // TODO: OCP 위반
     @Override
     @ValidateS3ImageUpload
-    @ValidateArticle
     public ArticleWithPhotos createArticle(Long memberId, ArticleWithLocationRequestDTO request, MultipartFile mainImage, List<MultipartFile> imageFiles) {
         Member member = getMember(memberId);
         Category category = getCategory(request.categoryId());
@@ -91,7 +95,9 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
             throw new PlaceHandler(ErrorStatus.PIN_CATEGORY_INVALID);
         }
 
-        // DTO 에서 넘어온 값으로 새 Place 생성
+        titleLengthValidator.validateArticleTitle(request.title());
+        contentLengthValidator.validateArticleContent(request.content());
+
         Place place = Place.builder()
                 .region(region)
                 .latitude(request.latitude())
@@ -101,7 +107,6 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
                 .pinCategory(PinCategory.valueOf(request.pinCategory().toUpperCase()))
                 .build();
 
-        // DB에 Place 저장
         place = placeRepository.save(place);
 
         Article article = createArticleEntity(member, category, place, region, request);
@@ -128,10 +133,8 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
                 .orElseThrow(() -> new RegionHandler(ErrorStatus.REGION_NOT_FOUND));
     }
 
-    // TODO: 생성 책임 분리
+    // TODO: 팩토리 검토
     private Article createArticleEntity(Member member, Category category, Place place, Region region, ArticleRequestDTO request) {
-        String placeName = request.placeName();
-        String pinCategory = request.pinCategory();
         return Article.builder()
                 .member(member)
                 .category(category)
