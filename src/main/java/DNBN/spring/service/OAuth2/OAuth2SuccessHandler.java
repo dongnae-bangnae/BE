@@ -118,7 +118,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         response.addHeader("Set-Cookie", csrfCookie.toString());
 
         // 4. 리다이렉트 (브릿지 페이지)
-        response.sendRedirect("https://dnbn.site/oauth-redirect");
+        response.sendRedirect("https://www.dnbn.site/oauth-redirect");
     }
 
     private void addCookie(HttpServletResponse response, String name, String value, boolean httpOnly, int maxAgeInSeconds) {
