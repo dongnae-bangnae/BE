@@ -47,4 +47,13 @@ public class CurationController {
         List<CurationResponseDTO.CurationPreviewDTO> response = curationQueryService.getCurationsByMember(member.getId());
         return ApiResponse.onSuccess(response);
     }
+
+    @GetMapping("/{curationId}")
+    @Operation(
+            summary = "큐레이션 세부 내용 조회 API",
+            description = "큐레이션 세부 내용을 보여줍니다. 큐레이션 아이디를 입력하세요."
+    )
+    public ApiResponse<CurationResponseDTO.CurationDetailDTO> getCuration(@PathVariable("curationId") Long curationId) {
+        return ApiResponse.onSuccess(curationQueryService.getCuration(curationId));
+    }
 }

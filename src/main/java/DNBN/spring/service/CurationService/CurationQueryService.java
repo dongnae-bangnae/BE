@@ -8,4 +8,5 @@ import java.util.List;
 
 public interface CurationQueryService {
     List<CurationResponseDTO.CurationPreviewDTO> getCurationsByMember(Long memberId);
+    CurationResponseDTO.CurationDetailDTO getCuration(Long curationId);
 }
