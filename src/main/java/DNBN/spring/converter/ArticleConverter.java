@@ -17,6 +17,9 @@ public class ArticleConverter {
                 .categoryId(article.getCategory().getCategoryId())
                 .placeId(article.getPlace().getPlaceId())
                 .regionId(article.getRegion().getId())
+                .placeName(article.getPlace().getTitle())
+                .pinCategory(article.getPlace().getPinCategory().name())
+                .detailAddress(article.getPlace().getAddress())
                 .title(article.getTitle())
                 .date(article.getDate().toString())
                 .content(article.getContent())
@@ -80,6 +83,49 @@ public class ArticleConverter {
                 .cursor(nextCursor)
                 .limit(limit)
                 .hasNext(hasNext)
+                .build();
+    }
+
+    public static ArticleResponseDTO.ArticleDetailDTO toArticleDetailDTO(Article article, List<ArticlePhoto> photos) {
+        return ArticleResponseDTO.ArticleDetailDTO.builder()
+                .articleId(article.getArticleId())
+                .memberId(article.getMember().getId())
+                .categoryId(article.getCategory().getCategoryId())
+                .placeId(article.getPlace().getPlaceId())
+                .regionId(article.getRegion().getId())
+                .placeName(article.getPlace().getTitle())
+                .pinCategory(article.getPlace().getPinCategory().name())
+                .detailAddress(article.getPlace().getAddress())
+                .title(article.getTitle())
+                .date(article.getDate().toString())
+                .content(article.getContent())
+                .mainImageUuid(ArticlePhotoConverter.extractMainImageUuid(photos))
+                .imageUuids(ArticlePhotoConverter.extractImageUuids(photos))
+                .likeCount(article.getLikesCount())
+                .spamCount(article.getSpamCount())
+                .createdAt(article.getCreatedAt().toString())
+                .updatedAt(article.getUpdatedAt().toString())
+                .build();
+    }
+
+    public static ArticleResponseDTO.ArticleListItemDTO toArticleListItemDTO(Article article, String mainImageUuid, boolean isLiked, boolean isSpammed, boolean isMine) {
+        return ArticleResponseDTO.ArticleListItemDTO.builder()
+                .memberId(article.getMember().getId())
+                .articleId(article.getArticleId())
+                .regionId(article.getRegion().getId())
+                .placeId(article.getPlace().getPlaceId())
+                .nickname(article.getMember().getNickname())
+                .title(article.getTitle())
+                .pinCategory(article.getPlace().getPinCategory().name())
+                .mainImageUuid(mainImageUuid)
+                .likeCount(article.getLikesCount())
+                .spamCount(article.getSpamCount())
+                .commentCount(article.getCommentCount())
+                .isLiked(isLiked)
+                .isSpammed(isSpammed)
+                .isMine(isMine)
+                .createdAt(article.getCreatedAt().toString())
+                .updatedAt(article.getUpdatedAt().toString())
                 .build();
     }
 }

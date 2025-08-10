@@ -14,7 +14,6 @@ public enum ErrorStatus implements BaseErrorCode {
     _BAD_REQUEST(HttpStatus.BAD_REQUEST,"COMMON4000","잘못된 요청입니다."),
     _UNAUTHORIZED(HttpStatus.UNAUTHORIZED,"COMMON4001","인증이 필요합니다."),
     _FORBIDDEN(HttpStatus.FORBIDDEN, "COMMON4003", "금지된 요청입니다."),
-
     ACCESS_DENIED(HttpStatus.FORBIDDEN, "COMMON4004", "권한이 없습니다."),
 
     // 멤버 관련 에러
@@ -26,12 +25,14 @@ public enum ErrorStatus implements BaseErrorCode {
     INVALID_IMAGE_TYPE(HttpStatus.BAD_REQUEST, "IMAGE4006", "이미지 형식의 파일만 업로드할 수 있습니다."),
     IMAGE_FILE_TOO_LARGE(HttpStatus.BAD_REQUEST, "IMAGE4007", "이미지 파일은 10MB 이하로 업로드해주세요."),
     
-    // article
+    // 게시물
     ARTICLE_NOT_FOUND(HttpStatus.NOT_FOUND, "ARTICLE4001", "게시글이 없습니다."),
-    ARTICLE_TITLE_LENGTH_INVALID(HttpStatus.BAD_REQUEST, "ARTICLE4002", "제목은 2~100자여야 합니다."),
-    ARTICLE_CONTENT_LENGTH_INVALID(HttpStatus.BAD_REQUEST, "ARTICLE4003", "내용은 10~5000자여야 합니다."),
+    ARTICLE_TITLE_LENGTH_VALIDATION_ERROR(HttpStatus.BAD_REQUEST, "ARTICLE4002", "제목은 2~100자여야 합니다."),
+    ARTICLE_CONTENT_LENGTH_VALIDATION_ERROR(HttpStatus.BAD_REQUEST, "ARTICLE4003", "내용은 10~5000자여야 합니다."),
     ARTICLE_FORBIDDEN(HttpStatus.FORBIDDEN, "ARTICLE4004", "해당 게시글에 대한 권한이 없습니다."),
     ARTICLE_ALREADY_DELETED(HttpStatus.CONFLICT, "ARTICLE4005", "이미 삭제된 게시글입니다."),
+    ARTICLE_TITLE_NULL_ERROR(HttpStatus.BAD_REQUEST, "ARTICLE4006", "제목은 필수입니다."),
+    ARTICLE_CONTENT_NULL_ERROR(HttpStatus.BAD_REQUEST, "ARTICLE4007", "내용은 필수입니다."),
 
     // articlePhoto & S3
     ARTICLE_PHOTO_MAIN_IMAGE_REQUIRED(HttpStatus.BAD_REQUEST, "ARTICLEPHOTO4002", "대표 이미지는 필수입니다."),
@@ -45,27 +46,26 @@ public enum ErrorStatus implements BaseErrorCode {
 
     // For test
     TEMP_EXCEPTION(HttpStatus.BAD_REQUEST, "TEMP4001", "이거는 테스트"),
-
     REGION_NOT_FOUND(HttpStatus.NOT_FOUND, "REGION4001", "해당 지역이 존재하지 않습니다."),
-
     STORE_NOT_FOUND(HttpStatus.NOT_FOUND, "STORE4001", "가게가 없습니다."),
-
     PAGE_NOT_VALID(HttpStatus.BAD_REQUEST, "PAGE4001", "페이지는 1 이상이어야 합니다."),
 
     //jwt 토큰
     INVALID_JWT_ACCESS_TOKEN(HttpStatus.UNAUTHORIZED, "TOKEN4001", "유효하지 않은 AccessToken입니다."),
     INVALID_JWT_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "TOKEN4002", "유효하지 않은 RefreshToken입니다."),
-
     INVALID_SOCIAL_TOKEN(HttpStatus.UNAUTHORIZED, "TOKEN4003", "유효하지 않은 SocialToken입니다."),
-
     INVALID_CSRF_TOKEN(HttpStatus.UNAUTHORIZED, "TOKEN4004", "유효하지 않은 CSRF Token입니다."),
-
     INVALID_PASSWORD(HttpStatus.UNAUTHORIZED, "PW4001", "잘못된 비밀번호입니다."),
 
     // 장소
-    CATEGORY_ALREADY_SAVED_FOR_PLACE(HttpStatus.CONFLICT, "SAVE_PLACE4001", "이미 해당 장소가 이 카테고리에 저장되어 있습니다."),
+    CATEGORY_ALREADY_SAVED_FOR_PLACE(HttpStatus.CONFLICT, "SAVE_PLACE4001", "이미 해당 장소가 저장되어 있습니다."),
     PLACE_NOT_FOUND(HttpStatus.NOT_FOUND, "PLACE4001", "해당 장소를 찾을 수 없습니다."),
     COORDINATE_PRECISION_INVALID(HttpStatus.BAD_REQUEST, "PLACE4002", "소수점 5자리까지만 입력 가능합니다."),
+    PIN_CATEGORY_INVALID(HttpStatus.BAD_REQUEST, "PLACE4003", "유효하지 않은 핀 카테고리입니다."),
+
+    // 알림
+    NOTIFICATION_NOT_FOUND(HttpStatus.NOT_FOUND, "NOTIFICATION4001", "알림을 찾을 수 없습니다."),
+    NOTIFICATION_ALREADY_HIDDEN(HttpStatus.CONFLICT, "NOTIFICATION4002", "이미 삭제된 알림입니다."),
 
     //like
     POST_NOT_FOUND(HttpStatus.NOT_FOUND, "POST404", "해당 게시물을 찾을 수 없습니다."),
@@ -84,6 +84,7 @@ public enum ErrorStatus implements BaseErrorCode {
 
     // 댓글
     COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "COMMENT4001", "댓글을 찾을 수 없습니다."),
+    COMMENT_CONTENT_NULL_ERROR(HttpStatus.BAD_REQUEST, "COMMENT4005", "댓글 내용이 비어 있습니다."),
     COMMENT_CONTENT_LENGTH_INVALID(HttpStatus.BAD_REQUEST, "COMMENT4002", "댓글 내용은 1~1000자여야 합니다."),
     COMMENT_FORBIDDEN(HttpStatus.FORBIDDEN, "COMMENT4003", "해당 댓글에 대한 권한이 없습니다."),
     COMMENT_ALREADY_DELETED(HttpStatus.CONFLICT, "COMMENT4004", "이미 삭제된 댓글입니다."),

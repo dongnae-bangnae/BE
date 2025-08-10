@@ -2,6 +2,7 @@ package DNBN.spring.converter;
 
 import DNBN.spring.domain.Place;
 import DNBN.spring.domain.mapping.SavePlace;
+import DNBN.spring.repository.SavePlaceRepository.SavePlaceRepository;
 import DNBN.spring.web.dto.PlaceResponseDTO;
 
 import java.util.List;
@@ -25,16 +26,28 @@ public class PlaceConverter {
                 .collect(Collectors.toList());
     }
 
-    public static PlaceResponseDTO.MapPlacesResultDTO toMapPlacesResult(List<Place> places) {
+    public static PlaceResponseDTO.MapPlacesResultDTO toMapPlacesResult(
+            List<Place> places,
+            Long memberId,
+            SavePlaceRepository savePlaceRepository
+    ) {
         List<PlaceResponseDTO.MapPlaceDTO> list = places.stream()
-                .map(p -> PlaceResponseDTO.MapPlaceDTO.builder()
-                        .placeId(p.getPlaceId())
-                        .title(p.getTitle())
-                        .latitude(p.getLatitude())
-                        .longitude(p.getLongitude())
-                        .pinCategory(p.getPinCategory().name())
-                        .build())
+                .map(p -> {
+                    boolean saved = savePlaceRepository
+                            .existsByPlace_PlaceIdAndCategory_Member_Id(p.getPlaceId(), memberId);
+                    return PlaceResponseDTO.MapPlaceDTO.builder()
+                            .placeId(p.getPlaceId())
+                            .regionId(p.getRegion().getId())
+                            .title(p.getTitle())
+                            .latitude(p.getLatitude())
+                            .longitude(p.getLongitude())
+                            .pinCategory(p.getPinCategory().name())
+                            .address(p.getAddress())
+                            .saved(saved)
+                            .build();
+                })
                 .collect(Collectors.toList());
+
         return PlaceResponseDTO.MapPlacesResultDTO.builder()
                 .places(list)
                 .build();

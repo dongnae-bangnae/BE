@@ -11,6 +11,9 @@ import java.util.Optional;
 
 public interface PlaceRepository extends JpaRepository<Place, Long> {
     List<Place> findAllByRegion(Region region);
+
+    Optional<Place> findPlaceByPlaceId(Long placeId);
+
     Optional<Place> findByLatitudeAndLongitude(Double lat, Double lng);
 
     List<Place> findByRegionId(Long regionId);

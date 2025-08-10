@@ -14,4 +14,7 @@ public interface ArticleQueryService {
 
     PostResponseDTO.PostPreViewDTO getTopChallengeArticle();
 
+    ArticleResponseDTO.ArticleDetailDTO getArticleDetail(Long articleId);
+
+    List<ArticleResponseDTO.ArticleListItemDTO> getArticleList(Long memberId, Long regionId, Long cursor, Long limit);
 }

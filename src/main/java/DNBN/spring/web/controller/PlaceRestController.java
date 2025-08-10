@@ -47,7 +47,7 @@ public class PlaceRestController {
     }
 
     @Operation(
-            summary      = "지도 화면 내 핀 등록된 장소 조회",
+            summary      = "지도 화면 내 핀 등록된 장소 목록 조회",
             description  = "현재 보고 있는 지도의 경계(위도/경도 범위) 안에 핀이 등록된 모든 장소를 반환합니다."
     )
     @GetMapping("/map")
@@ -90,10 +90,14 @@ public class PlaceRestController {
             @Digits(integer = 3, fraction = 5, message = "COORDINATE_PRECISION_INVALID")
             Double lngMax
     ) {
-        placeQueryService.getPlacesInMapBounds(latMin, latMax, lngMin, lngMax);
-        return ResponseEntity.ok(ApiResponse.onSuccess(
-                placeQueryService.getPlacesInMapBounds(latMin, latMax, lngMin, lngMax)
-        ));
+        // 1) 토큰에서 memberId 추출
+        Long memberId = extractMemberIdFromToken(request);
+
+        // 2) 서비스에 memberId 포함하여 한 번만 호출
+        PlaceResponseDTO.MapPlacesResultDTO result = placeQueryService.getPlacesInMapBounds(memberId, latMin, latMax, lngMin, lngMax);
+
+        // 3) 응답 리턴
+        return ResponseEntity.ok(ApiResponse.onSuccess(result));
     }
 
     private Long extractMemberIdFromToken(HttpServletRequest request) {

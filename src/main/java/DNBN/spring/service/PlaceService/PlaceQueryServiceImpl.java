@@ -64,15 +64,14 @@ public class PlaceQueryServiceImpl implements PlaceQueryService {
 
     @Override
     public PlaceResponseDTO.MapPlacesResultDTO getPlacesInMapBounds(
-            Double latMin,
-            Double latMax,
-            Double lngMin,
-            Double lngMax
+            Long memberId, Double latMin, Double latMax, Double lngMin, Double lngMax
     ) {
         List<Place> places = placeRepositoryCustom.findAllInBounds(
-                latMin, latMax,
-                lngMin, lngMax
+                latMin, latMax, lngMin, lngMax
         );
-        return PlaceConverter.toMapPlacesResult(places);
+
+        return PlaceConverter.toMapPlacesResult(
+                places, memberId, savePlaceRepository
+        );
     }
 }

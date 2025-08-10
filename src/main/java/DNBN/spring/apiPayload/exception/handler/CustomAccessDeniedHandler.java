@@ -45,9 +45,8 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler { // 인�
                     .build();
         }
         log.warn("❗ AccessDeniedException 발생 - 클래스: {}", accessDeniedException.getClass().getName());
-        log.warn("❗ AccessDeniedException 메시지: {}", accessDeniedException.getMessage(), accessDeniedException);
-        log.error("❌ [AccessDenied] URI: {}, Method: {}",
-                request.getRequestURI(), request.getMethod());
+        log.warn("❗ AccessDeniedException 메시지: {}", accessDeniedException.getMessage());
+        log.error("❌ [AccessDenied] URI: {}, Method: {}", request.getRequestURI(), request.getMethod());
 
         response.getWriter().write(new ObjectMapper().writeValueAsString(
                 ApiResponse.onFailure(reason.getCode(), reason.getMessage(), reason)
