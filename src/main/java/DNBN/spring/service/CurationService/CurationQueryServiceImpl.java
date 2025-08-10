@@ -35,4 +35,11 @@ public class CurationQueryServiceImpl implements CurationQueryService {
                 .map(CurationConverter::toCurationPreviewDTO)
                 .toList();
     }
+
+    @Override
+    public CurationResponseDTO.CurationDetailDTO getCuration(Long curationId){
+        Curation curation = curationRepository.findById(curationId)
+                .orElseThrow(() -> new CurationHandler(ErrorStatus.CURATION_NOT_FOUND));
+        return CurationConverter.toCurationDetailDTO(curation);
+    }
 }
