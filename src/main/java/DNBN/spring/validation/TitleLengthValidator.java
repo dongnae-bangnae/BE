@@ -2,7 +2,6 @@ package DNBN.spring.validation;
 
 import DNBN.spring.apiPayload.code.status.ErrorStatus;
 import DNBN.spring.apiPayload.exception.handler.ArticleHandler;
-import DNBN.spring.apiPayload.exception.handler.CommentHandler;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
