@@ -30,10 +30,6 @@ public class CommentCommandServiceImpl implements CommentCommandService {
     private final CommentRepository commentRepository;
     private final NotificationRepository notificationRepository;
     private final ContentLengthValidator contentLengthValidator;
-    private final TitleLengthValidator titleLengthValidator;
-
-    private static final int CONTENT_MIN_LENGTH = 2;
-    private static final int CONTENT_MAX_LENGTH = 1000;
     private final MemberRepository memberRepository;
 
     private Comment getCommentOrThrow(Long commentId) {
