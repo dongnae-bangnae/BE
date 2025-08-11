@@ -9,7 +9,7 @@ import org.springframework.http.HttpStatus;
 @Getter
 @AllArgsConstructor
 public enum ErrorStatus implements BaseErrorCode {
-    // 가장 일반적�� 응답
+    // 가장 일반적인 응답
     _INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "COMMON5000", "서버 에러, 관리자에게 문의 바랍니다."),
     _BAD_REQUEST(HttpStatus.BAD_REQUEST,"COMMON4000","잘못된 요청입니다."),
     _UNAUTHORIZED(HttpStatus.UNAUTHORIZED,"COMMON4001","인증이 필요합니다."),
@@ -24,7 +24,8 @@ public enum ErrorStatus implements BaseErrorCode {
     SOCIALID_NOT_FOUND(HttpStatus.BAD_REQUEST, "MEMBER4005", "socialId가 없습니다."),
     INVALID_IMAGE_TYPE(HttpStatus.BAD_REQUEST, "IMAGE4006", "이미지 형식의 파일만 업로드할 수 있습니다."),
     IMAGE_FILE_TOO_LARGE(HttpStatus.BAD_REQUEST, "IMAGE4007", "이미지 파일은 10MB 이하로 업로드해주세요."),
-    
+    NICKNAME_DUPLICATE(HttpStatus.BAD_REQUEST, "MEMBER4008", "이미 사용 중인 닉네임입니다."),
+
     // article
     ARTICLE_NOT_FOUND(HttpStatus.NOT_FOUND, "ARTICLE4001", "게시글이 없습니다."),
     ARTICLE_TITLE_LENGTH_INVALID(HttpStatus.BAD_REQUEST, "ARTICLE4002", "제목은 2~100자여야 합니다."),
