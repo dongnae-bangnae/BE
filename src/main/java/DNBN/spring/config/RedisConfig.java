@@ -1,5 +1,6 @@
 package DNBN.spring.config;
 
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.cache.CacheKeyPrefix;
@@ -15,6 +16,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Configuration
+@EnableCaching
 public class RedisConfig {
     @Bean
     public RedisCacheManager cacheManager(RedisConnectionFactory cf) { // Lettuce 라이브러리

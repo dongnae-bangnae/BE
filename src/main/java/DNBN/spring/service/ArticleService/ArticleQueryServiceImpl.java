@@ -31,6 +31,7 @@ import DNBN.spring.web.dto.response.PostResponseDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -62,6 +63,11 @@ public class ArticleQueryServiceImpl implements ArticleQueryService {
     private final ArticleSpamRepository articleSpamRepository;
     private final PlaceRepository placeRepository;
 
+    @Cacheable(
+            cacheNames = "articles:region",
+            key = "'v1:m:' + #memberId + ':p:' + #page",
+            sync = true
+    )
     @Override
     public Page<Article> getArticleListByRegion(Long memberId, Integer page) {
         List<Long> regionIds = likeRegionRepository.findRegionIdsByMemberId(memberId);
