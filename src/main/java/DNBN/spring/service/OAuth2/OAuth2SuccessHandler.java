@@ -61,7 +61,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         response.sendRedirect(redirectUri);
         */
 
-        /*
+
         // JSON 응답 방식 (SPA 등 API 호출용)
         AuthResponseDTO.LoginResultDTO result = AuthResponseDTO.LoginResultDTO.builder()
                 .accessToken(accessToken)
@@ -80,45 +80,45 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         response.setContentType("application/json;charset=UTF-8");
         response.setStatus(HttpServletResponse.SC_OK);
         response.getWriter().write(objectMapper.writeValueAsString(apiResponse));
-        */
+
 
         // 쿠키로 프론트에게 내려주기
-        boolean isOnboardingCompleted = member.isOnboardingCompleted();
-        SuccessStatus status = isOnboardingCompleted
-                ? SuccessStatus.MEMBER_ALREADY_LOGIN
-                : SuccessStatus.MEMBER_NEEDS_ONBOARDING;
-
-        // 1. 민감 정보: HttpOnly + Secure 쿠키
-        addCookie(response, "accessToken", accessToken, true, 60 * 60 * 4); // 4시간
-        addCookie(response, "refreshToken", refreshToken, true, 60 * 60 * 24 * 7); // 7일
-        addCookie(response, "memberId", String.valueOf(member.getId()), true, 60 * 60 * 4);
-        addCookie(response, "isOnboardingCompleted", String.valueOf(isOnboardingCompleted), false, 60 * 60 * 4);
-
-        // 2. 상태 정보: HttpOnly = false (JS에서 읽게)
-        addCookie(response, "isSuccess", "true", false, 60);
-        addCookie(response, "code", status.getCode(), false, 60);
-        addCookie(response, "message", URLEncoder.encode(status.getMessage(), StandardCharsets.UTF_8), false, 60);
-
-        // 3. CSRF 토큰 수동 발급 + 쿠키로 내려주기
-//        CsrfTokenRepository csrfTokenRepository = new HttpSessionCsrfTokenRepository();
-        CookieCsrfTokenRepository csrfTokenRepository = CookieCsrfTokenRepository.withHttpOnlyFalse();
-        CsrfToken csrfToken = csrfTokenRepository.generateToken(request);
-        csrfTokenRepository.saveToken(csrfToken, request, response);
-
-        // 프론트에서 JS로 읽을 수 있게 HttpOnly = false
-        ResponseCookie csrfCookie = ResponseCookie.from("XSRF-TOKEN", csrfToken.getToken())
-                .httpOnly(false)
-                .secure(true) // 테스트 시 false로
-                .path("/")
-                .domain("dnbn.site") // 로컬 테스트 시 주석 처리해야 함
-                .maxAge(60 * 60 * 4)
-                .sameSite("Lax")
-                .build();
-
-        response.addHeader("Set-Cookie", csrfCookie.toString());
-
-        // 4. 리다이렉트 (브릿지 페이지)
-        response.sendRedirect("https://www.dnbn.site/oauth-redirect");
+//        boolean isOnboardingCompleted = member.isOnboardingCompleted();
+//        SuccessStatus status = isOnboardingCompleted
+//                ? SuccessStatus.MEMBER_ALREADY_LOGIN
+//                : SuccessStatus.MEMBER_NEEDS_ONBOARDING;
+//
+//        // 1. 민감 정보: HttpOnly + Secure 쿠키
+//        addCookie(response, "accessToken", accessToken, true, 60 * 60 * 4); // 4시간
+//        addCookie(response, "refreshToken", refreshToken, true, 60 * 60 * 24 * 7); // 7일
+//        addCookie(response, "memberId", String.valueOf(member.getId()), true, 60 * 60 * 4);
+//        addCookie(response, "isOnboardingCompleted", String.valueOf(isOnboardingCompleted), false, 60 * 60 * 4);
+//
+//        // 2. 상태 정보: HttpOnly = false (JS에서 읽게)
+//        addCookie(response, "isSuccess", "true", false, 60);
+//        addCookie(response, "code", status.getCode(), false, 60);
+//        addCookie(response, "message", URLEncoder.encode(status.getMessage(), StandardCharsets.UTF_8), false, 60);
+//
+//        // 3. CSRF 토큰 수동 발급 + 쿠키로 내려주기
+////        CsrfTokenRepository csrfTokenRepository = new HttpSessionCsrfTokenRepository();
+//        CookieCsrfTokenRepository csrfTokenRepository = CookieCsrfTokenRepository.withHttpOnlyFalse();
+//        CsrfToken csrfToken = csrfTokenRepository.generateToken(request);
+//        csrfTokenRepository.saveToken(csrfToken, request, response);
+//
+//        // 프론트에서 JS로 읽을 수 있게 HttpOnly = false
+//        ResponseCookie csrfCookie = ResponseCookie.from("XSRF-TOKEN", csrfToken.getToken())
+//                .httpOnly(false)
+//                .secure(true) // 테스트 시 false로
+//                .path("/")
+//                .domain("dnbn.site") // 로컬 테스트 시 주석 처리해야 함
+//                .maxAge(60 * 60 * 4)
+//                .sameSite("Lax")
+//                .build();
+//
+//        response.addHeader("Set-Cookie", csrfCookie.toString());
+//
+//        // 4. 리다이렉트 (브릿지 페이지)
+//        response.sendRedirect("https://www.dnbn.site/oauth-redirect");
     }
 
     private void addCookie(HttpServletResponse response, String name, String value, boolean httpOnly, int maxAgeInSeconds) {

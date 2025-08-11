@@ -70,6 +70,8 @@ public class ArticleQueryServiceImpl implements ArticleQueryService {
     )
     @Override
     public Page<Article> getArticleListByRegion(Long memberId, Integer page) {
+        log.info("[DB HIT] getArticleListByRegion m={}, p={}", memberId, page);
+
         List<Long> regionIds = likeRegionRepository.findRegionIdsByMemberId(memberId);
 
         if (regionIds.isEmpty()) {
