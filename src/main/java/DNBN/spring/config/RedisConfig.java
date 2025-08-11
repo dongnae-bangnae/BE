@@ -11,28 +11,27 @@ import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 import java.time.Duration;
+import java.util.HashMap;
+import java.util.Map;
 
 @Configuration
 public class RedisConfig {
     @Bean
-    public RedisCacheManager cacheManager(RedisConnectionFactory connectionFactory) { // Lettuce 라이브러리
-        RedisCacheConfiguration configuration = RedisCacheConfiguration.defaultCacheConfig()
+    public RedisCacheManager cacheManager(RedisConnectionFactory cf) { // Lettuce 라이브러리
+        RedisCacheConfiguration base = RedisCacheConfiguration.defaultCacheConfig()
                 .disableCachingNullValues()
-                .entryTtl(Duration.ofSeconds(30)) // ttl
+                .entryTtl(Duration.ofSeconds(30))
                 .computePrefixWith(CacheKeyPrefix.simple())
-                .serializeKeysWith( // 직렬화
-                        RedisSerializationContext.SerializationPair.fromSerializer(
-                                new StringRedisSerializer()) // String 형태
-                )
-                .serializeValuesWith( // 역직렬화
-                        RedisSerializationContext.SerializationPair.fromSerializer(
-                                new GenericJackson2JsonRedisSerializer())
-                );
+                .serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()))
+                .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer()));
 
-        return RedisCacheManager
-                .RedisCacheManagerBuilder
-                .fromConnectionFactory(connectionFactory)
-                .cacheDefaults(configuration)
+        Map<String, RedisCacheConfiguration> perCache = new HashMap<>();
+        perCache.put("articles:region", base.entryTtl(Duration.ofSeconds(20))); // 최신글: 짧게
+        perCache.put("articles:detail", base.entryTtl(Duration.ofMinutes(5)));
+
+        return RedisCacheManager.builder(cf)
+                .cacheDefaults(base)                  // 기본 TTL 30초
+                .withInitialCacheConfigurations(perCache)
                 .build();
 
     }
