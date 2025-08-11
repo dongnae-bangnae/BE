@@ -56,11 +56,18 @@ public class Comment extends BaseEntity {
 
   private LocalDateTime deletedAt;
 
+  @Column(nullable = false)
+  private int depth;
+
   public void delete() {
     this.deletedAt = java.time.LocalDateTime.now();
   }
 
   public void updateContent(String content) {
     this.content = content;
+  }
+
+  public void setDepth(int depth) {
+    this.depth = depth;
   }
 }

@@ -47,16 +47,21 @@ public class CommentCommandServiceImpl implements CommentCommandService {
         contentLengthValidator.validateCommentContent(request.content());
 
         Comment parentComment = null;
+        int depth = 0;
         if (request.parentCommentId() != null) {
             parentComment = commentRepository.findById(request.parentCommentId())
                     .orElseThrow(() -> new CommentHandler(ErrorStatus.COMMENT_NOT_FOUND));
-            // parentComment의 articleId 일치 검증은 Aspect에서 처리
+            if (parentComment.getDepth() >= 1) {
+                throw new CommentHandler(ErrorStatus.COMMENT_FORBIDDEN);
+            }
+            depth = parentComment.getDepth() + 1;
         }
         Comment comment = Comment.builder()
                 .article(article)
                 .member(member)
                 .content(request.content())
                 .parentComment(parentComment)
+                .depth(depth)
                 .build();
 
         commentRepository.save(comment);
