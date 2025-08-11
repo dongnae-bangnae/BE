@@ -24,7 +24,7 @@ public enum ErrorStatus implements BaseErrorCode {
     SOCIALID_NOT_FOUND(HttpStatus.BAD_REQUEST, "MEMBER4005", "socialId가 없습니다."),
     INVALID_IMAGE_TYPE(HttpStatus.BAD_REQUEST, "IMAGE4006", "이미지 형식의 파일만 업로드할 수 있습니다."),
     IMAGE_FILE_TOO_LARGE(HttpStatus.BAD_REQUEST, "IMAGE4007", "이미지 파일은 10MB 이하로 업로드해주세요."),
-    NICKNAME_DUPLICATE(HttpStatus.BAD_REQUEST, "MEMBER4008", "중복된 닉네임입니다."),
+    NICKNAME_DUPLICATE(HttpStatus.BAD_REQUEST, "MEMBER4008", "이미 사용 중인 닉네임입니다."),
 
     // article
     ARTICLE_NOT_FOUND(HttpStatus.NOT_FOUND, "ARTICLE4001", "게시글이 없습니다."),

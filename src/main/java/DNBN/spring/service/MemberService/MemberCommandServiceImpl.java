@@ -59,6 +59,8 @@ public class MemberCommandServiceImpl implements MemberCommandService {
             throw new MemberHandler(ErrorStatus.NICKNAME_NOT_EXIST);
         }
 
+        validateNicknameDuplicate(request.getNickname());
+
         // 좋아하는 동네 개수 최소 1개 ~ 최대 3개
         int chosenRegionCount = request.getChosenRegionIds() == null ? 0 : request.getChosenRegionIds().size();
         if (chosenRegionCount < 1 || chosenRegionCount > 3) {
@@ -168,6 +170,8 @@ public class MemberCommandServiceImpl implements MemberCommandService {
             throw new MemberHandler(ErrorStatus.NICKNAME_NOT_EXIST);
         }
 
+        validateNicknameDuplicate(newNickname);
+
 //        member.setNickname(newNickname);
         member.updateNickname(newNickname); // 도메인 ��도 설계(Domain-Driven Design) 원칙에 부합하도록
     }
@@ -252,5 +256,12 @@ public class MemberCommandServiceImpl implements MemberCommandService {
         return MemberResponseDTO.ProfileImageUpdateResultDTO.builder()
                 .profileImageUrl(profileImageUrl)
                 .build();
+    }
+
+    private void validateNicknameDuplicate(String nickname) {
+        boolean exists = memberRepository.existsByNickname(nickname);
+        if (exists) {
+            throw new MemberHandler(ErrorStatus.NICKNAME_DUPLICATE);
+        }
     }
 }
