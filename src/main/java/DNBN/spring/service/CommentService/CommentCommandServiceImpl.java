@@ -19,6 +19,7 @@ import DNBN.spring.web.dto.CommentRequestDTO;
 import DNBN.spring.web.dto.CommentResponseDTO;
 import DNBN.spring.web.dto.CommentUpdateRequestDTO;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,6 +32,9 @@ public class CommentCommandServiceImpl implements CommentCommandService {
     private final NotificationRepository notificationRepository;
     private final ContentLengthValidator contentLengthValidator;
     private final MemberRepository memberRepository;
+
+    @Value("${article.comment.validation.max-depth:1}")
+    private int maxCommentDepth;
 
     private Comment getCommentOrThrow(Long commentId) {
         return commentRepository.findById(commentId)
@@ -51,7 +55,7 @@ public class CommentCommandServiceImpl implements CommentCommandService {
         if (request.parentCommentId() != null) {
             parentComment = commentRepository.findById(request.parentCommentId())
                     .orElseThrow(() -> new CommentHandler(ErrorStatus.COMMENT_NOT_FOUND));
-            if (parentComment.getDepth() >= 1) {
+            if (parentComment.getDepth() >= maxCommentDepth) {
                 throw new CommentHandler(ErrorStatus.COMMENT_FORBIDDEN);
             }
             depth = parentComment.getDepth() + 1;
