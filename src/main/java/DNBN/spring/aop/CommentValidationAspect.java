@@ -6,7 +6,6 @@ import DNBN.spring.domain.Comment;
 import DNBN.spring.repository.CommentRepository.CommentRepository;
 import DNBN.spring.web.dto.CommentRequestDTO;
 import DNBN.spring.web.dto.CommentUpdateRequestDTO;
-import java.util.Objects;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
@@ -17,12 +16,8 @@ import org.springframework.stereotype.Component;
 @Aspect
 @Component
 public class CommentValidationAspect {
-    private final CommentRepository commentRepository;
 
-    @Value("${comment.validation.content.min-length:2}")
-    private int contentMinLength;
-    @Value("${comment.validation.content.max-length:1000}")
-    private int contentMaxLength;
+    private final CommentRepository commentRepository;
 
     public CommentValidationAspect(CommentRepository commentRepository) {
         this.commentRepository = commentRepository;
@@ -34,10 +29,23 @@ public class CommentValidationAspect {
         Long memberId = extractLongArg(args, 0, "memberId");
         Long commentId = extractLongArg(args, 1, "commentId");
         Long articleId = extractLongArg(args, 2, "articleId");
-        Comment comment = commentRepository.findById(commentId)
+        Comment comment = null;
+        // createComment의 경우 parentCommentId만 존재
+        if (commentId != null) {
+            comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new CommentHandler(ErrorStatus.COMMENT_NOT_FOUND));
-        validateCommentOwnership(comment, memberId, articleId);
-        validateCommentContent(args);
+            validateCommentOwnership(comment, memberId, articleId);
+        } else {
+            // createComment: parentCommentId 검증
+            CommentRequestDTO requestDto = (CommentRequestDTO) extractDto(args);
+            if (requestDto != null && requestDto.parentCommentId() != null) {
+                Comment parentComment = commentRepository.findById(requestDto.parentCommentId())
+                    .orElseThrow(() -> new CommentHandler(ErrorStatus.COMMENT_NOT_FOUND));
+                if (!parentComment.getArticle().getArticleId().equals(articleId)) {
+                    throw new CommentHandler(ErrorStatus.COMMENT_FORBIDDEN);
+                }
+            }
+        }
     }
 
     private Long extractLongArg(Object[] args, int idx, String name) {
@@ -59,14 +67,6 @@ public class CommentValidationAspect {
         }
     }
 
-    private void validateCommentContent(Object[] args) {
-        Object dto = extractDto(args);
-        Pair<String, String> contentPair = extractContentFromDto(dto);
-        String content = contentPair.getFirst();
-        validateLength(content, contentMinLength, contentMaxLength,
-                ErrorStatus.COMMENT_CONTENT_NULL_ERROR, ErrorStatus.COMMENT_CONTENT_LENGTH_INVALID);
-    }
-
     private Object extractDto(Object[] args) {
         for (Object arg : args) {
             if (arg instanceof CommentRequestDTO || arg instanceof CommentUpdateRequestDTO) {
@@ -86,15 +86,6 @@ public class CommentValidationAspect {
             return Pair.of(content, null);
         } catch (Exception e) {
             throw new IllegalArgumentException("❌ CommentValidationAspect: DTO에서 content 추출 실패", e);
-        }
-    }
-
-    private void validateLength(String value, int min, int max, ErrorStatus nullErrorStatus, ErrorStatus lengthErrorStatus) {
-        if (value == null) {
-            throw new CommentHandler(nullErrorStatus);
-        }
-        if (value.length() < min || value.length() > max) {
-            throw new CommentHandler(lengthErrorStatus);
         }
     }
 }

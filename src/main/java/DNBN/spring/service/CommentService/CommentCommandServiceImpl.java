@@ -13,10 +13,13 @@ import DNBN.spring.repository.ArticleRepository.ArticleRepository;
 import DNBN.spring.repository.CommentRepository.CommentRepository;
 import DNBN.spring.repository.MemberRepository.MemberRepository;
 import DNBN.spring.repository.NotificationRepository.NotificationRepository;
+import DNBN.spring.validation.ContentLengthValidator;
+import DNBN.spring.validation.TitleLengthValidator;
 import DNBN.spring.web.dto.CommentRequestDTO;
 import DNBN.spring.web.dto.CommentResponseDTO;
 import DNBN.spring.web.dto.CommentUpdateRequestDTO;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,10 +30,11 @@ public class CommentCommandServiceImpl implements CommentCommandService {
     private final ArticleRepository articleRepository;
     private final CommentRepository commentRepository;
     private final NotificationRepository notificationRepository;
-
-    private static final int CONTENT_MIN_LENGTH = 2;
-    private static final int CONTENT_MAX_LENGTH = 1000;
+    private final ContentLengthValidator contentLengthValidator;
     private final MemberRepository memberRepository;
+
+    @Value("${article.comment.validation.max-depth:1}")
+    private int maxCommentDepth;
 
     private Comment getCommentOrThrow(Long commentId) {
         return commentRepository.findById(commentId)
@@ -39,30 +43,29 @@ public class CommentCommandServiceImpl implements CommentCommandService {
 
     @Override
     public CommentResponseDTO createComment(Long memberId, Long articleId, CommentRequestDTO request) {
-
         Article article = articleRepository.findById(articleId)
                 .orElseThrow(() -> new ArticleHandler(ErrorStatus.ARTICLE_NOT_FOUND));
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new ArticleHandler(ErrorStatus.MEMBER_NOT_FOUND));
 
-        if (request.content() == null || request.content().length() < CONTENT_MIN_LENGTH || request.content().length() > CONTENT_MAX_LENGTH) {
-            throw new CommentHandler(ErrorStatus.COMMENT_CONTENT_LENGTH_INVALID);
-        }
+        contentLengthValidator.validateCommentContent(request.content());
 
         Comment parentComment = null;
+        int depth = 0;
         if (request.parentCommentId() != null) {
             parentComment = commentRepository.findById(request.parentCommentId())
                     .orElseThrow(() -> new CommentHandler(ErrorStatus.COMMENT_NOT_FOUND));
-
-            if (!parentComment.getArticle().getArticleId().equals(articleId)) {
+            if (parentComment.getDepth() >= maxCommentDepth) {
                 throw new CommentHandler(ErrorStatus.COMMENT_FORBIDDEN);
             }
+            depth = parentComment.getDepth() + 1;
         }
         Comment comment = Comment.builder()
                 .article(article)
                 .member(member)
                 .content(request.content())
                 .parentComment(parentComment)
+                .depth(depth)
                 .build();
 
         commentRepository.save(comment);
@@ -98,6 +101,9 @@ public class CommentCommandServiceImpl implements CommentCommandService {
     public CommentResponseDTO updateComment(Long memberId, Long commentId, Long articleId, CommentUpdateRequestDTO request) {
         Comment comment = commentRepository.findById(commentId)
             .orElseThrow(() -> new CommentHandler(ErrorStatus.COMMENT_NOT_FOUND));
+
+        contentLengthValidator.validateCommentContent(request.content());
+
         comment.updateContent(request.content());
         return CommentConverter.toCommentResponseDTO(comment);
     }
