@@ -240,9 +240,11 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
     // TODO: 책임 분리
     private void updateArticleEntity(Article article, ArticleUpdateRequestDTO request) {
         if (request.title() != null) {
+            titleLengthValidator.validateArticleTitle(request.title());
             article.setTitle(request.title());
         }
         if (request.content() != null) {
+            contentLengthValidator.validateArticleContent(request.content());
             article.setContent(request.content());
         }
         if (request.date() != null) {
