@@ -47,7 +47,7 @@ public class SecurityConfig {
 
         // 동네방네 프론트, 백엔드 로컬, 운영 도메인 등 실제 사용하는 도메인 입력
         config.setAllowedOrigins(List.of(
-                "https://dnbn.site", // 프론트 도메인
+                "https://www.dnbn.site", // 프론트 도메인
                 "https://api.dnbn.site", // 백엔드 도메인
                 "http://3.36.90.173:3000",
                 "http://3.36.90.173:8080",
