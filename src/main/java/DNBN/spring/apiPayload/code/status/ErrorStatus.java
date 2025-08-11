@@ -88,7 +88,6 @@ public enum ErrorStatus implements BaseErrorCode {
     COMMENT_CONTENT_LENGTH_INVALID(HttpStatus.BAD_REQUEST, "COMMENT4002", "댓글 내용은 1~1000자여야 합니다."),
     COMMENT_FORBIDDEN(HttpStatus.FORBIDDEN, "COMMENT4003", "해당 댓글에 대한 권한이 없습니다."),
     COMMENT_ALREADY_DELETED(HttpStatus.CONFLICT, "COMMENT4004", "이미 삭제된 댓글입니다."),
-    COMMENT_TITLE_LENGTH_INVALID(HttpStatus.BAD_REQUEST, "COMMENT4006", "댓글 제목은 2~100자여야 합니다."),
 
     // 챌린지
     CHALLENGE_NOT_FOUND(HttpStatus.NOT_FOUND, "CHALLENGE_4001", "챌린지가 존재하지 않습니다."),
