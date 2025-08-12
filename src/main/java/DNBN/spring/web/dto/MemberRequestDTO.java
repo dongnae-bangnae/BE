@@ -11,6 +11,28 @@ import lombok.Setter;
 import java.util.List;
 
 public class MemberRequestDTO {
+
+    @Getter
+    @Setter
+    public static class NicknameDTO {
+        @NotBlank(message = "닉네임은 필수입니다.")
+        @Size(max = 10, message = "닉네임은 최대 10자까지 가능합니다.")
+        String nickname;
+    }
+
+//    @Getter
+//    @Setter
+//    public static class ProfileImageDTO {
+//        MultipartFile profileImage;  // 필수 아님
+//    }
+
+    @Getter
+    @Setter
+    public static class FavoriteRegionsDTO {
+        @NotEmpty(message = "좋아하는 동네는 최소 1개 이상 선택해야 합니다.")
+        List<Long> chosenRegionIds;
+    }
+
     @Getter
     @Setter
     public static class OnboardingDTO {
