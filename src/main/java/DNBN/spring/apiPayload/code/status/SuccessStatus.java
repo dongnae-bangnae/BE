@@ -15,11 +15,12 @@ public enum SuccessStatus implements BaseCode {
     // 멤버 관련 응답
     MEMBER_NEEDS_ONBOARDING(HttpStatus.CREATED, "MEMBER2001", "신규 유저입니다. 온보딩이 필요합니다."),
     MEMBER_ALREADY_LOGIN(HttpStatus.OK, "MEMBER2002", "이미 등록된 유저입니다."),
-    MEMBER_ONBOARDING_SUCCESS(HttpStatus.CREATED, "MEMBER2003", "온보딩 정보를 저장했습니다."),
-    MEMBER_INFO_RETRIEVED(HttpStatus.OK, "MEMBER2004", "유저 정보를 성공적으로 조회했습니다."),
-    MEMBER_LOGOUT_SUCCESS(HttpStatus.OK, "MEMBER2005", "로그아웃이 완료되었습니다."),
-    MEMBER_DELETE_SUCCESS(HttpStatus.NO_CONTENT, "MEMBER2006", "회원 탈퇴가 완료되었습니다."),
-    MEMBER_PROFILE_IMAGE_UPDATED(HttpStatus.OK, "MEMBER2007", "프로필 이미지가 성공적으로 변경되었습니다."),
+    MEMBER_ONBOARDING_SUCCESS(HttpStatus.CREATED, "MEMBER2003", "온보딩을 성공적으로 완료했습니다."),
+    MEMBER_ALREADY_ONBOARDING_COMPLETED(HttpStatus.CREATED, "MEMBER2004", "이미 온보딩이 완료된 유저입니다."),
+    MEMBER_INFO_RETRIEVED(HttpStatus.OK, "MEMBER2005", "유저 정보를 성공적으로 조회했습니다."),
+    MEMBER_LOGOUT_SUCCESS(HttpStatus.OK, "MEMBER2006", "로그아웃이 성공적으로 완료되었습니다."),
+    MEMBER_DELETE_SUCCESS(HttpStatus.NO_CONTENT, "MEMBER2007", "회원 탈퇴가 성공적으로 완료되었습니다."),
+    MEMBER_PROFILE_IMAGE_UPDATED(HttpStatus.OK, "MEMBER2008", "프로필 이미지가 성공적으로 변경되었습니다."),
 
     // 장소 저장 관련 응답
     SAVED_PLACE_CREATE_SUCCESS(HttpStatus.CREATED, "SAVE_PLACE2001", "장소가 카테고리에 성공적으로 저장되었습니다."),
