@@ -104,7 +104,7 @@ public class MemberRestController {
 
     @PatchMapping(
             value = "/profile-image",
-            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
+            consumes = {MediaType.MULTIPART_FORM_DATA_VALUE}
     )
     @Operation(
             summary = "프로필 이미지 등록 및 변경 API - JWT AccessToken + CSRF 토큰 인증 필요",
