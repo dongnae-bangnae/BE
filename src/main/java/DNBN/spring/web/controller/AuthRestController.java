@@ -31,6 +31,7 @@ public class AuthRestController {
     private final MemberCommandService memberCommandService;
     private final AuthCommandService authCommandService;
     private final JwtTokenProvider jwtTokenProvider;
+    private final CookieCsrfTokenRepository csrfTokenRepository;
 
     @PostMapping("/logout")
     @Operation(summary = "회원 로그아웃 API - JWT AccessToken 인증 필요, CSRF 인증은 요구되지 않습니다.",
@@ -63,11 +64,13 @@ public class AuthRestController {
 
         // csrf 토큰 재발급
 //        CsrfToken csrfToken = authCommandService.generateCsrfToken(request, response);addCookie(response, "XSRF-TOKEN", csrfToken.getToken(), false, 60 * 60 * 4);
-        CookieCsrfTokenRepository csrfTokenRepository = CookieCsrfTokenRepository.withHttpOnlyFalse();
+//        CookieCsrfTokenRepository csrfTokenRepository = CookieCsrfTokenRepository.withHttpOnlyFalse();
         CsrfToken csrfToken = csrfTokenRepository.generateToken(request);
+        csrfTokenRepository.saveToken(csrfToken, request, response);
+
         request.setAttribute(CsrfToken.class.getName(), csrfToken);
         request.setAttribute(csrfToken.getParameterName(), csrfToken);
-        addCookie(response, "XSRF-TOKEN", csrfToken.getToken(), false, 60 * 60 * 4);
+//        addCookie(response, "XSRF-TOKEN", csrfToken.getToken(), false, 60 * 60 * 4);
 
         // 응답 바디 없이 204 No Content
         response.setStatus(HttpServletResponse.SC_NO_CONTENT);

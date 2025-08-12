@@ -33,6 +33,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
     private final JwtTokenProvider jwtTokenProvider;
     private final ObjectMapper objectMapper;
+    private final CookieCsrfTokenRepository csrfTokenRepository;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
@@ -99,15 +100,13 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         addCookie(response, "code", status.getCode(), false, 60);
         addCookie(response, "message", URLEncoder.encode(status.getMessage(), StandardCharsets.UTF_8), false, 60);
 
-        // 3. CSRF 토큰 수동 발급 + 쿠키로 내려주기
+        // 3. CSRF 토큰 발급 + 쿠키로 내려주기
 //        CsrfTokenRepository csrfTokenRepository = new HttpSessionCsrfTokenRepository();
-        CookieCsrfTokenRepository csrfTokenRepository = CookieCsrfTokenRepository.withHttpOnlyFalse();
+//        CookieCsrfTokenRepository csrfTokenRepository = CookieCsrfTokenRepository.withHttpOnlyFalse();
         CsrfToken csrfToken = csrfTokenRepository.generateToken(request);
-//        csrfTokenRepository.saveToken(csrfToken, request, response);
+        csrfTokenRepository.saveToken(csrfToken, request, response);
         request.setAttribute(CsrfToken.class.getName(), csrfToken);
         request.setAttribute(csrfToken.getParameterName(), csrfToken);
-
-        addCookie(response, "XSRF-TOKEN", csrfToken.getToken(), false, 60 * 60 * 4);
 
         // 프론트에서 JS로 읽을 수 있게 HttpOnly = false
 //        ResponseCookie csrfCookie = ResponseCookie.from("XSRF-TOKEN", csrfToken.getToken())
@@ -120,6 +119,8 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 //                .build();
 
 //        response.addHeader("Set-Cookie", csrfCookie.toString());
+
+//        addCookie(response, "XSRF-TOKEN", csrfToken.getToken(), false, 60 * 60 * 4);
 
         // 4. 리다이렉트 (브릿지 페이지)
         response.sendRedirect("https://www.dnbn.site/oauth-redirect");
