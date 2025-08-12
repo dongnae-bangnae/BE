@@ -2,6 +2,7 @@ package DNBN.spring.web.controller;
 
 import DNBN.spring.apiPayload.ApiResponse;
 import DNBN.spring.apiPayload.code.status.ErrorStatus;
+import DNBN.spring.apiPayload.code.status.SuccessStatus;
 import DNBN.spring.apiPayload.exception.handler.MemberHandler;
 import DNBN.spring.config.security.jwt.JwtTokenProvider;
 import DNBN.spring.repository.MemberRepository.MemberRepository;
@@ -38,7 +39,7 @@ public class ArticleSpamController {
         String token = JwtTokenProvider.resolveToken(request);
         Long memberId = extractMemberIdFromToken(token);
         SpamStatusResponseDTO response = articleSpamQueryService.getSpamStatus(articleId, memberId);
-        return ResponseEntity.ok(ApiResponse.onSuccess(response));
+        return ResponseEntity.status(SuccessStatus.SPAM_STATUS_READ_SUCCESS.getHttpStatus()).body(ApiResponse.of(SuccessStatus.SPAM_STATUS_READ_SUCCESS, response));
     }
 
     @Operation(
@@ -52,7 +53,7 @@ public class ArticleSpamController {
         String token = JwtTokenProvider.resolveToken(request);
         Long memberId = extractMemberIdFromToken(token);
         SpamResponseDTO response = articleSpamService.spamArticle(articleId, memberId);
-        return ResponseEntity.ok(ApiResponse.onSuccess(response));
+        return ResponseEntity.status(SuccessStatus.SPAM_CREATE_SUCCESS.getHttpStatus()).body(ApiResponse.of(SuccessStatus.SPAM_CREATE_SUCCESS, response));
     }
 
     @Operation(
@@ -66,7 +67,7 @@ public class ArticleSpamController {
         String token = JwtTokenProvider.resolveToken(request);
         Long memberId = extractMemberIdFromToken(token);
         SpamResponseDTO response = articleSpamService.unspamArticle(articleId, memberId);
-        return ResponseEntity.ok(ApiResponse.onSuccess(response));
+        return ResponseEntity.status(SuccessStatus.SPAM_DELETE_SUCCESS.getHttpStatus()).body(ApiResponse.of(SuccessStatus.SPAM_DELETE_SUCCESS, response));
     }
 
 

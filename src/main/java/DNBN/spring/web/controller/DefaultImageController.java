@@ -5,6 +5,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 import java.util.stream.Collectors;
+import DNBN.spring.apiPayload.code.status.SuccessStatus;
+import DNBN.spring.apiPayload.ApiResponse;
+import org.springframework.http.ResponseEntity;
 
 @RestController
 @RequestMapping("/api/default-images")
@@ -34,10 +37,11 @@ public class DefaultImageController {
         "af1ca572-0298-4931-908d-3362d588bc7a"
     };
 
-    @GetMapping
-    public List<String> getDefaultImageUrls() {
-        return java.util.Arrays.stream(UUIDS)
+    @GetMapping("/default-images")
+    public ResponseEntity<ApiResponse<List<String>>> getDefaultImageUrls() {
+        List<String> urls = java.util.Arrays.stream(UUIDS)
                 .map(uuid -> S3_BASE_URL + uuid)
                 .collect(Collectors.toList());
+        return ResponseEntity.status(SuccessStatus.DEFAULT_IMAGE_LIST_READ_SUCCESS.getHttpStatus()).body(ApiResponse.of(SuccessStatus.DEFAULT_IMAGE_LIST_READ_SUCCESS, urls));
     }
 }

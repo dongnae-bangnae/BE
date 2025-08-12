@@ -2,6 +2,7 @@ package DNBN.spring.web.controller;
 
 import DNBN.spring.apiPayload.ApiResponse;
 import DNBN.spring.apiPayload.code.status.ErrorStatus;
+import DNBN.spring.apiPayload.code.status.SuccessStatus;
 import DNBN.spring.apiPayload.exception.handler.MemberHandler;
 import DNBN.spring.config.security.jwt.JwtTokenProvider;
 import DNBN.spring.domain.Member;
@@ -40,10 +41,10 @@ public class PlaceRestController {
             HttpServletRequest request,
             @PathVariable Long placeId,
             @RequestBody @Valid PlaceRequestDTO.SavePlaceDTO dto) {
-
         Long memberId = extractMemberIdFromToken(request);
         PlaceResponseDTO.SavePlaceResultDTO response = placeCommandService.savePlaceToCategory(memberId, placeId, dto);
-        return ResponseEntity.ok(ApiResponse.onSuccess(response));
+        return ResponseEntity.status(SuccessStatus.SAVED_PLACE_CREATE_SUCCESS.getHttpStatus()).body(ApiResponse.of(
+            SuccessStatus.SAVED_PLACE_CREATE_SUCCESS, response));
     }
 
     @Operation(
@@ -53,7 +54,6 @@ public class PlaceRestController {
     @GetMapping("/map")
     public ResponseEntity<ApiResponse<PlaceResponseDTO.MapPlacesResultDTO>> getPlacesInMap(
             HttpServletRequest request,
-
             @Parameter(
                     name        = "latMin",
                     description = "조회할 영역의 최소 위도 (소수점 5자리까지 입력 가능)",
@@ -68,36 +68,28 @@ public class PlaceRestController {
                     description = "조회할 영역의 최대 위도 (소수점 5자리까지 입력 가능)",
                     schema      = @Schema(type="number", format="double")
             )
-            @RequestParam
-            @Digits(integer = 3, fraction = 5, message = "COORDINATE_PRECISION_INVALID")
-            Double latMax,
+            @RequestParam @Digits(integer = 3, fraction = 5, message = "COORDINATE_PRECISION_INVALID") Double latMax,
 
             @Parameter(
                     name        = "lngMin",
                     description = "조회할 영역의 최소 경도 (소수점 5자리까지 입력 가능)",
                     schema      = @Schema(type="number", format="double")
             )
-            @RequestParam
-            @Digits(integer = 3, fraction = 5, message = "COORDINATE_PRECISION_INVALID")
-            Double lngMin,
+            @RequestParam @Digits(integer = 3, fraction = 5, message = "COORDINATE_PRECISION_INVALID") Double lngMin,
 
             @Parameter(
                     name        = "lngMax",
                     description = "조회할 영역의 최대 경도 (소수점 5자리까지 입력 가능)",
                     schema      = @Schema(type="number", format="double")
             )
-            @RequestParam
-            @Digits(integer = 3, fraction = 5, message = "COORDINATE_PRECISION_INVALID")
-            Double lngMax
+            @RequestParam @Digits(integer = 3, fraction = 5, message = "COORDINATE_PRECISION_INVALID") Double lngMax
     ) {
         // 1) 토큰에서 memberId 추출
         Long memberId = extractMemberIdFromToken(request);
-
         // 2) 서비스에 memberId 포함하여 한 번만 호출
         PlaceResponseDTO.MapPlacesResultDTO result = placeQueryService.getPlacesInMapBounds(memberId, latMin, latMax, lngMin, lngMax);
-
-        // 3) 응답 리턴
-        return ResponseEntity.ok(ApiResponse.onSuccess(result));
+        // 1) 토큰에서 memberId 추출
+        return ResponseEntity.status(SuccessStatus.PLACE_MAP_LIST_READ_SUCCESS.getHttpStatus()).body(ApiResponse.of(SuccessStatus.PLACE_MAP_LIST_READ_SUCCESS, result));
     }
 
     private Long extractMemberIdFromToken(HttpServletRequest request) {

@@ -2,6 +2,7 @@ package DNBN.spring.web.controller;
 
 import DNBN.spring.apiPayload.ApiResponse;
 import DNBN.spring.apiPayload.code.status.ErrorStatus;
+import DNBN.spring.apiPayload.code.status.SuccessStatus;
 import DNBN.spring.apiPayload.exception.handler.MemberHandler;
 import DNBN.spring.config.security.jwt.JwtTokenProvider;
 import DNBN.spring.domain.MemberDetails;
@@ -14,6 +15,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseCookie;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.security.web.csrf.CsrfTokenRepository;
@@ -36,9 +38,9 @@ public class AuthRestController {
             description = "JWT 인증된 멤버가 로그아웃하는 API입니다.",
             security = { @SecurityRequirement(name = "JWT TOKEN") }
     )
-    public ApiResponse<Void> logout(@AuthenticationPrincipal MemberDetails memberDetails, HttpServletResponse response) {
+    public ResponseEntity<ApiResponse<Void>> logout(@AuthenticationPrincipal MemberDetails memberDetails, HttpServletResponse response) {
         memberCommandService.logout(response, memberDetails.getMember().getId());
-        return ApiResponse.onSuccess(null);
+        return ResponseEntity.status(SuccessStatus.MEMBER_LOGOUT_SUCCESS.getHttpStatus()).body(ApiResponse.of(SuccessStatus.MEMBER_LOGOUT_SUCCESS, null));
     }
 
     @PostMapping("/reissue")

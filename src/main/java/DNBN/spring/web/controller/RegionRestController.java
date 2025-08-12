@@ -1,6 +1,7 @@
 package DNBN.spring.web.controller;
 
 import DNBN.spring.apiPayload.ApiResponse;
+import DNBN.spring.apiPayload.code.status.SuccessStatus;
 import DNBN.spring.service.RegionService.RegionQueryService;
 import DNBN.spring.web.dto.RegionResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
@@ -35,6 +36,6 @@ public class RegionRestController {
             @RequestParam(defaultValue = "20") int limit
     ) {
         RegionResponseDTO.SearchRegionResult result = regionQueryService.searchRegion(keyword, cursor, limit);
-        return ResponseEntity.ok(ApiResponse.onSuccess(result));
+        return ResponseEntity.status(SuccessStatus.REGION_SEARCH_SUCCESS.getHttpStatus()).body(ApiResponse.of(SuccessStatus.REGION_SEARCH_SUCCESS, result));
     }
 }
