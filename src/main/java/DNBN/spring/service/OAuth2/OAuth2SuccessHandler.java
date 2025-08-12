@@ -103,19 +103,23 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 //        CsrfTokenRepository csrfTokenRepository = new HttpSessionCsrfTokenRepository();
         CookieCsrfTokenRepository csrfTokenRepository = CookieCsrfTokenRepository.withHttpOnlyFalse();
         CsrfToken csrfToken = csrfTokenRepository.generateToken(request);
-        csrfTokenRepository.saveToken(csrfToken, request, response);
+//        csrfTokenRepository.saveToken(csrfToken, request, response);
+        request.setAttribute(CsrfToken.class.getName(), csrfToken);
+        request.setAttribute(csrfToken.getParameterName(), csrfToken);
+
+        addCookie(response, "XSRF-TOKEN", csrfToken.getToken(), false, 60 * 60 * 4);
 
         // 프론트에서 JS로 읽을 수 있게 HttpOnly = false
-        ResponseCookie csrfCookie = ResponseCookie.from("XSRF-TOKEN", csrfToken.getToken())
-                .httpOnly(false)
-                .secure(true) // 테스트 시 false로
-                .path("/")
-                .domain("dnbn.site") // 로컬 테스트 시 주석 처리해야 함
-                .maxAge(60 * 60 * 4)
-                .sameSite("None")
-                .build();
+//        ResponseCookie csrfCookie = ResponseCookie.from("XSRF-TOKEN", csrfToken.getToken())
+//                .httpOnly(false)
+//                .secure(true) // 테스트 시 false로
+//                .path("/")
+//                .domain("dnbn.site") // 로컬 테스트 시 주석 처리해야 함
+//                .maxAge(60 * 60 * 4)
+//                .sameSite("None")
+//                .build();
 
-        response.addHeader("Set-Cookie", csrfCookie.toString());
+//        response.addHeader("Set-Cookie", csrfCookie.toString());
 
         // 4. 리다이렉트 (브릿지 페이지)
         response.sendRedirect("https://www.dnbn.site/oauth-redirect");
