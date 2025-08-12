@@ -55,18 +55,6 @@ public class MemberCommandServiceImpl implements MemberCommandService {
             member.setOnboardingCompleted(true); // @Transactional에 의해 메서드 종료 시 변경 사항이 DB에 자동 반영
         } // 조건이 충족되지 않으면, member의 isOnboardingCompleted는 기본값(false)인 채로 유지
 
-        /*
-        if (member.getNickname() == null || member.getNickname().isBlank()) {
-            throw new MemberHandler(ErrorStatus.NICKNAME_NOT_EXIST);
-        }
-
-        // 좋아하는 동네 개수 최소 1개 ~ 최대 3개
-        if (member.getLikeRegionList() == null || member.getLikeRegionList().isEmpty()) {
-            throw new MemberHandler(ErrorStatus.INVALID_REGION_COUNT);
-        }
-
-        member.setOnboardingCompleted(true);
-        */
         return member;
     }
 
