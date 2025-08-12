@@ -1,6 +1,7 @@
 package DNBN.spring.web.controller;
 
 import DNBN.spring.apiPayload.ApiResponse;
+import DNBN.spring.apiPayload.code.status.SuccessStatus;
 import DNBN.spring.converter.MemberConverter;
 import DNBN.spring.domain.Member;
 import DNBN.spring.domain.MemberDetails;
@@ -12,16 +13,20 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-
-import DNBN.spring.apiPayload.code.status.SuccessStatus;
 
 @RestController
 @RequiredArgsConstructor

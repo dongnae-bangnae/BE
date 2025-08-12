@@ -6,17 +6,19 @@ import DNBN.spring.apiPayload.code.status.SuccessStatus;
 import DNBN.spring.apiPayload.exception.handler.MemberHandler;
 import DNBN.spring.domain.Member;
 import DNBN.spring.domain.MemberDetails;
-import DNBN.spring.repository.MemberRepository.MemberRepository;
 import DNBN.spring.service.CurationService.CurationCommandService;
 import DNBN.spring.service.CurationService.CurationQueryService;
 import DNBN.spring.web.dto.response.CurationResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor

@@ -5,11 +5,9 @@ import DNBN.spring.apiPayload.code.status.ErrorStatus;
 import DNBN.spring.apiPayload.code.status.SuccessStatus;
 import DNBN.spring.apiPayload.exception.handler.MemberHandler;
 import DNBN.spring.config.security.jwt.JwtTokenProvider;
-import DNBN.spring.domain.Member;
 import DNBN.spring.repository.MemberRepository.MemberRepository;
 import DNBN.spring.service.ArticleLikeService.ArticleLikeQueryService;
 import DNBN.spring.service.ArticleLikeService.ArticleLikeService;
-import DNBN.spring.web.dto.AuthResponseDTO;
 import DNBN.spring.web.dto.LikeResponseDTO;
 import DNBN.spring.web.dto.LikeStatusResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
@@ -17,7 +15,12 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @SecurityRequirement(name = "JWT TOKEN")
 @RestController

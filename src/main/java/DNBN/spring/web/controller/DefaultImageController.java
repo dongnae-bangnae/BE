@@ -1,13 +1,13 @@
 package DNBN.spring.web.controller;
 
+import DNBN.spring.apiPayload.ApiResponse;
+import DNBN.spring.apiPayload.code.status.SuccessStatus;
+import java.util.List;
+import java.util.stream.Collectors;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import java.util.List;
-import java.util.stream.Collectors;
-import DNBN.spring.apiPayload.code.status.SuccessStatus;
-import DNBN.spring.apiPayload.ApiResponse;
-import org.springframework.http.ResponseEntity;
 
 @RestController
 @RequestMapping("/api/default-images")
