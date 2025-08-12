@@ -68,7 +68,7 @@ public class AuthRestController {
                 .path("/")
                 .domain("dnbn.site") // 테스트 시 주석처리
                 .maxAge(60 * 60 * 4) // 4시간
-                .sameSite("Lax")
+                .sameSite("None")
                 .build();
         response.addHeader("Set-Cookie", csrfCookie.toString());
 
@@ -87,7 +87,7 @@ public class AuthRestController {
                 .path("/")
                 .domain("dnbn.site")
                 .maxAge(maxAgeInSeconds)
-                .sameSite("Lax")
+                .sameSite("None")
                 .build();
 
         response.addHeader("Set-Cookie", cookie.toString());
