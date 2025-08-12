@@ -74,8 +74,8 @@ public class MemberRestController {
     }
 
     @PatchMapping("/nickname")
-    @Operation(summary = "회원 닉네임 변경 API - JWT AccessToken + CSRF 토큰 인증 필요",
-            description = "JWT 인증된 멤버가 자신의 닉네임을 변경하는 API입니다.",
+    @Operation(summary = "회원 닉네임 등록 및 변경 API - JWT AccessToken + CSRF 토큰 인증 필요",
+            description = "JWT 인증된 멤버가 자신의 닉네임을 등록 및 변경하는 API입니다.",
             security = { @SecurityRequirement(name = "JWT TOKEN") }
     )
     public ApiResponse<MemberResponseDTO.MemberInfoDTO> updateNickname(

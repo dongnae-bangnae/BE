@@ -162,9 +162,9 @@ public class MemberCommandServiceImpl implements MemberCommandService {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberHandler(ErrorStatus.MEMBER_NOT_FOUND));
 
-        if (!member.isOnboardingCompleted()) {
-            throw new MemberHandler(ErrorStatus.ONBOARDING_NOT_COMPLETED);
-        }
+//        if (!member.isOnboardingCompleted()) {
+//            throw new MemberHandler(ErrorStatus.ONBOARDING_NOT_COMPLETED);
+//        }
 
         if (newNickname == null || newNickname.trim().isEmpty()) {
             throw new MemberHandler(ErrorStatus.NICKNAME_NOT_EXIST);
@@ -173,7 +173,7 @@ public class MemberCommandServiceImpl implements MemberCommandService {
         validateNicknameDuplicate(newNickname);
 
 //        member.setNickname(newNickname);
-        member.updateNickname(newNickname); // 도메인 ��도 설계(Domain-Driven Design) 원칙에 부합하도록
+        member.updateNickname(newNickname); // 도메인 주도 설계(Domain-Driven Design) 원칙에 부합하도록
     }
 
     @Override
