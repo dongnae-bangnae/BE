@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.security.web.csrf.CsrfTokenRepository;
 import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
@@ -24,7 +25,8 @@ public class AuthCommandServiceImpl implements AuthCommandService {
     private final MemberRepository memberRepository;
     private final JwtTokenProvider jwtTokenProvider;
 
-    private final CsrfTokenRepository csrfTokenRepository = new HttpSessionCsrfTokenRepository();
+//    private final CsrfTokenRepository csrfTokenRepository = new HttpSessionCsrfTokenRepository();
+//    private final CsrfTokenRepository csrfTokenRepository = CookieCsrfTokenRepository.withHttpOnlyFalse();
 
     @Override
     public AuthResponseDTO.ReissueTokenResponseDTO reissue(String refreshToken) {
@@ -57,11 +59,5 @@ public class AuthCommandServiceImpl implements AuthCommandService {
 
         // 5. DTO 변환은 컨버터에 위임
         return AuthConverter.toReissueTokenResponseDTO(newAccessToken);
-    }
-
-    public CsrfToken generateCsrfToken(HttpServletRequest request, HttpServletResponse response) { // CSRF 토큰 생성 및 저장 메서드 추가
-        CsrfToken csrfToken = csrfTokenRepository.generateToken(request);
-        csrfTokenRepository.saveToken(csrfToken, request, response);
-        return csrfToken;
     }
 }

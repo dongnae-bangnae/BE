@@ -15,6 +15,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.security.web.csrf.CsrfTokenRepository;
 import org.springframework.util.StringUtils;
@@ -61,16 +62,12 @@ public class AuthRestController {
         addCookie(response, "accessToken", tokens.getAccessToken(), true, 60 * 60 * 4); // 4시간
 
         // csrf 토큰 재발급
-        CsrfToken csrfToken = authCommandService.generateCsrfToken(request, response);
-        ResponseCookie csrfCookie = ResponseCookie.from("XSRF-TOKEN", csrfToken.getToken())
-                .httpOnly(false)    // JS에서 읽을 수 있어야 함
-                .secure(true)
-                .path("/")
-                .domain("dnbn.site") // 테스트 시 주석처리
-                .maxAge(60 * 60 * 4) // 4시간
-                .sameSite("None")
-                .build();
-        response.addHeader("Set-Cookie", csrfCookie.toString());
+//        CsrfToken csrfToken = authCommandService.generateCsrfToken(request, response);addCookie(response, "XSRF-TOKEN", csrfToken.getToken(), false, 60 * 60 * 4);
+        CookieCsrfTokenRepository csrfTokenRepository = CookieCsrfTokenRepository.withHttpOnlyFalse();
+        CsrfToken csrfToken = csrfTokenRepository.generateToken(request);
+        request.setAttribute(CsrfToken.class.getName(), csrfToken);
+        request.setAttribute(csrfToken.getParameterName(), csrfToken);
+        addCookie(response, "XSRF-TOKEN", csrfToken.getToken(), false, 60 * 60 * 4);
 
         // 응답 바디 없이 204 No Content
         response.setStatus(HttpServletResponse.SC_NO_CONTENT);
