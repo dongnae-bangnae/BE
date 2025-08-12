@@ -12,7 +12,7 @@ public interface MemberCommandService {
     Member onboardingMember(Long memberId, MemberRequestDTO.OnboardingDTO request, MultipartFile profileImage);
     void logout(HttpServletResponse response, Long memberId);
     void deleteMember(Long memberId);
-    void changeMemberNickname(Long memberId, String newNickname);
+    MemberResponseDTO.NicknameUpdateResultDTO updateMemberNickname(Long memberId, String newNickname);
     MemberResponseDTO.ChosenRegionsDTO updateRegions(Long memberId, List<Long> regionIds);
     MemberResponseDTO.ProfileImageUpdateResultDTO updateProfileImage(Long memberId, MultipartFile profileImage);
 }

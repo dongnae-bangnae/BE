@@ -28,6 +28,16 @@ public class MemberResponseDTO {
     }
 
     @Getter
+    @Setter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class NicknameUpdateResultDTO {
+        Long memberId;
+        private String nickname;
+    }
+
+    @Getter
     @Builder
     public static class ChosenRegionsDTO {
         private List<RegionInfo> chosenRegions;

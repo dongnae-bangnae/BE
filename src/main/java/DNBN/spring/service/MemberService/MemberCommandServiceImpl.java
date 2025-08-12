@@ -158,7 +158,7 @@ public class MemberCommandServiceImpl implements MemberCommandService {
 
     @Override
     @Transactional
-    public void changeMemberNickname(Long memberId, String newNickname) {
+    public MemberResponseDTO.NicknameUpdateResultDTO updateMemberNickname(Long memberId, String newNickname) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberHandler(ErrorStatus.MEMBER_NOT_FOUND));
 

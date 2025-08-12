@@ -78,14 +78,13 @@ public class MemberRestController {
             description = "JWT 인증된 멤버가 자신의 닉네임을 등록 및 수정하는 API입니다.",
             security = { @SecurityRequirement(name = "JWT TOKEN") }
     )
-    public ApiResponse<MemberResponseDTO.MemberInfoDTO> updateNickname(
+    public ApiResponse<MemberResponseDTO.NicknameUpdateResultDTO> updateNickname(
             @AuthenticationPrincipal MemberDetails memberDetails,
             @RequestBody @Valid MemberRequestDTO.NicknameUpdateDTO nicknameUpdate
     ) {
         Long memberId = memberDetails.getMember().getId();
-        memberCommandService.changeMemberNickname(memberId, nicknameUpdate.getNickname());
-        return ApiResponse.onSuccess(null);
-//        return ApiResponse.onSuccess(memberCommandervice.changeMemberNickname(request));
+        MemberResponseDTO.NicknameUpdateResultDTO response = memberCommandService.updateMemberNickname(memberId, nicknameUpdate.getNickname());
+        return ApiResponse.onSuccess(response);
     }
 
     @PatchMapping("/regions")
