@@ -218,39 +218,47 @@ public class MemberCommandServiceImpl implements MemberCommandService {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberHandler(ErrorStatus.MEMBER_NOT_FOUND));
 
-        if (profileImage == null || profileImage.isEmpty()) {
-            throw new MemberHandler(ErrorStatus._BAD_REQUEST);
-        }
+//        if (profileImage == null || profileImage.isEmpty()) {
+//            throw new MemberHandler(ErrorStatus._BAD_REQUEST);
+//        }
 
-        // 파일 형식 검사
-        String contentType = profileImage.getContentType();
-        if (contentType == null || !contentType.startsWith("image/")) {
-            throw new MemberHandler(ErrorStatus.INVALID_IMAGE_TYPE);
-        }
+        String profileImageUrl = null;
 
-        // 파일 용량 제한 (10MB)
-        long maxFileSize = 10 * 1024 * 1024;
-        if (profileImage.getSize() > maxFileSize) {
-            throw new MemberHandler(ErrorStatus.IMAGE_FILE_TOO_LARGE);
-        }
+        if (profileImage != null && !profileImage.isEmpty()) {
+            // 파일 형식 검사
+            String contentType = profileImage.getContentType();
+            if (contentType == null || !contentType.startsWith("image/")) {
+                throw new MemberHandler(ErrorStatus.INVALID_IMAGE_TYPE);
+            }
 
-        // UUID 생성 후 저장
-        String uuidStr = UUID.randomUUID().toString();
-        Uuid uuid = uuidRepository.save(Uuid.builder().uuid(uuidStr).build());
+            // 파일 용량 제한 (10MB)
+            long maxFileSize = 10 * 1024 * 1024;
+            if (profileImage.getSize() > maxFileSize) {
+                throw new MemberHandler(ErrorStatus.IMAGE_FILE_TOO_LARGE);
+            }
 
-        // S3 업로드
-        String profileImageUrl = s3Manager.uploadFile(s3Manager.generateMemberKeyName(uuid), profileImage);
+            // UUID 생성 후 저장
+            String uuid = UUID.randomUUID().toString();
+            Uuid savedUuid = uuidRepository.save(Uuid.builder().uuid(uuid).build());
 
-        if (member.getProfileImage() != null) {
-            // 기존 이미지의 키 추출 및 삭제
-            String oldKey = s3Manager.extractS3KeyFromUrl(member.getProfileImage().getImageUrl());
-            s3Manager.deleteFile(oldKey);
+            // S3 업로드
+            profileImageUrl = s3Manager.uploadFile(s3Manager.generateMemberKeyName(savedUuid), profileImage);
 
-            // update: 기존 엔티티에 새로운 URL만 set
-            member.getProfileImage().updateImageUrl(profileImageUrl);
-        } else {
-            // 새 이미지 insert
-            profileImageRepository.save(MemberConverter.toProfileImage(profileImageUrl, member));
+            if (member.getProfileImage() != null) {
+                // 기존 이미지의 키 추출 및 삭제
+                String oldKey = s3Manager.extractS3KeyFromUrl(member.getProfileImage().getImageUrl());
+                s3Manager.deleteFile(oldKey);
+
+                // update: 기존 엔티티에 새로운 URL만 set
+                member.getProfileImage().updateImageUrl(profileImageUrl);
+            } else {
+                // 새 이미지 insert
+                profileImageRepository.save(MemberConverter.toProfileImage(profileImageUrl, member));
+            }
+        } else { // 이미지 없을 때는 기존 URL 유지
+            profileImageUrl = member.getProfileImage() != null
+                    ? member.getProfileImage().getImageUrl()
+                    : null;
         }
 
         return MemberResponseDTO.ProfileImageUpdateResultDTO.builder()

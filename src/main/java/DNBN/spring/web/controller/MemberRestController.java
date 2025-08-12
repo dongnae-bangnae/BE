@@ -108,13 +108,14 @@ public class MemberRestController {
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE
     )
     @Operation(
-            summary = "프로필 이미지 변경 API - JWT AccessToken + CSRF 토큰 인증 필요",
-            description = "JWT 인증된 사용자가 프로필 이미지를 변경합니다.",
+            summary = "프로필 이미지 등록 및 변경 API - JWT AccessToken + CSRF 토큰 인증 필요",
+            description = "JWT 인증된 사용자가 프로필 이미지를 등록 및 수정하는 API입니다.",
             security = { @SecurityRequirement(name = "JWT TOKEN") }
     )
     public ApiResponse<MemberResponseDTO.ProfileImageUpdateResultDTO> updateProfileImage(
+            @Parameter(content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE))
             @AuthenticationPrincipal MemberDetails memberDetails,
-            @RequestPart("profileImage") MultipartFile profileImage
+            @RequestPart(value = "profileImage", required = false) MultipartFile profileImage
     ) {
         Long memberId = memberDetails.getMember().getId();
         MemberResponseDTO.ProfileImageUpdateResultDTO result = memberCommandService.updateProfileImage(memberId, profileImage);
