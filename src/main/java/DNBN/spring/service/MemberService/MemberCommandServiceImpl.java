@@ -132,6 +132,11 @@ public class MemberCommandServiceImpl implements MemberCommandService {
 
 //        member.setNickname(newNickname);
         member.updateNickname(newNickname); // 도메인 주도 설계(Domain-Driven Design) 원칙에 부합하도록
+
+        return MemberResponseDTO.NicknameUpdateResultDTO.builder()
+                .memberId(member.getId())
+                .nickname(member.getNickname())
+                .build();
     }
 
     @Override
