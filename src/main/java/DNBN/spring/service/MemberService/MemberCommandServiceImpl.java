@@ -15,6 +15,7 @@ import DNBN.spring.repository.MemberRepository.MemberRepository;
 import DNBN.spring.repository.ProfileImageRepository.ProfileImageRepository;
 import DNBN.spring.repository.RegionRepository.RegionRepository;
 import DNBN.spring.repository.UuidRepository.UuidRepository;
+import DNBN.spring.validation.validator.OnboardingValidator;
 import DNBN.spring.web.dto.MemberRequestDTO;
 import DNBN.spring.web.dto.MemberResponseDTO;
 import jakarta.servlet.http.HttpServletResponse;
@@ -40,6 +41,7 @@ public class MemberCommandServiceImpl implements MemberCommandService {
     private final AmazonS3Manager s3Manager;
     private final UuidRepository uuidRepository;
     private final ProfileImageRepository profileImageRepository;
+    private final OnboardingValidator onboardingValidator;
 
     @Override
     @Transactional
@@ -48,10 +50,8 @@ public class MemberCommandServiceImpl implements MemberCommandService {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberHandler(ErrorStatus.MEMBER_NOT_FOUND));
 
-        boolean hasNickname = member.getNickname() != null && !member.getNickname().isBlank();
-        boolean hasRegions = member.getLikeRegionList() != null && !member.getLikeRegionList().isEmpty();
-
-        if (hasNickname && hasRegions) {
+        boolean complete = onboardingValidator.isCompleteOnboarding(member);
+        if (complete) {
             member.setOnboardingCompleted(true); // @Transactional에 의해 메서드 종료 시 변경 사항이 DB에 자동 반영
         } // 조건이 충족되지 않으면, member의 isOnboardingCompleted는 기본값(false)인 채로 유지
 

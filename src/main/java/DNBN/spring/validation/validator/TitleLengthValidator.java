@@ -1,4 +1,4 @@
-package DNBN.spring.validation;
+package DNBN.spring.validation.validator;
 
 import DNBN.spring.apiPayload.code.status.ErrorStatus;
 import DNBN.spring.apiPayload.exception.handler.ArticleHandler;
