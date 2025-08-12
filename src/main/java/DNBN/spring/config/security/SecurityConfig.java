@@ -40,6 +40,7 @@ public class SecurityConfig {
     private final OAuth2FailureHandler oAuth2FailureHandler;
     private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
     private final CustomAccessDeniedHandler customAccessDeniedHandler;
+    private final CookieCsrfTokenRepository csrfTokenRepository;
 
     @Bean
     CorsConfigurationSource corsConfigurationSource() { // CORS 설정
@@ -84,7 +85,8 @@ public class SecurityConfig {
 //                .disable()
 //                .csrf(AbstractHttpConfigurer::disable)
                 .csrf(csrf -> csrf
-                        .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()) // CSRF 토큰을 일반 쿠키(HttpOnly=false)에 저장하여 JS가 읽을 수 있게 하는 설정
+//                        .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()) // CSRF 토큰을 일반 쿠키(HttpOnly=false)에 저장하여 JS가 읽을 수 있게 하는 설정
+                        .csrfTokenRepository(csrfTokenRepository)
                         .ignoringRequestMatchers("/api/auth/**") // GET은 자동으로 제외됨
                 )
                 .oauth2Login(oauth2 -> oauth2
