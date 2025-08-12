@@ -48,6 +48,14 @@ public class MemberCommandServiceImpl implements MemberCommandService {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberHandler(ErrorStatus.MEMBER_NOT_FOUND));
 
+        boolean hasNickname = member.getNickname() != null && !member.getNickname().isBlank();
+        boolean hasRegions = member.getLikeRegionList() != null && !member.getLikeRegionList().isEmpty();
+
+        if (hasNickname && hasRegions) {
+            member.setOnboardingCompleted(true); // @Transactional에 의해 메서드 종료 시 변경 사항이 DB에 자동 반영
+        } // 조건이 충족되지 않으면, member의 isOnboardingCompleted는 기본값(false)인 채로 유지
+
+        /*
         if (member.getNickname() == null || member.getNickname().isBlank()) {
             throw new MemberHandler(ErrorStatus.NICKNAME_NOT_EXIST);
         }
@@ -58,7 +66,7 @@ public class MemberCommandServiceImpl implements MemberCommandService {
         }
 
         member.setOnboardingCompleted(true);
-
+        */
         return member;
     }
 
