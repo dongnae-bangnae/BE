@@ -1,7 +1,7 @@
 package DNBN.spring.converter;
 
 import DNBN.spring.domain.Region;
-import DNBN.spring.web.dto.RegionResponseDTO;
+import DNBN.spring.web.dto.response.RegionResponseDTO;
 import org.springframework.stereotype.Component;
 
 @Component

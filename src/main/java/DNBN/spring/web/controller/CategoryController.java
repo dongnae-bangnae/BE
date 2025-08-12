@@ -11,11 +11,11 @@ import DNBN.spring.service.CategoryService.CategoryQueryService;
 import DNBN.spring.service.CategoryService.CategoryService;
 import DNBN.spring.service.PlaceService.PlaceQueryService;
 
-import DNBN.spring.web.dto.ArticleResponseDTO;
+import DNBN.spring.web.dto.response.ArticleResponseDTO;
 
-import DNBN.spring.web.dto.CategoryRequestDTO;
-import DNBN.spring.web.dto.CategoryResponseDTO;
-import DNBN.spring.web.dto.PlaceResponseDTO;
+import DNBN.spring.web.dto.request.CategoryRequestDTO;
+import DNBN.spring.web.dto.response.CategoryResponseDTO;
+import DNBN.spring.web.dto.response.PlaceResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;

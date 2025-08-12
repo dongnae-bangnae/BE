@@ -2,12 +2,11 @@ package DNBN.spring.web.controller;
 
 import DNBN.spring.apiPayload.ApiResponse;
 import DNBN.spring.service.RegionService.RegionQueryService;
-import DNBN.spring.web.dto.RegionResponseDTO;
+import DNBN.spring.web.dto.response.RegionResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.RequiredArgsConstructor;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

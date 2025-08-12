@@ -1,4 +1,4 @@
-package DNBN.spring.web.dto;
+package DNBN.spring.web.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

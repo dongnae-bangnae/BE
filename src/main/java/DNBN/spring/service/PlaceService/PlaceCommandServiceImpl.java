@@ -1,7 +1,6 @@
 package DNBN.spring.service.PlaceService;
 
 import DNBN.spring.apiPayload.code.status.ErrorStatus;
-import DNBN.spring.apiPayload.exception.GeneralException;
 import DNBN.spring.apiPayload.exception.handler.CategoryHandler;
 import DNBN.spring.apiPayload.exception.handler.MemberHandler;
 import DNBN.spring.apiPayload.exception.handler.PlaceHandler;
@@ -13,8 +12,8 @@ import DNBN.spring.repository.CategoryRepository.CategoryRepository;
 import DNBN.spring.repository.MemberRepository.MemberRepository;
 import DNBN.spring.repository.PlaceRepository.PlaceRepository;
 import DNBN.spring.repository.SavePlaceRepository.SavePlaceRepository;
-import DNBN.spring.web.dto.PlaceRequestDTO;
-import DNBN.spring.web.dto.PlaceResponseDTO;
+import DNBN.spring.web.dto.request.PlaceRequestDTO;
+import DNBN.spring.web.dto.response.PlaceResponseDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

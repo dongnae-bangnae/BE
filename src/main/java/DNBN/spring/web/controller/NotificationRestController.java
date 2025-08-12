@@ -4,7 +4,7 @@ import DNBN.spring.apiPayload.ApiResponse;
 import DNBN.spring.domain.MemberDetails;
 import DNBN.spring.service.NotificationService.NotificationQueryService;
 import DNBN.spring.service.NotificationService.NotificationCommandService;
-import DNBN.spring.web.dto.NotificationResponseDTO;
+import DNBN.spring.web.dto.response.NotificationResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;

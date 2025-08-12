@@ -1,8 +1,8 @@
 package DNBN.spring.service.MemberService;
 
 import DNBN.spring.domain.Member;
-import DNBN.spring.web.dto.MemberRequestDTO;
-import DNBN.spring.web.dto.MemberResponseDTO;
+import DNBN.spring.web.dto.request.MemberRequestDTO;
+import DNBN.spring.web.dto.response.MemberResponseDTO;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.web.multipart.MultipartFile;
 

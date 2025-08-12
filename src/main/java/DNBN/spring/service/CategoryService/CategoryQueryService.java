@@ -5,7 +5,7 @@ import DNBN.spring.apiPayload.exception.handler.MemberHandler;
 import DNBN.spring.domain.Member;
 import DNBN.spring.repository.CategoryRepository.CategoryRepository;
 import DNBN.spring.repository.MemberRepository.MemberRepository;
-import DNBN.spring.web.dto.CategoryResponseDTO;
+import DNBN.spring.web.dto.response.CategoryResponseDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
