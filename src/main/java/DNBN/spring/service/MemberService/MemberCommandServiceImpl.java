@@ -43,65 +43,23 @@ public class MemberCommandServiceImpl implements MemberCommandService {
 
     @Override
     @Transactional
-    @ValidateS3ImageUpload
-    public Member onboardingMember(Long memberId, MemberRequestDTO.OnboardingDTO request, MultipartFile profileImage) {
+    public Member onboardingMember(Long memberId) {
         // 기존 회원이 존재하는지를 따짐
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberHandler(ErrorStatus.MEMBER_NOT_FOUND));
 
-        // 온보딩 완료 여부 체크
-        if (member.isOnboardingCompleted()) {
-            throw new MemberHandler(ErrorStatus.ONBOARDING_NOT_COMPLETED);
-        }
-
-        // 닉네임 null 혹은 빈 문자열 체크
-        if (request.getNickname() == null || request.getNickname().trim().isEmpty()) {
+        if (member.getNickname() == null || member.getNickname().isBlank()) {
             throw new MemberHandler(ErrorStatus.NICKNAME_NOT_EXIST);
         }
 
-        validateNicknameDuplicate(request.getNickname());
-
         // 좋아하는 동네 개수 최소 1개 ~ 최대 3개
-        int chosenRegionCount = request.getChosenRegionIds() == null ? 0 : request.getChosenRegionIds().size();
-        if (chosenRegionCount < 1 || chosenRegionCount > 3) {
+        if (member.getLikeRegionList() == null || member.getLikeRegionList().isEmpty()) {
             throw new MemberHandler(ErrorStatus.INVALID_REGION_COUNT);
         }
-
-        // 선택한 지역들이 모두 존재하는지 확인
-        for (Long regionId : request.getChosenRegionIds()) {
-            boolean exists = regionRepository.existsById(regionId);
-            if (!exists) {
-                throw new MemberHandler(ErrorStatus.REGION_NOT_FOUND);
-            }
-        }
-
-        member.setNickname(request.getNickname());
-
-        if (profileImage != null && !profileImage.isEmpty()) {
-            String uuid = UUID.randomUUID().toString();
-            Uuid savedUuid = uuidRepository.save(Uuid.builder()
-                    .uuid(uuid).build());
-
-            String pictureUrl = s3Manager.uploadFile(s3Manager.generateMemberKeyName(savedUuid), profileImage);
-
-            profileImageRepository.save(MemberConverter.toProfileImage(pictureUrl, member));
-        }
-
-        likeRegionRepository.saveAll( // 좋아하는 동네 연결
-                request.getChosenRegionIds().stream() // 프론트에서 넘겨준 값
-                        .map(regionId -> LikeRegion.of(member, findRegion(regionId))) // 각 regionId에 대해 LikeRegion.of(member, region)를 호출해서 LikeRegion 객체들 생성
-                        .collect(Collectors.toList()) // 방금 만든 LikeRegion 객체들을 한 번에 DB에 저장
-        );
 
         member.setOnboardingCompleted(true);
 
         return member;
-//        return memberRepository.save(member);
-    }
-
-    private Region findRegion(Long regionId) {
-        return regionRepository.findById(regionId)
-                .orElseThrow(() -> new RegionHandler(ErrorStatus.REGION_NOT_FOUND));
     }
 
     @Override

@@ -9,7 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 public interface MemberCommandService {
-    Member onboardingMember(Long memberId, MemberRequestDTO.OnboardingDTO request, MultipartFile profileImage);
+    Member onboardingMember(Long memberId);
     void logout(HttpServletResponse response, Long memberId);
     void deleteMember(Long memberId);
     MemberResponseDTO.NicknameUpdateResultDTO updateMemberNickname(Long memberId, String newNickname);

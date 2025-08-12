@@ -28,23 +28,15 @@ public class MemberRestController {
     private final MemberQueryService memberQueryService;
     private final MemberCommandService memberCommandService;
 
-    @PostMapping(
-            value = "/onboarding",
-            consumes = {MediaType.MULTIPART_FORM_DATA_VALUE}
-    )
+    @PostMapping(value = "/onboarding")
     @Operation(
             summary = "회원 초기 정보 등록 (온보딩) API - JWT AccessToken + CSRF 토큰 인증 필요",
-            description = "JWT 인증된 멤버가 닉네임, 프로필 이미지, 선호 지역을 등록하는 API입니다.",
+            description = "JWT 인증된 멤버가 닉네임, 선호 지역을 등록하는 API입니다.",
             security = @SecurityRequirement(name = "JWT TOKEN")
     )
-    public ApiResponse<MemberResponseDTO.OnboardingResultDTO> onboard(
-            @Parameter(content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE))
-            @AuthenticationPrincipal MemberDetails memberDetails,
-            @RequestPart("request") @Valid MemberRequestDTO.OnboardingDTO request,
-            @RequestPart(value = "profileImage", required = false) MultipartFile profileImage
-    ) {
+    public ApiResponse<MemberResponseDTO.OnboardingResultDTO> onboard(@AuthenticationPrincipal MemberDetails memberDetails) {
         Long memberId = memberDetails.getMember().getId();
-        Member member = memberCommandService.onboardingMember(memberId, request, profileImage);
+        Member member = memberCommandService.onboardingMember(memberId);
         return ApiResponse.onSuccess(MemberConverter.toOnboardingResponseDTO(member));
     }
 
