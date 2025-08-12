@@ -56,6 +56,7 @@ public class MemberResponseDTO {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class ProfileImageUpdateResultDTO {
+        Long memberId;
         private String profileImageUrl;
     }
 

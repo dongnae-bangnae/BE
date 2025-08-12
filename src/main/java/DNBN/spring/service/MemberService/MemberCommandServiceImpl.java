@@ -221,6 +221,7 @@ public class MemberCommandServiceImpl implements MemberCommandService {
         }
 
         return MemberResponseDTO.ProfileImageUpdateResultDTO.builder()
+                .memberId(memberId)
                 .profileImageUrl(profileImageUrl)
                 .build();
     }
