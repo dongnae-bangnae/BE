@@ -112,7 +112,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
                 .path("/")
                 .domain("dnbn.site") // 로컬 테스트 시 주석 처리해야 함
                 .maxAge(60 * 60 * 4)
-                .sameSite("Lax")
+                .sameSite("None")
                 .build();
 
         response.addHeader("Set-Cookie", csrfCookie.toString());
@@ -128,7 +128,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
                 .path("/")
                 .domain("dnbn.site")
                 .maxAge(maxAgeInSeconds)
-                .sameSite("Lax")
+                .sameSite("None")
                 .build();
 
         response.addHeader("Set-Cookie", cookie.toString());

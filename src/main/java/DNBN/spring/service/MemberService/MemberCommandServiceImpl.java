@@ -116,7 +116,7 @@ public class MemberCommandServiceImpl implements MemberCommandService {
                 .path("/")
                 .domain("dnbn.site")
                 .maxAge(0)
-                .sameSite("Lax")
+                .sameSite("None")
                 .build();
 
         // refreshToken 쿠키 삭제 (즉시 만료 설정)
@@ -126,7 +126,7 @@ public class MemberCommandServiceImpl implements MemberCommandService {
                 .path("/")
                 .domain("dnbn.site") // 운영 도메인과 맞춰서 설정
                 .maxAge(0) // 즉시 만료
-                .sameSite("Lax")
+                .sameSite("None")
                 .build();
 
         // CSRF 토큰 쿠키 삭제
@@ -136,7 +136,7 @@ public class MemberCommandServiceImpl implements MemberCommandService {
                 .path("/")
                 .domain("dnbn.site") // 테스트 시 주석처리
                 .maxAge(0)
-                .sameSite("Lax")
+                .sameSite("None")
                 .build();
 
         response.addHeader("Set-Cookie", deleteAccessTokenCookie.toString());
