@@ -7,6 +7,7 @@ import DNBN.spring.domain.Article;
 import DNBN.spring.domain.Member;
 import DNBN.spring.repository.CommentRepository.CommentRepository;
 import DNBN.spring.web.dto.request.CommentRequestDTO;
+import DNBN.spring.web.dto.request.CommentUpdateRequestDTO;
 import org.aspectj.lang.JoinPoint;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -101,5 +102,71 @@ class CommentValidationAspectTest {
                 .isInstanceOf(CommentHandler.class)
                 .hasMessageContaining(ErrorStatus.COMMENT_FORBIDDEN.getMessage());
     }
-}
 
+    @Test
+    @DisplayName("commentId가 null인 경우 예외 발생")
+    void nullCommentId() {
+        JoinPoint joinPoint = mock(JoinPoint.class);
+        when(joinPoint.getArgs()).thenReturn(new Object[]{1L, null, 3L});
+        when(commentRepository.findById(null)).thenReturn(java.util.Optional.empty());
+        assertThatThrownBy(() -> aspect.validateComment(joinPoint))
+                .isInstanceOf(CommentHandler.class)
+                .hasMessageContaining(ErrorStatus.COMMENT_NOT_FOUND.getMessage());
+    }
+
+    @Test
+    @DisplayName("commentId 타입이 Long이 아닌 경우 예외 발생")
+    void commentIdNotLong() {
+        JoinPoint joinPoint = mock(JoinPoint.class);
+        when(joinPoint.getArgs()).thenReturn(new Object[]{1L, "stringId", 3L});
+        assertThatThrownBy(() -> aspect.validateComment(joinPoint))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("파라미터 타입/순서 오류");
+    }
+
+    @Test
+    @DisplayName("articleId가 null인 경우 예외 발생")
+    void nullArticleId() {
+        JoinPoint joinPoint = mock(JoinPoint.class);
+        when(joinPoint.getArgs()).thenReturn(new Object[]{1L, 2L, null});
+        assertThatThrownBy(() -> aspect.validateComment(joinPoint))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("파라미터 타입/순서 오류");
+    }
+
+    @Test
+    @DisplayName("CommentRequestDTO가 null인 경우 예외 없음")
+    void nullCommentRequestDto() {
+        JoinPoint joinPoint = mock(JoinPoint.class);
+        when(joinPoint.getArgs()).thenReturn(new Object[]{1L, 2L, 3L, null});
+        Comment comment = mock(Comment.class);
+        Article article = mock(Article.class);
+        Member member = mock(Member.class);
+        when(comment.getArticle()).thenReturn(article);
+        when(article.getArticleId()).thenReturn(3L);
+        when(comment.getMember()).thenReturn(member);
+        when(member.getId()).thenReturn(1L);
+        when(comment.getDeletedAt()).thenReturn(null);
+        when(commentRepository.findById(2L)).thenReturn(java.util.Optional.of(comment));
+        assertThatCode(() -> aspect.validateComment(joinPoint)).doesNotThrowAnyException();
+    }
+
+    @Test
+    @DisplayName("CommentRequestDTO의 parentCommentId가 null인 경우 예외 없음")
+    void parentCommentIdNullInDto() {
+        JoinPoint joinPoint = mock(JoinPoint.class);
+        CommentRequestDTO dto = mock(CommentRequestDTO.class);
+        when(dto.parentCommentId()).thenReturn(null);
+        when(joinPoint.getArgs()).thenReturn(new Object[]{1L, 2L, 3L, dto});
+        Comment comment = mock(Comment.class);
+        Article article = mock(Article.class);
+        Member member = mock(Member.class);
+        when(comment.getArticle()).thenReturn(article);
+        when(article.getArticleId()).thenReturn(3L);
+        when(comment.getMember()).thenReturn(member);
+        when(member.getId()).thenReturn(1L);
+        when(comment.getDeletedAt()).thenReturn(null);
+        when(commentRepository.findById(2L)).thenReturn(java.util.Optional.of(comment));
+        assertThatCode(() -> aspect.validateComment(joinPoint)).doesNotThrowAnyException();
+    }
+}
