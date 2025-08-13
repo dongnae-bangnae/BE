@@ -23,7 +23,7 @@ public class S3ImageValidationAspect {
     @Value("${article.validation.image.max-size}")
     private long maxImageSize;
 
-    @Before("execution(* *(.., org.springframework.web.multipart.MultipartFile, java.util.List, ..)) && @annotation(DNBN.spring.aop.annotation.ValidateS3ImageUpload)")
+    @Before("@annotation(DNBN.spring.aop.annotation.ValidateS3ImageUpload)")
     public void validateS3ImageUpload(JoinPoint joinPoint) {
         Object[] args = joinPoint.getArgs();
         MultipartFile mainImage = null;
@@ -64,4 +64,3 @@ public class S3ImageValidationAspect {
         }
     }
 }
-
