@@ -55,6 +55,7 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
     // 분리 후: 엔티티 업데이트 책임 위임
     private final ArticleUpdater articleUpdater;
     private final PlaceUpdater placeUpdater;
+    private final ArticleFactory articleFactory;
 
     @Override
     @ValidateS3ImageUpload
@@ -72,7 +73,7 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
         titleLengthValidator.validateArticleTitle(request.title());
         contentLengthValidator.validateArticleContent(request.content());
 
-        Article article = createArticleEntity(member, category, place, region, request);
+        Article article = articleFactory.create(member, category, place, region, request);
         articleRepository.save(article);
 
         List<ArticlePhoto> photos = articleImageService.uploadAndSaveImages(article, place, region, mainImage, imageFiles);
@@ -101,7 +102,7 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
 
         place = placeRepository.save(place);
 
-        Article article = createArticleEntity(member, category, place, region, request);
+        Article article = articleFactory.create(member, category, place, region, request);
         articleRepository.save(article);
 
         List<ArticlePhoto> photos = articleImageService.uploadAndSaveImages(article, place, region, mainImage, imageFiles);
@@ -128,34 +129,6 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
     private Region getRegion(Long regionId) {
         return regionRepository.findById(regionId)
                 .orElseThrow(() -> new RegionHandler(ErrorStatus.REGION_NOT_FOUND));
-    }
-
-    // TODO: 팩토리 검토
-    private Article createArticleEntity(Member member, Category category, Place place, Region region, ArticleRequestDTO request) {
-        return Article.builder()
-                .member(member)
-                .category(category)
-                .place(place)
-                .region(region)
-                .title(request.title())
-                .date(request.date())
-                .content(request.content())
-                .likesCount(0L)
-                .spamCount(0L)
-                .build();
-    }
-    private Article createArticleEntity(Member member, Category category, Place place, Region region, ArticleWithLocationRequestDTO request) {
-        return Article.builder()
-                .member(member)
-                .category(category)
-                .place(place)
-                .region(region)
-                .title(request.title())
-                .date(request.date())
-                .content(request.content())
-                .likesCount(0L)
-                .spamCount(0L)
-                .build();
     }
 
     @Override
