@@ -52,6 +52,9 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
     private final TitleLengthValidator titleLengthValidator;
     private final ContentLengthValidator contentLengthValidator;
     private final ArticleImageService articleImageService;
+    // 분리 후: 엔티티 업데이트 책임 위임
+    private final ArticleUpdater articleUpdater;
+    private final PlaceUpdater placeUpdater;
 
     @Override
     @ValidateS3ImageUpload
@@ -162,8 +165,9 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
         Article article = articleRepository.findById(articleId)
                 .orElseThrow(() -> new ArticleHandler(ErrorStatus.ARTICLE_NOT_FOUND));
 
-        updateArticleEntity(article, request);
-        updatePlaceEntity(article.getPlace(), request);
+        // 분리 후: 엔티티 업데이트 책임 위임
+        articleUpdater.updateArticleEntity(article, request);
+        placeUpdater.updatePlaceEntity(article.getPlace(), request);
 
         List<ArticlePhoto> photos = articlePhotoRepository.findAllByArticle(article);
         // 새로운 이미지가 제공된 경우, 기존 이미지 삭제 후 새로 추가
@@ -179,49 +183,6 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
 
         return new ArticleWithPhotos(article, photos);
     }
-
-    // TODO: 책임 분리
-    private void updateArticleEntity(Article article, ArticleUpdateRequestDTO request) {
-        if (request.title() != null) {
-            titleLengthValidator.validateArticleTitle(request.title());
-            article.setTitle(request.title());
-        }
-        if (request.content() != null) {
-            contentLengthValidator.validateArticleContent(request.content());
-            article.setContent(request.content());
-        }
-        if (request.date() != null) {
-            article.setDate(request.date());
-        }
-        if (request.categoryId() != null) {
-            Category category = getCategory(request.categoryId());
-            article.setCategory(category);
-        }
-        if (request.regionId() != null) {
-            Region region = getRegion(request.regionId());
-            article.setRegion(region);
-        }
-        if (request.placeId() != null) {
-            Place place = getPlace(request.placeId());
-            article.setPlace(place);
-        }
-    }
-
-    // TODO: 책임 분리
-    private void updatePlaceEntity(Place place, ArticleUpdateRequestDTO request) {
-        if (request.placeName() != null) {
-            place.updateTitle(request.placeName());
-        }
-        if (request.pinCategory() != null) {
-            try {
-                PinCategory newPinCategory = PinCategory.valueOf(request.pinCategory().toUpperCase());
-                place.updatePinCategory(newPinCategory);
-            } catch (IllegalArgumentException e) {
-                throw new PlaceHandler(ErrorStatus.PIN_CATEGORY_INVALID);
-            }
-        }
-    }
-
 
     @Override
     @ValidateArticle
