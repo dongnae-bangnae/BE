@@ -36,8 +36,30 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
                 .fetch();
     }
 
+    // V1: 단일 커서(Long) 방식
     @Override
-    public List<Article> findArticlesByPlaceWithCursor(Long placeId, LocalDateTime cursorCreatedAt, Long cursorArticleId, Long limit) {
+    public List<Article> findArticlesByPlaceWithCursorV1(Long placeId, Long cursor, Long limit) {
+      QArticle article = QArticle.article;
+
+      BooleanBuilder builder = new BooleanBuilder();
+      builder.and(article.place.placeId.eq(placeId));
+      builder.and(article.deletedAt.isNull());
+
+      if (cursor != null) {
+        builder.and(article.articleId.lt(cursor));
+      }
+
+      return queryFactory
+          .selectFrom(article)
+          .where(builder)
+          .orderBy(article.createdAt.desc()) // 정적 필드로 정렬 (SQL Injection 위험 없음)
+          .limit(limit)
+          .fetch();
+    }
+
+    // V2
+    @Override
+    public List<Article> findArticlesByPlaceWithCursorV2(Long placeId, LocalDateTime cursorCreatedAt, Long cursorArticleId, Long limit) {
         QArticle article = QArticle.article;
 
         BooleanBuilder builder = new BooleanBuilder();

@@ -119,7 +119,7 @@ class ArticleQueryServiceImplTest {
     * 일반적인 게시글 조회 검증
    */
   @Test
-  void getArticleList_정상_조회() {
+  void getArticleListV1_정상_조회() {
     // given
     Long memberId = 1L;
     Long placeId = 2L;
@@ -133,13 +133,13 @@ class ArticleQueryServiceImplTest {
 
     when(memberRepository.findById(memberId)).thenReturn(Optional.of(member));
     when(placeRepository.findPlaceByPlaceId(placeId)).thenReturn(Optional.of(place));
-    when(articleRepositoryCustom.findArticlesByPlaceWithCursor(placeId, cursor, limit + 1)).thenReturn(articles);
+    when(articleRepositoryCustom.findArticlesByPlaceWithCursorV1(placeId, cursor, limit + 1)).thenReturn(articles);
     when(articlePhotoRepository.findFirstByArticleAndIsMainTrue(any())).thenReturn(Optional.empty());
     when(articleLikeRepository.existsById(any(ArticleLikeId.class))).thenReturn(false);
     when(articleSpamRepository.existsById(any())).thenReturn(false);
 
     // when
-    List<ArticleResponseDTO.ArticleListItemDTO> result = articleQueryService.getArticleList(memberId, placeId, cursor, limit);
+    List<ArticleResponseDTO.ArticleListItemDTO> result = articleQueryService.getArticleListV1(memberId, placeId, cursor, limit);
 
     // then
     assertEquals(2, result.size());
@@ -155,7 +155,7 @@ class ArticleQueryServiceImplTest {
     * 게시물이 없을 때 빈 리스트가 반환되는지 검증
    */
   @Test
-  void getArticleList_게시물없을때_빈리스트_반환() {
+  void getArticleListV1_게시물없을때_빈리스트_반환() {
     // given
     Long memberId = 1L;
     Long placeId = 2L;
@@ -164,10 +164,10 @@ class ArticleQueryServiceImplTest {
 
     when(memberRepository.findById(memberId)).thenReturn(Optional.of(member));
     when(placeRepository.findPlaceByPlaceId(placeId)).thenReturn(Optional.of(place));
-    when(articleRepositoryCustom.findArticlesByPlaceWithCursor(placeId, cursor, limit + 1)).thenReturn(List.of());
+    when(articleRepositoryCustom.findArticlesByPlaceWithCursorV1(placeId, cursor, limit + 1)).thenReturn(List.of());
 
     // when
-    List<ArticleResponseDTO.ArticleListItemDTO> result = articleQueryService.getArticleList(memberId, placeId, cursor, limit);
+    List<ArticleResponseDTO.ArticleListItemDTO> result = articleQueryService.getArticleListV1(memberId, placeId, cursor, limit);
 
     // then
     assertNotNull(result);
@@ -178,7 +178,7 @@ class ArticleQueryServiceImplTest {
     * Soft Delete로 삭제 처리된 게시물을 제외하고 조회되는지 검증
    */
   @Test
-  void getArticleList_삭제된_게시물_제외_정상_조회() {
+  void getArticleListV1_삭제된_게시물_제외_정상_조회() {
     // given
     Long memberId = 1L;
     Long placeId = 2L;
@@ -193,13 +193,13 @@ class ArticleQueryServiceImplTest {
 
     when(memberRepository.findById(memberId)).thenReturn(Optional.of(member));
     when(placeRepository.findPlaceByPlaceId(placeId)).thenReturn(Optional.of(place));
-    when(articleRepositoryCustom.findArticlesByPlaceWithCursor(placeId, cursor, limit + 1)).thenReturn(articles);
+    when(articleRepositoryCustom.findArticlesByPlaceWithCursorV1(placeId, cursor, limit + 1)).thenReturn(articles);
     when(articlePhotoRepository.findFirstByArticleAndIsMainTrue(any())).thenReturn(Optional.empty());
     when(articleLikeRepository.existsById(any(ArticleLikeId.class))).thenReturn(false);
     when(articleSpamRepository.existsById(any())).thenReturn(false);
 
     // when
-    List<ArticleResponseDTO.ArticleListItemDTO> result = articleQueryService.getArticleList(memberId, placeId, cursor, limit);
+    List<ArticleResponseDTO.ArticleListItemDTO> result = articleQueryService.getArticleListV1(memberId, placeId, cursor, limit);
 
     // then
     // 삭제된 게시물은 result에 포함되지 않아야 함
@@ -211,7 +211,7 @@ class ArticleQueryServiceImplTest {
     * 좋아요/스팸 처리를 한 게시글일 때, true로 반환되는지 검증
    */
   @Test
-  void getArticleList_좋아요_스팸_여부_검증() {
+  void getArticleListV1_좋아요_스팸_여부_검증() {
     // given
     Long memberId = 1L;
     Long placeId = 2L;
@@ -223,13 +223,13 @@ class ArticleQueryServiceImplTest {
 
     when(memberRepository.findById(memberId)).thenReturn(Optional.of(member));
     when(placeRepository.findPlaceByPlaceId(placeId)).thenReturn(Optional.of(place));
-    when(articleRepositoryCustom.findArticlesByPlaceWithCursor(placeId, cursor, limit + 1)).thenReturn(articles);
+    when(articleRepositoryCustom.findArticlesByPlaceWithCursorV1(placeId, cursor, limit + 1)).thenReturn(articles);
     when(articlePhotoRepository.findFirstByArticleAndIsMainTrue(any())).thenReturn(Optional.empty());
     when(articleLikeRepository.existsById(any(ArticleLikeId.class))).thenReturn(true); // 좋아요 true
     when(articleSpamRepository.existsById(any())).thenReturn(true); // 스팸 true
 
     // when
-    List<ArticleResponseDTO.ArticleListItemDTO> result = articleQueryService.getArticleList(memberId, placeId, cursor, limit);
+    List<ArticleResponseDTO.ArticleListItemDTO> result = articleQueryService.getArticleListV1(memberId, placeId, cursor, limit);
 
     // then
     // 좋아요/스팸 여부가 true로 반환되는지 검증
@@ -242,7 +242,7 @@ class ArticleQueryServiceImplTest {
     * limit가 null인 경우, 기본 limit(10)으로 처리되어야 하며 정상적으로 조회되는지 검증
    */
   @Test
-  void getArticleList_cursor_limit_null_정상_조회() {
+  void getArticleListV1_cursor_limit_null_정상_조회() {
     // given
     Long memberId = 1L;
     Long placeId = 2L;
@@ -255,13 +255,13 @@ class ArticleQueryServiceImplTest {
     when(memberRepository.findById(memberId)).thenReturn(Optional.of(member));
     when(placeRepository.findPlaceByPlaceId(placeId)).thenReturn(Optional.of(place));
     // 기본 limit(10) + 1 = 11
-    when(articleRepositoryCustom.findArticlesByPlaceWithCursor(placeId, cursor, 11L)).thenReturn(articles);
+    when(articleRepositoryCustom.findArticlesByPlaceWithCursorV1(placeId, cursor, 11L)).thenReturn(articles);
     when(articlePhotoRepository.findFirstByArticleAndIsMainTrue(any())).thenReturn(Optional.empty());
     when(articleLikeRepository.existsById(any(ArticleLikeId.class))).thenReturn(false);
     when(articleSpamRepository.existsById(any())).thenReturn(false);
 
     // when
-    List<ArticleResponseDTO.ArticleListItemDTO> result = articleQueryService.getArticleList(memberId, placeId, cursor, limit);
+    List<ArticleResponseDTO.ArticleListItemDTO> result = articleQueryService.getArticleListV1(memberId, placeId, cursor, limit);
 
     // then
     // limit이 null이어도 정상적으로 조회되는지 검증
@@ -273,7 +273,7 @@ class ArticleQueryServiceImplTest {
     * cursor가 -1인 경우, null로 처리되어 정상적으로 조회되는지 검증
    */
   @Test
-  void getArticleList_cursor_마이너스1_정상_조회() {
+  void getArticleListV1_cursor_마이너스1_정상_조회() {
     // given
     Long memberId = 1L;
     Long placeId = 2L;
@@ -286,13 +286,13 @@ class ArticleQueryServiceImplTest {
     when(memberRepository.findById(memberId)).thenReturn(Optional.of(member));
     when(placeRepository.findPlaceByPlaceId(placeId)).thenReturn(Optional.of(place));
     // cursor가 -1이면 null로 처리되어야 함
-    when(articleRepositoryCustom.findArticlesByPlaceWithCursor(placeId, null, limit + 1)).thenReturn(articles);
+    when(articleRepositoryCustom.findArticlesByPlaceWithCursorV1(placeId, null, limit + 1)).thenReturn(articles);
     when(articlePhotoRepository.findFirstByArticleAndIsMainTrue(any())).thenReturn(Optional.empty());
     when(articleLikeRepository.existsById(any(ArticleLikeId.class))).thenReturn(false);
     when(articleSpamRepository.existsById(any())).thenReturn(false);
 
     // when
-    List<ArticleResponseDTO.ArticleListItemDTO> result = articleQueryService.getArticleList(memberId, placeId, cursor, limit);
+    List<ArticleResponseDTO.ArticleListItemDTO> result = articleQueryService.getArticleListV1(memberId, placeId, cursor, limit);
 
     // then
     // cursor가 -1일 때도 정상적으로 조회되는지 검증
@@ -304,7 +304,7 @@ class ArticleQueryServiceImplTest {
    * Member가 존재하지 않을 때 예외 발생 검증
    */
   @Test
-  void getArticleList_멤버없음_예외() {
+  void getArticleListV1_멤버없음_예외() {
     // given
     Long memberId = 1L;
     Long placeId = 2L;
@@ -312,7 +312,7 @@ class ArticleQueryServiceImplTest {
 
     // when & then
     assertThrows(MemberHandler.class, () -> {
-      articleQueryService.getArticleList(memberId, placeId, null, null);
+      articleQueryService.getArticleListV1(memberId, placeId, null, null);
     });
   }
 
@@ -320,7 +320,7 @@ class ArticleQueryServiceImplTest {
    * Place가 존재하지 않을 때 예외 발생 검증
    */
   @Test
-  void getArticleList_장소없음_예외() {
+  void getArticleListV1_장소없음_예외() {
     // given
     Long memberId = 1L;
     Long placeId = 2L;
@@ -329,7 +329,7 @@ class ArticleQueryServiceImplTest {
 
     // when & then
     assertThrows(ArticleHandler.class, () -> {
-      articleQueryService.getArticleList(memberId, placeId, null, null);
+      articleQueryService.getArticleListV1(memberId, placeId, null, null);
     });
   }
 }

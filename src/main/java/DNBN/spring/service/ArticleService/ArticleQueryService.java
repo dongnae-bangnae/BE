@@ -17,5 +17,9 @@ public interface ArticleQueryService {
 
     ArticleResponseDTO.ArticleDetailDTO getArticleDetail(Long articleId);
 
-    List<ArticleResponseDTO.ArticleListItemDTO> getArticleList(Long memberId, Long placeId, LocalDateTime cursorCreatedAt, Long cursorArticleId, Long limit);
+    // V1: 단일 커서(Long) 방식
+    List<ArticleResponseDTO.ArticleListItemDTO> getArticleListV1(Long memberId, Long regionId, Long cursor, Long limit);
+
+    // V2: 복합 커서(LocalDateTime, Long) 방식
+    List<ArticleResponseDTO.ArticleListItemDTO> getArticleListV2(Long memberId, Long placeId, java.time.LocalDateTime cursorCreatedAt, Long cursorArticleId, Long limit);
 }

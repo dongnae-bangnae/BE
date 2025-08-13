@@ -119,23 +119,40 @@ public class ArticleController {
 
     @GetMapping
     @Operation(
-        summary = "게시물 목록 조회",
-        description = "게시물 목록을 조회합니다. JWT 인증 필요.",
+        summary = "게시물 목록 조회 (V1: 단일 커서(Long) 방식)",
+        description = "게시물 목록을 단일 커서(Long) 방식으로 조회합니다.\n\n- V1: 단일 커서(Long) 방식\n- placeId(장소 ID), cursor(마지막으로 조회한 게시글 ID), limit(페이지 크기) 사용\n- cursor가 null 또는 -1이면 첫 페이지 조회로 간주합니다.\n- JWT 인증 필요.",
         security = @SecurityRequirement(name = "JWT TOKEN")
     )
     public ResponseEntity<ApiResponse<List<ArticleResponseDTO.ArticleListItemDTO>>> getArticleList(
             @AuthenticationPrincipal MemberDetails memberDetails,
             @RequestParam("placeId") Long placeId,
-            @RequestParam(value = "cursorCreatedAt", required = false) String cursorCreatedAtStr,
-            @RequestParam(value = "cursorArticleId", required = false) Long cursorArticleId,
+            @RequestParam(value = "cursor", required = false) Long cursor,
             @RequestParam(value = "limit", required = false) Long limit
+    ) {
+        Long memberId = memberDetails.getMember().getId();
+        List<ArticleResponseDTO.ArticleListItemDTO> articles = articleQueryService.getArticleListV1(memberId, placeId, cursor, limit);
+        return ResponseEntity.status(SuccessStatus.ARTICLE_READ_SUCCESS.getHttpStatus()).body(ApiResponse.of(SuccessStatus.ARTICLE_READ_SUCCESS, articles));
+    }
+
+    @GetMapping("/v2")
+    @Operation(
+        summary = "게시물 목록 조회 (V2: 복합 커서(LocalDateTime, Long) 방식)",
+        description = "게시물 목록을 복합 커서(LocalDateTime, Long) 방식으로 조회합니다.\n\n- V2: 복합 커서(LocalDateTime, Long) 방식\n- placeId(장소 ID), cursorCreatedAt(마지막 게시글 생성일시), cursorArticleId(마지막 게시글 ID), limit(페이지 크기) 사용\n- cursorCreatedAt, cursorArticleId가 null이면 첫 페이지 조회로 간주합니다.\n- JWT 인증 필요.",
+        security = @SecurityRequirement(name = "JWT TOKEN")
+    )
+    public ResponseEntity<ApiResponse<List<ArticleResponseDTO.ArticleListItemDTO>>> getArticleList(
+        @AuthenticationPrincipal MemberDetails memberDetails,
+        @RequestParam("placeId") Long placeId,
+        @RequestParam(value = "cursorCreatedAt", required = false) String cursorCreatedAtStr,
+        @RequestParam(value = "cursorArticleId", required = false) Long cursorArticleId,
+        @RequestParam(value = "limit", required = false) Long limit
     ) {
         Long memberId = memberDetails.getMember().getId();
         java.time.LocalDateTime cursorCreatedAt = null;
         if (cursorCreatedAtStr != null && !cursorCreatedAtStr.isBlank()) {
             cursorCreatedAt = java.time.LocalDateTime.parse(cursorCreatedAtStr);
         }
-        List<ArticleResponseDTO.ArticleListItemDTO> articles = articleQueryService.getArticleList(memberId, placeId, cursorCreatedAt, cursorArticleId, limit);
+        List<ArticleResponseDTO.ArticleListItemDTO> articles = articleQueryService.getArticleListV2(memberId, placeId, cursorCreatedAt, cursorArticleId, limit);
         return ResponseEntity.status(SuccessStatus.ARTICLE_READ_SUCCESS.getHttpStatus()).body(ApiResponse.of(SuccessStatus.ARTICLE_READ_SUCCESS, articles));
     }
 }
