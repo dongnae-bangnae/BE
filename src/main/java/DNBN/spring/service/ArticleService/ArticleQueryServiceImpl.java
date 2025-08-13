@@ -147,8 +147,8 @@ public class ArticleQueryServiceImpl implements ArticleQueryService {
             .orElseThrow(() -> new MemberHandler(ErrorStatus.MEMBER_NOT_FOUND));
         Place place = placeRepository.findPlaceByPlaceId(placeId)
             .orElseThrow(() -> new ArticleHandler(ErrorStatus.PLACE_NOT_FOUND));
-        
         List<Article> articles = articleRepositoryCustom.findArticlesByPlaceWithCursorV1(placeId, cursor, effectiveLimit + 1);
+
         boolean hasNext = articles.size() > effectiveLimit;
         if (hasNext) articles.remove(articles.size() - 1);
 
@@ -186,8 +186,10 @@ public class ArticleQueryServiceImpl implements ArticleQueryService {
         Place place = placeRepository.findPlaceByPlaceId(placeId)
             .orElseThrow(() -> new ArticleHandler(ErrorStatus.PLACE_NOT_FOUND));
         List<Article> articles = articleRepositoryCustom.findArticlesByPlaceWithCursorV2(placeId, cursorCreatedAt, cursorArticleId, effectiveLimit + 1);
+
         boolean hasNext = articles.size() > effectiveLimit;
         if (hasNext) articles.remove(articles.size() - 1);
+
         return articles.stream()
             .map(article -> {
                 Long articleId = article.getArticleId();
