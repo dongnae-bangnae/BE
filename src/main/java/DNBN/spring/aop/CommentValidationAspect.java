@@ -52,7 +52,13 @@ public class CommentValidationAspect {
     }
 
     private Long extractLongArg(Object[] args, int idx, String name) {
-        if (args.length <= idx || !(args[idx] instanceof Long value)) {
+        if (args.length <= idx) {
+            throw new IllegalArgumentException("❌ CommentValidationAspect: " + name + " 인자 오류");
+        }
+        if (args[idx] == null) {
+            return null;
+        }
+        if (!(args[idx] instanceof Long value)) {
             throw new IllegalArgumentException("❌ CommentValidationAspect: " + name + " 인자 오류");
         }
         return value;
