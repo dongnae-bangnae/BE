@@ -17,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -31,6 +32,7 @@ public class AuthRestController {
     private final MemberCommandService memberCommandService;
     private final AuthCommandService authCommandService;
     private final JwtTokenProvider jwtTokenProvider;
+    private final CookieCsrfTokenRepository csrfTokenRepository;
 
     @PostMapping("/logout")
     @Operation(summary = "회원 로그아웃 API - JWT AccessToken 인증 필요, CSRF 인증은 요구되지 않습니다.",
@@ -62,16 +64,14 @@ public class AuthRestController {
         addCookie(response, "accessToken", tokens.getAccessToken(), true, 60 * 60 * 4); // 4시간
 
         // csrf 토큰 재발급
-        CsrfToken csrfToken = authCommandService.generateCsrfToken(request, response);
-        ResponseCookie csrfCookie = ResponseCookie.from("XSRF-TOKEN", csrfToken.getToken())
-                .httpOnly(false)    // JS에서 읽을 수 있어야 함
-                .secure(true)
-                .path("/")
-                .domain("dnbn.site") // 테스트 시 주석처리
-                .maxAge(60 * 60 * 4) // 4시간
-                .sameSite("None")
-                .build();
-        response.addHeader("Set-Cookie", csrfCookie.toString());
+//        CsrfToken csrfToken = authCommandService.generateCsrfToken(request, response);addCookie(response, "XSRF-TOKEN", csrfToken.getToken(), false, 60 * 60 * 4);
+//        CookieCsrfTokenRepository csrfTokenRepository = CookieCsrfTokenRepository.withHttpOnlyFalse();
+        CsrfToken csrfToken = csrfTokenRepository.generateToken(request);
+        csrfTokenRepository.saveToken(csrfToken, request, response);
+
+        request.setAttribute(CsrfToken.class.getName(), csrfToken);
+        request.setAttribute(csrfToken.getParameterName(), csrfToken);
+//        addCookie(response, "XSRF-TOKEN", csrfToken.getToken(), false, 60 * 60 * 4);
 
         // 응답 바디 없이 204 No Content
         response.setStatus(HttpServletResponse.SC_NO_CONTENT);

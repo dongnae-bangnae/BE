@@ -15,6 +15,7 @@ import DNBN.spring.repository.MemberRepository.MemberRepository;
 import DNBN.spring.repository.ProfileImageRepository.ProfileImageRepository;
 import DNBN.spring.repository.RegionRepository.RegionRepository;
 import DNBN.spring.repository.UuidRepository.UuidRepository;
+import DNBN.spring.validation.validator.OnboardingValidator;
 import DNBN.spring.web.dto.MemberRequestDTO;
 import DNBN.spring.web.dto.MemberResponseDTO;
 import jakarta.servlet.http.HttpServletResponse;
@@ -40,68 +41,21 @@ public class MemberCommandServiceImpl implements MemberCommandService {
     private final AmazonS3Manager s3Manager;
     private final UuidRepository uuidRepository;
     private final ProfileImageRepository profileImageRepository;
+    private final OnboardingValidator onboardingValidator;
 
     @Override
     @Transactional
-    @ValidateS3ImageUpload
-    public Member onboardingMember(Long memberId, MemberRequestDTO.OnboardingDTO request, MultipartFile profileImage) {
+    public Member onboardingMember(Long memberId) {
         // 기존 회원이 존재하는지를 따짐
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberHandler(ErrorStatus.MEMBER_NOT_FOUND));
 
-        // 온보딩 완료 여부 체크
-        if (member.isOnboardingCompleted()) {
-            throw new MemberHandler(ErrorStatus.ONBOARDING_NOT_COMPLETED);
-        }
-
-        // 닉네임 null 혹은 빈 문자열 체크
-        if (request.getNickname() == null || request.getNickname().trim().isEmpty()) {
-            throw new MemberHandler(ErrorStatus.NICKNAME_NOT_EXIST);
-        }
-
-        validateNicknameDuplicate(request.getNickname());
-
-        // 좋아하는 동네 개수 최소 1개 ~ 최대 3개
-        int chosenRegionCount = request.getChosenRegionIds() == null ? 0 : request.getChosenRegionIds().size();
-        if (chosenRegionCount < 1 || chosenRegionCount > 3) {
-            throw new MemberHandler(ErrorStatus.INVALID_REGION_COUNT);
-        }
-
-        // 선택한 지역들이 모두 존재하는지 확인
-        for (Long regionId : request.getChosenRegionIds()) {
-            boolean exists = regionRepository.existsById(regionId);
-            if (!exists) {
-                throw new MemberHandler(ErrorStatus.REGION_NOT_FOUND);
-            }
-        }
-
-        member.setNickname(request.getNickname());
-
-        if (profileImage != null && !profileImage.isEmpty()) {
-            String uuid = UUID.randomUUID().toString();
-            Uuid savedUuid = uuidRepository.save(Uuid.builder()
-                    .uuid(uuid).build());
-
-            String pictureUrl = s3Manager.uploadFile(s3Manager.generateMemberKeyName(savedUuid), profileImage);
-
-            profileImageRepository.save(MemberConverter.toProfileImage(pictureUrl, member));
-        }
-
-        likeRegionRepository.saveAll( // 좋아하는 동네 연결
-                request.getChosenRegionIds().stream() // 프론트에서 넘겨준 값
-                        .map(regionId -> LikeRegion.of(member, findRegion(regionId))) // 각 regionId에 대해 LikeRegion.of(member, region)를 호출해서 LikeRegion 객체들 생성
-                        .collect(Collectors.toList()) // 방금 만든 LikeRegion 객체들을 한 번에 DB에 저장
-        );
-
-        member.setOnboardingCompleted(true);
+        boolean complete = onboardingValidator.isCompleteOnboarding(member);
+        if (complete) {
+            member.setOnboardingCompleted(true); // @Transactional에 의해 메서드 종료 시 변경 사항이 DB에 자동 반영
+        } // 조건이 충족되지 않으면, member의 isOnboardingCompleted는 기본값(false)인 채로 유지
 
         return member;
-//        return memberRepository.save(member);
-    }
-
-    private Region findRegion(Long regionId) {
-        return regionRepository.findById(regionId)
-                .orElseThrow(() -> new RegionHandler(ErrorStatus.REGION_NOT_FOUND));
     }
 
     @Override
@@ -158,13 +112,13 @@ public class MemberCommandServiceImpl implements MemberCommandService {
 
     @Override
     @Transactional
-    public void changeMemberNickname(Long memberId, String newNickname) {
+    public MemberResponseDTO.NicknameUpdateResultDTO updateMemberNickname(Long memberId, String newNickname) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberHandler(ErrorStatus.MEMBER_NOT_FOUND));
 
-        if (!member.isOnboardingCompleted()) {
-            throw new MemberHandler(ErrorStatus.ONBOARDING_NOT_COMPLETED);
-        }
+//        if (!member.isOnboardingCompleted()) {
+//            throw new MemberHandler(ErrorStatus.ONBOARDING_NOT_COMPLETED);
+//        }
 
         if (newNickname == null || newNickname.trim().isEmpty()) {
             throw new MemberHandler(ErrorStatus.NICKNAME_NOT_EXIST);
@@ -173,7 +127,12 @@ public class MemberCommandServiceImpl implements MemberCommandService {
         validateNicknameDuplicate(newNickname);
 
 //        member.setNickname(newNickname);
-        member.updateNickname(newNickname); // 도메인 ��도 설계(Domain-Driven Design) 원칙에 부합하도록
+        member.updateNickname(newNickname); // 도메인 주도 설계(Domain-Driven Design) 원칙에 부합하도록
+
+        return MemberResponseDTO.NicknameUpdateResultDTO.builder()
+                .memberId(member.getId())
+                .nickname(member.getNickname())
+                .build();
     }
 
     @Override
@@ -218,42 +177,51 @@ public class MemberCommandServiceImpl implements MemberCommandService {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberHandler(ErrorStatus.MEMBER_NOT_FOUND));
 
-        if (profileImage == null || profileImage.isEmpty()) {
-            throw new MemberHandler(ErrorStatus._BAD_REQUEST);
-        }
+//        if (profileImage == null || profileImage.isEmpty()) {
+//            throw new MemberHandler(ErrorStatus._BAD_REQUEST);
+//        }
 
-        // 파일 형식 검사
-        String contentType = profileImage.getContentType();
-        if (contentType == null || !contentType.startsWith("image/")) {
-            throw new MemberHandler(ErrorStatus.INVALID_IMAGE_TYPE);
-        }
+        String profileImageUrl = null;
 
-        // 파일 용량 제한 (10MB)
-        long maxFileSize = 10 * 1024 * 1024;
-        if (profileImage.getSize() > maxFileSize) {
-            throw new MemberHandler(ErrorStatus.IMAGE_FILE_TOO_LARGE);
-        }
+        if (profileImage != null && !profileImage.isEmpty()) {
+            // 파일 형식 검사
+            String contentType = profileImage.getContentType();
+            if (contentType == null || !contentType.startsWith("image/")) {
+                throw new MemberHandler(ErrorStatus.INVALID_IMAGE_TYPE);
+            }
 
-        // UUID 생성 후 저장
-        String uuidStr = UUID.randomUUID().toString();
-        Uuid uuid = uuidRepository.save(Uuid.builder().uuid(uuidStr).build());
+            // 파일 용량 제한 (10MB)
+            long maxFileSize = 10 * 1024 * 1024;
+            if (profileImage.getSize() > maxFileSize) {
+                throw new MemberHandler(ErrorStatus.IMAGE_FILE_TOO_LARGE);
+            }
 
-        // S3 업로드
-        String profileImageUrl = s3Manager.uploadFile(s3Manager.generateMemberKeyName(uuid), profileImage);
+            // UUID 생성 후 저장
+            String uuid = UUID.randomUUID().toString();
+            Uuid savedUuid = uuidRepository.save(Uuid.builder().uuid(uuid).build());
 
-        if (member.getProfileImage() != null) {
-            // 기존 이미지의 키 추출 및 삭제
-            String oldKey = s3Manager.extractS3KeyFromUrl(member.getProfileImage().getImageUrl());
-            s3Manager.deleteFile(oldKey);
+            // S3 업로드
+            profileImageUrl = s3Manager.uploadFile(s3Manager.generateMemberKeyName(savedUuid), profileImage);
 
-            // update: 기존 엔티티에 새로운 URL만 set
-            member.getProfileImage().updateImageUrl(profileImageUrl);
-        } else {
-            // 새 이미지 insert
-            profileImageRepository.save(MemberConverter.toProfileImage(profileImageUrl, member));
+            if (member.getProfileImage() != null) {
+                // 기존 이미지의 키 추출 및 삭제
+                String oldKey = s3Manager.extractS3KeyFromUrl(member.getProfileImage().getImageUrl());
+                s3Manager.deleteFile(oldKey);
+
+                // update: 기존 엔티티에 새로운 URL만 set
+                member.getProfileImage().updateImageUrl(profileImageUrl);
+            } else {
+                // 새 이미지 insert
+                profileImageRepository.save(MemberConverter.toProfileImage(profileImageUrl, member));
+            }
+        } else { // 이미지 없을 때는 기존 URL 유지
+            profileImageUrl = member.getProfileImage() != null
+                    ? member.getProfileImage().getImageUrl()
+                    : null;
         }
 
         return MemberResponseDTO.ProfileImageUpdateResultDTO.builder()
+                .memberId(memberId)
                 .profileImageUrl(profileImageUrl)
                 .build();
     }
