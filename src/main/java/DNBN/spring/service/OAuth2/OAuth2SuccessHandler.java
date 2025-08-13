@@ -101,7 +101,6 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 //        csrfTokenRepository.saveToken(csrfToken, request, response);
 //        request.setAttribute(CsrfToken.class.getName(), csrfToken);
 //        request.setAttribute(csrfToken.getParameterName(), csrfToken);
-        addCookie(response, csrfToken.getHeaderName(), csrfToken.getToken(), false, 60 * 60 * 4);
 
         // 프론트에서 JS로 읽을 수 있게 HttpOnly = false
 //        ResponseCookie csrfCookie = ResponseCookie.from("XSRF-TOKEN", csrfToken.getToken())
@@ -115,7 +114,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
 //        response.addHeader("Set-Cookie", csrfCookie.toString());
 
-//        addCookie(response, "XSRF-TOKEN", csrfToken.getToken(), false, 60 * 60 * 4);
+        addCookie(response, "XSRF-TOKEN", csrfToken.getToken(), false, 60 * 60 * 4);
 
         clearJsessionCookie(response);
 
