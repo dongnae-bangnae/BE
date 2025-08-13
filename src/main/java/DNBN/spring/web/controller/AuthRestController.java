@@ -66,11 +66,11 @@ public class AuthRestController {
         // csrf 토큰 재발급
 //        CsrfToken csrfToken = authCommandService.generateCsrfToken(request, response);addCookie(response, "XSRF-TOKEN", csrfToken.getToken(), false, 60 * 60 * 4);
 //        CookieCsrfTokenRepository csrfTokenRepository = CookieCsrfTokenRepository.withHttpOnlyFalse();
-        CsrfToken csrfToken = csrfTokenRepository.generateToken(request);
-        csrfTokenRepository.saveToken(csrfToken, request, response);
-
-        request.setAttribute(CsrfToken.class.getName(), csrfToken);
-        request.setAttribute(csrfToken.getParameterName(), csrfToken);
+//        CsrfToken csrfToken = csrfTokenRepository.generateToken(request);
+//        csrfTokenRepository.saveToken(csrfToken, request, response);
+//
+//        request.setAttribute(CsrfToken.class.getName(), csrfToken);
+//        request.setAttribute(csrfToken.getParameterName(), csrfToken);
 //        addCookie(response, "XSRF-TOKEN", csrfToken.getToken(), false, 60 * 60 * 4);
 
         // 응답 바디 없이 204 No Content
