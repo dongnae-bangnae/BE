@@ -155,20 +155,13 @@ public class ArticleQueryServiceImpl implements ArticleQueryService {
         return articles.stream()
             .map(article -> {
                 Long articleId = article.getArticleId();
-
-                // 대표 이미지
-                String mainImageUuid = articlePhotoRepository.findFirstByArticleAndIsMainTrue(article)
-                    .map(ArticlePhoto::getFileKey)
-                    .orElseGet(() -> defaultImageUuid);
-                // 좋아요 여부
+                String mainImageUuid = getMainImageUuid(article);
                 boolean isLiked = articleLikeRepository.existsById(
                     new ArticleLikeId(articleId, memberId)
                 );
-                // 스팸 여부
                 boolean isSpammed = articleSpamRepository.existsById(
                     new ArticleSpamId(articleId, memberId)
                 );
-                // 내 글 여부
                 boolean isMine = memberId.equals(article.getMember().getId());
 
                 log.debug("articleId: {}, isLiked: {}, isSpammed: {}, isMine: {}", articleId, isLiked, isSpammed, isMine);
@@ -193,9 +186,7 @@ public class ArticleQueryServiceImpl implements ArticleQueryService {
         return articles.stream()
             .map(article -> {
                 Long articleId = article.getArticleId();
-                String mainImageUuid = articlePhotoRepository.findFirstByArticleAndIsMainTrue(article)
-                    .map(ArticlePhoto::getFileKey)
-                    .orElseGet(() -> defaultImageUuid);
+                String mainImageUuid = getMainImageUuid(article);
                 boolean isLiked = articleLikeRepository.existsById(
                     new ArticleLikeId(articleId, memberId)
                 );
@@ -203,9 +194,20 @@ public class ArticleQueryServiceImpl implements ArticleQueryService {
                     new ArticleSpamId(articleId, memberId)
                 );
                 boolean isMine = memberId.equals(article.getMember().getId());
+
                 log.debug("articleId: {}, isLiked: {}, isSpammed: {}, isMine: {}", articleId, isLiked, isSpammed, isMine);
                 return ArticleConverter.toArticleListItemDTO(article, mainImageUuid, isLiked, isSpammed, isMine);
             })
             .toList();
+    }
+
+    /**
+     * 게시글의 대표 이미지 UUID 반환
+     * 대표 이미지가 없는 경우 기본 이미지 UUID 반환
+     */
+    private String getMainImageUuid(Article article) {
+        return articlePhotoRepository.findFirstByArticleAndIsMainTrue(article)
+            .map(ArticlePhoto::getFileKey)
+            .orElseGet(() -> defaultImageUuid);
     }
 }
