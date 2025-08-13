@@ -25,6 +25,10 @@ public class CommentValidationAspect {
     @Before("@annotation(DNBN.spring.aop.annotation.ValidateComment)")
     public void validateComment(JoinPoint joinPoint) {
         Object[] args = joinPoint.getArgs();
+        // 파라미터 타입/순서 검증
+        if (args.length < 3 || !(args[0] instanceof Long) || !(args[1] instanceof Long) || !(args[2] instanceof Long)) {
+            throw new IllegalArgumentException("❌ CommentValidationAspect: memberId, commentId, articleId 파라미터 타입/순서 오류");
+        }
         Long memberId = extractLongArg(args, 0, "memberId");
         Long commentId = extractLongArg(args, 1, "commentId");
         Long articleId = extractLongArg(args, 2, "articleId");
