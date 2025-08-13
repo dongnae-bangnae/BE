@@ -7,4 +7,9 @@ public class ArticleHandler extends GeneralException {
     public ArticleHandler(BaseErrorCode errorCode) {
         super(errorCode);
     }
+
+    @Override
+    public String getMessage() {
+        return getErrorReason().getMessage();
+    }
 }
