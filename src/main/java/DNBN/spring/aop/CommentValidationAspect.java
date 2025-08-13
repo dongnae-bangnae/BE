@@ -33,6 +33,10 @@ public class CommentValidationAspect {
         Long commentId = extractLongArg(args, 1, "commentId");
         Long articleId = extractLongArg(args, 2, "articleId");
         Comment comment = null;
+        // commentId가 null이면 예외 발생
+        if (args[1] == null) {
+            throw new CommentHandler(ErrorStatus.COMMENT_NOT_FOUND);
+        }
         // createComment의 경우 parentCommentId만 존재
         if (commentId != null) {
             comment = commentRepository.findById(commentId)
