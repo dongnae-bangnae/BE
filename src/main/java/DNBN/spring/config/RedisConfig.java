@@ -29,7 +29,9 @@ public class RedisConfig {
 
         Map<String, RedisCacheConfiguration> perCache = new HashMap<>();
         perCache.put("articles:region", base.entryTtl(Duration.ofSeconds(20))); // 최신글: 짧게
+
         // 아래로 각자 파트 추가
+        perCache.put("places:map", base.entryTtl(Duration.ofSeconds(10)));
 
         return RedisCacheManager.builder(cf)
                 .cacheDefaults(base)                  // 기본 TTL 30초

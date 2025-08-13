@@ -12,6 +12,7 @@ import DNBN.spring.repository.PlaceRepository.PlaceRepositoryCustom;
 import DNBN.spring.repository.SavePlaceRepository.SavePlaceRepository;
 import DNBN.spring.web.dto.response.PlaceResponseDTO;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -51,15 +52,16 @@ public class PlaceQueryServiceImpl implements PlaceQueryService {
                 .build();
     }
 
-//    @Override
-//    public PlaceResponseDTO.MapPlacesResultDTO getPlacesInMapBounds(PlaceRequestDTO.MapSearchDTO request) {
-//        List<Place> places = placeRepositoryCustom.findAllInBounds(
-//                request.getLatMin(), request.getLatMax(),
-//                request.getLngMin(), request.getLngMax()
-//        );
-//        return PlaceConverter.toMapPlacesResult(places);
-//    }
-
+    @Cacheable(
+            cacheNames = "places:map",
+            key =
+                    "'v1:m:' + #memberId"
+                            + " + ':lat:' + T(java.lang.Math).round(#latMin * 1000)"
+                            + " + ':'     + T(java.lang.Math).round(#latMax * 1000)"
+                            + " + ':lng:' + T(java.lang.Math).round(#lngMin * 1000)"
+                            + " + ':'     + T(java.lang.Math).round(#lngMax * 1000)",
+            sync = true
+    )
     @Override
     public PlaceResponseDTO.MapPlacesResultDTO getPlacesInMapBounds(
             Long memberId, Double latMin, Double latMax, Double lngMin, Double lngMax
