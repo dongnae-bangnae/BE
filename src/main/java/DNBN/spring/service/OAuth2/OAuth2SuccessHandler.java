@@ -98,7 +98,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 //        CsrfTokenRepository csrfTokenRepository = new HttpSessionCsrfTokenRepository();
 //        CookieCsrfTokenRepository csrfTokenRepository = CookieCsrfTokenRepository.withHttpOnlyFalse();
         CsrfToken csrfToken = csrfTokenRepository.generateToken(request);
-//        csrfTokenRepository.saveToken(csrfToken, request, response);
+        csrfTokenRepository.saveToken(csrfToken, request, response);
 //        request.setAttribute(CsrfToken.class.getName(), csrfToken);
 //        request.setAttribute(csrfToken.getParameterName(), csrfToken);
 
@@ -114,7 +114,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
 //        response.addHeader("Set-Cookie", csrfCookie.toString());
 
-        addCookie(response, "XSRF-TOKEN", csrfToken.getToken(), false, 60 * 60 * 4);
+//        addCookie(response, "XSRF-TOKEN", csrfToken.getToken(), false, 60 * 60 * 4);
 
         clearJsessionCookie(response);
 
