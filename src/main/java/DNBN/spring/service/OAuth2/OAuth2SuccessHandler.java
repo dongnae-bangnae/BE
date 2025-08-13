@@ -116,7 +116,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
 //        addCookie(response, "XSRF-TOKEN", csrfToken.getToken(), false, 60 * 60 * 4);
 
-        clearJsessionCookie(response);
+//        clearJsessionCookie(response);
 
         // 4. 리다이렉트 (브릿지 페이지)
         response.sendRedirect("https://www.dnbn.site/oauth-redirect");
