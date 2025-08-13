@@ -36,6 +36,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Slf4j
@@ -134,39 +135,30 @@ public class ArticleQueryServiceImpl implements ArticleQueryService {
     }
 
     @Override
-    public List<ArticleResponseDTO.ArticleListItemDTO> getArticleList(Long memberId, Long placeId, Long cursor, Long limit) {
-        long effectiveLimit = (limit != null) ? limit : DEFAULT_LIMIT; // limit가 null인 경우 기본값 설정
-
-        if (cursor == null || cursor == -1L) {
-            cursor = null;
-        }
+    public List<ArticleResponseDTO.ArticleListItemDTO> getArticleList(Long memberId, Long placeId, LocalDateTime cursorCreatedAt, Long cursorArticleId, Long limit) {
+        long effectiveLimit = (limit != null) ? limit : DEFAULT_LIMIT;
 
         Member member = memberRepository.findById(memberId)
             .orElseThrow(() -> new MemberHandler(ErrorStatus.MEMBER_NOT_FOUND));
         Place place = placeRepository.findPlaceByPlaceId(placeId)
             .orElseThrow(() -> new ArticleHandler(ErrorStatus.PLACE_NOT_FOUND));
         
-        List<Article> articles = articleRepositoryCustom.findArticlesByPlaceWithCursor(placeId, cursor, effectiveLimit + 1);
+        List<Article> articles = articleRepositoryCustom.findArticlesByPlaceWithCursor(placeId, cursorCreatedAt, cursorArticleId, effectiveLimit + 1);
         boolean hasNext = articles.size() > effectiveLimit;
         if (hasNext) articles.remove(articles.size() - 1);
 
         return articles.stream()
             .map(article -> {
                 Long articleId = article.getArticleId();
-
-                // 대표 이미지
                 String mainImageUuid = articlePhotoRepository.findFirstByArticleAndIsMainTrue(article)
                     .map(ArticlePhoto::getFileKey)
                     .orElseGet(() -> defaultImageUuid);
-                // 좋아요 여부
                 boolean isLiked = articleLikeRepository.existsById(
                     new ArticleLikeId(articleId, memberId)
                 );
-                // 스팸 여부
                 boolean isSpammed = articleSpamRepository.existsById(
                     new ArticleSpamId(articleId, memberId)
                 );
-                // 내 글 여부
                 boolean isMine = memberId.equals(article.getMember().getId());
 
                 log.debug("articleId: {}, isLiked: {}, isSpammed: {}, isMine: {}", articleId, isLiked, isSpammed, isMine);

@@ -126,11 +126,16 @@ public class ArticleController {
     public ResponseEntity<ApiResponse<List<ArticleResponseDTO.ArticleListItemDTO>>> getArticleList(
             @AuthenticationPrincipal MemberDetails memberDetails,
             @RequestParam("placeId") Long placeId,
-            @RequestParam(value = "cursor", required = false) Long cursor,
+            @RequestParam(value = "cursorCreatedAt", required = false) String cursorCreatedAtStr,
+            @RequestParam(value = "cursorArticleId", required = false) Long cursorArticleId,
             @RequestParam(value = "limit", required = false) Long limit
     ) {
         Long memberId = memberDetails.getMember().getId();
-        List<ArticleResponseDTO.ArticleListItemDTO> articles = articleQueryService.getArticleList(memberId, placeId, cursor, limit);
+        java.time.LocalDateTime cursorCreatedAt = null;
+        if (cursorCreatedAtStr != null && !cursorCreatedAtStr.isBlank()) {
+            cursorCreatedAt = java.time.LocalDateTime.parse(cursorCreatedAtStr);
+        }
+        List<ArticleResponseDTO.ArticleListItemDTO> articles = articleQueryService.getArticleList(memberId, placeId, cursorCreatedAt, cursorArticleId, limit);
         return ResponseEntity.status(SuccessStatus.ARTICLE_READ_SUCCESS.getHttpStatus()).body(ApiResponse.of(SuccessStatus.ARTICLE_READ_SUCCESS, articles));
     }
 }
