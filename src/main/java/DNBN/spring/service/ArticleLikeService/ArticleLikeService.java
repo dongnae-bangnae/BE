@@ -7,14 +7,10 @@ import DNBN.spring.domain.ArticleLike;
 import DNBN.spring.domain.ArticleLikeId;
 import DNBN.spring.repository.ArticleRepository.ArticleRepository;
 import DNBN.spring.repository.MemberRepository.MemberRepository;
-import DNBN.spring.web.dto.LikeResponseDTO;
+import DNBN.spring.web.dto.response.LikeResponseDTO;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
-import static DNBN.spring.domain.QArticle.article;
-import static DNBN.spring.domain.QMember.member;
-import static org.springframework.data.jpa.domain.AbstractPersistable_.id;
 
 @Service
 @RequiredArgsConstructor

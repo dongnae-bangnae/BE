@@ -8,7 +8,7 @@ import DNBN.spring.config.security.jwt.JwtTokenProvider;
 import DNBN.spring.domain.MemberDetails;
 import DNBN.spring.service.AuthService.AuthCommandService;
 import DNBN.spring.service.MemberService.MemberCommandService;
-import DNBN.spring.web.dto.AuthResponseDTO;
+import DNBN.spring.web.dto.response.AuthResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.HttpServletRequest;
