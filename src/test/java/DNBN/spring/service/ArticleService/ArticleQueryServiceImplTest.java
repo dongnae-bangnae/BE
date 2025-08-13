@@ -332,5 +332,233 @@ class ArticleQueryServiceImplTest {
       articleQueryService.getArticleListV1(memberId, placeId, null, null);
     });
   }
-}
 
+  /*
+   * V2: 복합 커서(LocalDateTime, Long) 방식 정상 조회
+   */
+  @Test
+  void getArticleListV2_정상_조회() {
+    // given
+    Long memberId = 1L;
+    Long placeId = 2L;
+    LocalDateTime cursorCreatedAt = null;
+    Long cursorArticleId = null;
+    Long limit = 2L;
+
+    Article article1 = createArticle(10L, "제목1", "내용1", 5L, 0L, 1L);
+    Article article2 = createArticle(9L, "제목2", "내용2", 3L, 1L, 2L);
+    List<Article> articles = List.of(article1, article2);
+
+    when(memberRepository.findById(memberId)).thenReturn(Optional.of(member));
+    when(placeRepository.findPlaceByPlaceId(placeId)).thenReturn(Optional.of(place));
+    when(articleRepositoryCustom.findArticlesByPlaceWithCursorV2(placeId, cursorCreatedAt, cursorArticleId, limit + 1)).thenReturn(articles);
+    when(articlePhotoRepository.findFirstByArticleAndIsMainTrue(any())).thenReturn(Optional.empty());
+    when(articleLikeRepository.existsById(any(ArticleLikeId.class))).thenReturn(false);
+    when(articleSpamRepository.existsById(any())).thenReturn(false);
+
+    // when
+    List<ArticleResponseDTO.ArticleListItemDTO> result = articleQueryService.getArticleListV2(memberId, placeId, cursorCreatedAt, cursorArticleId, limit);
+
+    // then
+    assertEquals(2, result.size());
+    assertEquals(article1.getArticleId(), result.get(0).getArticleId());
+    assertEquals(article2.getArticleId(), result.get(1).getArticleId());
+    assertEquals(DEFAULT_IMAGE_UUID, result.get(0).getMainImageUuid());
+    assertFalse(result.get(0).getIsLiked());
+    assertFalse(result.get(0).getIsSpammed());
+    assertTrue(result.get(0).getIsMine());
+  }
+
+  /*
+   * V2: createdAt 동률 시 articleId로 2차 정렬 및 커서 동작 검증
+   */
+  @Test
+  void getArticleListV2_createdAt동률_2차정렬_정상_조회() {
+    // given
+    Long memberId = 1L;
+    Long placeId = 2L;
+    LocalDateTime now = LocalDateTime.now();
+    Long limit = 2L;
+
+    Article article1 = createArticle(10L, "제목1", "내용1", 5L, 0L, 1L);
+    Article article2 = createArticle(9L, "제목2", "내용2", 3L, 1L, 2L);
+    // createdAt을 동일하게 맞춤
+    try {
+      Field createdAtField = Article.class.getSuperclass().getDeclaredField("createdAt");
+      createdAtField.setAccessible(true);
+      createdAtField.set(article1, now);
+      createdAtField.set(article2, now);
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+    List<Article> articles = List.of(article1, article2);
+
+    when(memberRepository.findById(memberId)).thenReturn(Optional.of(member));
+    when(placeRepository.findPlaceByPlaceId(placeId)).thenReturn(Optional.of(place));
+    when(articleRepositoryCustom.findArticlesByPlaceWithCursorV2(placeId, now, 11L, limit + 1)).thenReturn(articles);
+    when(articlePhotoRepository.findFirstByArticleAndIsMainTrue(any())).thenReturn(Optional.empty());
+    when(articleLikeRepository.existsById(any(ArticleLikeId.class))).thenReturn(false);
+    when(articleSpamRepository.existsById(any())).thenReturn(false);
+
+    // when
+    List<ArticleResponseDTO.ArticleListItemDTO> result = articleQueryService.getArticleListV2(memberId, placeId, now, 11L, limit);
+
+    // then
+    assertEquals(2, result.size());
+    assertEquals(article1.getArticleId(), result.get(0).getArticleId());
+    assertEquals(article2.getArticleId(), result.get(1).getArticleId());
+  }
+
+  /*
+   * V2: 게시물이 없을 때 빈 리스트 반환
+   */
+  @Test
+  void getArticleListV2_게시물없을때_빈리스트_반환() {
+    // given
+    Long memberId = 1L;
+    Long placeId = 2L;
+    LocalDateTime cursorCreatedAt = null;
+    Long cursorArticleId = null;
+    Long limit = 5L;
+
+    when(memberRepository.findById(memberId)).thenReturn(Optional.of(member));
+    when(placeRepository.findPlaceByPlaceId(placeId)).thenReturn(Optional.of(place));
+    when(articleRepositoryCustom.findArticlesByPlaceWithCursorV2(placeId, cursorCreatedAt, cursorArticleId, limit + 1)).thenReturn(List.of());
+
+    // when
+    List<ArticleResponseDTO.ArticleListItemDTO> result = articleQueryService.getArticleListV2(memberId, placeId, cursorCreatedAt, cursorArticleId, limit);
+
+    // then
+    assertNotNull(result);
+    assertTrue(result.isEmpty());
+  }
+
+  /*
+   * V2: 좋아요/스팸 여부 true 반환 검증
+   */
+  @Test
+  void getArticleListV2_좋아요_스팸_여부_검증() {
+    // given
+    Long memberId = 1L;
+    Long placeId = 2L;
+    LocalDateTime cursorCreatedAt = null;
+    Long cursorArticleId = null;
+    Long limit = 1L;
+
+    Article article = createArticle(10L, "제목", "내용", 1L, 1L, 0L);
+    List<Article> articles = List.of(article);
+
+    when(memberRepository.findById(memberId)).thenReturn(Optional.of(member));
+    when(placeRepository.findPlaceByPlaceId(placeId)).thenReturn(Optional.of(place));
+    when(articleRepositoryCustom.findArticlesByPlaceWithCursorV2(placeId, cursorCreatedAt, cursorArticleId, limit + 1)).thenReturn(articles);
+    when(articlePhotoRepository.findFirstByArticleAndIsMainTrue(any())).thenReturn(Optional.empty());
+    when(articleLikeRepository.existsById(any(ArticleLikeId.class))).thenReturn(true);
+    when(articleSpamRepository.existsById(any())).thenReturn(true);
+
+    // when
+    List<ArticleResponseDTO.ArticleListItemDTO> result = articleQueryService.getArticleListV2(memberId, placeId, cursorCreatedAt, cursorArticleId, limit);
+
+    // then
+    assertEquals(1, result.size());
+    assertTrue(result.get(0).getIsLiked());
+    assertTrue(result.get(0).getIsSpammed());
+  }
+
+  /*
+   * V2: limit가 null인 경우, 기본 limit(10)으로 처리
+   */
+  @Test
+  void getArticleListV2_limit_null_정상_조회() {
+    // given
+    Long memberId = 1L;
+    Long placeId = 2L;
+    LocalDateTime cursorCreatedAt = null;
+    Long cursorArticleId = null;
+    Long limit = null;
+
+    Article article = createArticle(10L, "제목", "내용", 0L, 0L, 0L);
+    List<Article> articles = List.of(article);
+
+    when(memberRepository.findById(memberId)).thenReturn(Optional.of(member));
+    when(placeRepository.findPlaceByPlaceId(placeId)).thenReturn(Optional.of(place));
+    // 기본 limit(10) + 1 = 11
+    when(articleRepositoryCustom.findArticlesByPlaceWithCursorV2(placeId, cursorCreatedAt, cursorArticleId, 11L)).thenReturn(articles);
+    when(articlePhotoRepository.findFirstByArticleAndIsMainTrue(any())).thenReturn(Optional.empty());
+    when(articleLikeRepository.existsById(any(ArticleLikeId.class))).thenReturn(false);
+    when(articleSpamRepository.existsById(any())).thenReturn(false);
+
+    // when
+    List<ArticleResponseDTO.ArticleListItemDTO> result = articleQueryService.getArticleListV2(memberId, placeId, cursorCreatedAt, cursorArticleId, limit);
+
+    // then
+    assertEquals(1, result.size());
+    assertEquals(article.getArticleId(), result.get(0).getArticleId());
+  }
+
+  /*
+   * V2: Member가 존재하지 않을 때 예외 발생
+   */
+  @Test
+  void getArticleListV2_멤버없음_예외() {
+    // given
+    Long memberId = 1L;
+    Long placeId = 2L;
+    when(memberRepository.findById(memberId)).thenReturn(Optional.empty());
+
+    // when & then
+    assertThrows(MemberHandler.class, () -> {
+      articleQueryService.getArticleListV2(memberId, placeId, null, null, null);
+    });
+  }
+
+  /*
+   * V2: Place가 존재하지 않을 때 예외 발생
+   */
+  @Test
+  void getArticleListV2_장소없음_예외() {
+    // given
+    Long memberId = 1L;
+    Long placeId = 2L;
+    when(memberRepository.findById(memberId)).thenReturn(Optional.of(member));
+    when(placeRepository.findPlaceByPlaceId(placeId)).thenReturn(Optional.empty());
+
+    // when & then
+    assertThrows(ArticleHandler.class, () -> {
+      articleQueryService.getArticleListV2(memberId, placeId, null, null, null);
+    });
+  }
+
+  /*
+   * V2: Soft Delete로 삭제 처리된 게시물을 제외하고 조회되는지 검증
+   */
+  @Test
+  void getArticleListV2_삭제된_게시물_제외_정상_조회() {
+    // given
+    Long memberId = 1L;
+    Long placeId = 2L;
+    LocalDateTime cursorCreatedAt = null;
+    Long cursorArticleId = null;
+    Long limit = 3L;
+
+    Article article1 = createArticle(10L, "제목1", "내용1", 5L, 0L, 1L);
+    Article article2 = createArticle(9L, "제목2", "내용2", 3L, 1L, 2L);
+    Article deletedArticle = createDeletedArticle(8L, "삭제된글", "삭제됨", 3L, 4L, 5L);
+
+    List<Article> articles = List.of(article1, article2);
+
+    when(memberRepository.findById(memberId)).thenReturn(Optional.of(member));
+    when(placeRepository.findPlaceByPlaceId(placeId)).thenReturn(Optional.of(place));
+    when(articleRepositoryCustom.findArticlesByPlaceWithCursorV2(placeId, cursorCreatedAt, cursorArticleId, limit + 1)).thenReturn(articles);
+    when(articlePhotoRepository.findFirstByArticleAndIsMainTrue(any())).thenReturn(Optional.empty());
+    when(articleLikeRepository.existsById(any(ArticleLikeId.class))).thenReturn(false);
+    when(articleSpamRepository.existsById(any())).thenReturn(false);
+
+    // when
+    List<ArticleResponseDTO.ArticleListItemDTO> result = articleQueryService.getArticleListV2(memberId, placeId, cursorCreatedAt, cursorArticleId, limit);
+
+    // then
+    // 삭제된 게시물은 result에 포함되지 않아야 함
+    assertEquals(2, result.size());
+    assertTrue(result.stream().noneMatch(dto -> dto.getArticleId().equals(deletedArticle.getArticleId())));
+  }
+}
