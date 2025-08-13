@@ -51,6 +51,7 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
     private final AmazonS3Manager s3Manager;
     private final TitleLengthValidator titleLengthValidator;
     private final ContentLengthValidator contentLengthValidator;
+    private final ArticleImageService articleImageService;
 
     @Override
     @ValidateS3ImageUpload
@@ -71,7 +72,7 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
         Article article = createArticleEntity(member, category, place, region, request);
         articleRepository.save(article);
 
-        List<ArticlePhoto> photos = handleImages(article, place, region, mainImage, imageFiles);
+        List<ArticlePhoto> photos = articleImageService.uploadAndSaveImages(article, place, region, mainImage, imageFiles);
         return new ArticleWithPhotos(article, photos);
     }
 
@@ -100,7 +101,7 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
         Article article = createArticleEntity(member, category, place, region, request);
         articleRepository.save(article);
 
-        List<ArticlePhoto> photos = handleImages(article, place, region, mainImage, imageFiles);
+        List<ArticlePhoto> photos = articleImageService.uploadAndSaveImages(article, place, region, mainImage, imageFiles);
         return new ArticleWithPhotos(article, photos);
     }
 
@@ -154,64 +155,6 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
                 .build();
     }
 
-    // TODO: SRP 위반
-    private List<ArticlePhoto> handleImages(Article article, Place place, Region region, MultipartFile mainImage, List<MultipartFile> imageFiles) {
-        List<ArticlePhoto> photos = new ArrayList<>();
-        List<String> uploadedKeys = new ArrayList<>();
-        try {
-            if (mainImage != null && !mainImage.isEmpty()) {
-                String uuid = java.util.UUID.randomUUID().toString();
-                String mainImageKey = s3Manager.uploadFile(s3Manager.generateArticlePhotoKeyName(uuid), mainImage);
-                if (mainImageKey == null || mainImageKey.isBlank()) {
-                    throw new ArticlePhotoHandler(ErrorStatus.ARTICLE_PHOTO_S3_UPLOAD_FAILED);
-                }
-                uploadedKeys.add(mainImageKey);
-                ArticlePhoto mainPhoto = ArticlePhoto.builder()
-                        .article(article)
-                        .place(place)
-                        .region(region)
-                        .fileKey(mainImageKey)
-                        .orderIndex(0)
-                        .isMain(true)
-                        .build();
-                photos.add(articlePhotoRepository.save(mainPhoto));
-            }
-            if (imageFiles != null) {
-                int idx = 1;
-                for (MultipartFile file : imageFiles) {
-                    if (file != null && !file.isEmpty()) {
-                        String uuid = java.util.UUID.randomUUID().toString();
-                        String imageKey = s3Manager.uploadFile(s3Manager.generateArticlePhotoKeyName(uuid), file);
-                        if (imageKey == null || imageKey.isBlank()) {
-                            throw new ArticlePhotoHandler(ErrorStatus.ARTICLE_PHOTO_S3_UPLOAD_FAILED);
-                        }
-                        uploadedKeys.add(imageKey);
-                        ArticlePhoto photo = ArticlePhoto.builder()
-                                .article(article)
-                                .place(place)
-                                .region(region)
-                                .fileKey(imageKey)
-                                .orderIndex(idx++)
-                                .isMain(false)
-                                .build();
-                        photos.add(articlePhotoRepository.save(photo));
-                    }
-                }
-            }
-        } catch (Exception e) {
-            log.error("S3 업로드 실패", e);
-            for (String key : uploadedKeys) {
-                try {
-                    s3Manager.deleteFile(key);
-                } catch (Exception ex) {
-                    log.error("S3 롤백(파일 삭제) 실패: {}", key, ex);
-                }
-            }
-            throw new ArticlePhotoHandler(ErrorStatus.ARTICLE_PHOTO_S3_UPLOAD_FAILED);
-        }
-        return photos;
-    }
-
     @Override
     @ValidateS3ImageUpload
     @ValidateArticle
@@ -230,8 +173,8 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
                 s3Manager.deleteFile(photo.getFileKey());
                 articlePhotoRepository.delete(photo);
             }
-            // 새 이미지 업로드 및 저장
-            photos = handleImages(article, article.getPlace(), article.getRegion(), mainImage, imageFiles);
+
+            photos = articleImageService.uploadAndSaveImages(article, article.getPlace(), article.getRegion(), mainImage, imageFiles);
         }
 
         return new ArticleWithPhotos(article, photos);
