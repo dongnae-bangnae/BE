@@ -53,6 +53,10 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
     private final ContentLengthValidator contentLengthValidator;
 
     @Override
+    @org.springframework.cache.annotation.CacheEvict(
+        cacheNames = "articles:first-page",
+        key = "'place:' + #request.placeId + ':limit:' + 10"
+    )
     @ValidateS3ImageUpload
     @ValidateArticle
     public ArticleWithPhotos createArticle(Long memberId, ArticleRequestDTO request, MultipartFile mainImage, List<MultipartFile> imageFiles) {
@@ -76,6 +80,10 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
     }
 
     @Override
+    @org.springframework.cache.annotation.CacheEvict(
+        cacheNames = "articles:first-page",
+        key = "'place:' + #place.getPlaceId() + ':limit:' + 10"
+    )
     @ValidateS3ImageUpload
     @ValidateArticle
     public ArticleWithPhotos createArticle(Long memberId, ArticleWithLocationRequestDTO request, MultipartFile mainImage, List<MultipartFile> imageFiles) {
@@ -213,6 +221,10 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
     }
 
     @Override
+    @org.springframework.cache.annotation.CacheEvict(
+        cacheNames = "articles:first-page",
+        key = "'place:' + #article.getPlace().getPlaceId() + ':limit:' + 10"
+    )
     @ValidateS3ImageUpload
     @ValidateArticle
     public ArticleWithPhotos updateArticle(Long memberId, Long articleId, ArticleUpdateRequestDTO request, MultipartFile mainImage, List<MultipartFile> imageFiles) {
@@ -281,6 +293,10 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
 
 
     @Override
+    @org.springframework.cache.annotation.CacheEvict(
+        cacheNames = "articles:first-page",
+        key = "'place:' + #article.getPlace().getPlaceId() + ':limit:' + 10"
+    )
     @ValidateArticle
     public void deleteArticle(Long memberId, Long articleId) {
         Article article = articleRepository.findById(articleId)
