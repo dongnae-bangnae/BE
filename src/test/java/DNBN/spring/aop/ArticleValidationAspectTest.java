@@ -117,6 +117,7 @@ class ArticleValidationAspectTest {
     void nullArticleId() {
         JoinPoint joinPoint = mock(JoinPoint.class);
         when(joinPoint.getArgs()).thenReturn(new Object[]{1L, null});
+        when(articleRepository.findById(null)).thenReturn(java.util.Optional.empty());
         assertThatThrownBy(() -> aspect.validateArticle(joinPoint))
                 .isInstanceOf(ArticleHandler.class)
                 .hasMessageContaining(ErrorStatus.ARTICLE_NOT_FOUND.getMessage());
