@@ -52,7 +52,6 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
     private final TitleLengthValidator titleLengthValidator;
     private final ContentLengthValidator contentLengthValidator;
     private final ArticleImageService articleImageService;
-    // 분리 후: 엔티티 업데이트 책임 위임
     private final ArticleUpdater articleUpdater;
     private final PlaceUpdater placeUpdater;
     private final ArticleFactory articleFactory;
@@ -138,7 +137,6 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
         Article article = articleRepository.findById(articleId)
                 .orElseThrow(() -> new ArticleHandler(ErrorStatus.ARTICLE_NOT_FOUND));
 
-        // 분리 후: 엔티티 업데이트 책임 위임
         articleUpdater.updateArticleEntity(article, request);
         placeUpdater.updatePlaceEntity(article.getPlace(), request);
 
