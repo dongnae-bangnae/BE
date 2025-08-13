@@ -25,10 +25,18 @@ public class CommentValidationAspect {
     @Before("@annotation(DNBN.spring.aop.annotation.ValidateComment)")
     public void validateComment(JoinPoint joinPoint) {
         Object[] args = joinPoint.getArgs();
+        // 파라미터 타입/순서 검증
+        if (args.length < 3 || !(args[0] instanceof Long) || (args[1] != null && !(args[1] instanceof Long)) || !(args[2] instanceof Long)) {
+            throw new IllegalArgumentException("❌ CommentValidationAspect: memberId, commentId, articleId 파라미터 타입/순서 오류");
+        }
         Long memberId = extractLongArg(args, 0, "memberId");
         Long commentId = extractLongArg(args, 1, "commentId");
         Long articleId = extractLongArg(args, 2, "articleId");
         Comment comment = null;
+        // commentId가 null이면 예외 발생
+        if (args[1] == null) {
+            throw new CommentHandler(ErrorStatus.COMMENT_NOT_FOUND);
+        }
         // createComment의 경우 parentCommentId만 존재
         if (commentId != null) {
             comment = commentRepository.findById(commentId)
@@ -48,7 +56,13 @@ public class CommentValidationAspect {
     }
 
     private Long extractLongArg(Object[] args, int idx, String name) {
-        if (args.length <= idx || !(args[idx] instanceof Long value)) {
+        if (args.length <= idx) {
+            throw new IllegalArgumentException("❌ CommentValidationAspect: " + name + " 인자 오류");
+        }
+        if (args[idx] == null) {
+            return null;
+        }
+        if (!(args[idx] instanceof Long value)) {
             throw new IllegalArgumentException("❌ CommentValidationAspect: " + name + " 인자 오류");
         }
         return value;
