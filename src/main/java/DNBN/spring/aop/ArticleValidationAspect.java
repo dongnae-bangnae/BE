@@ -25,6 +25,10 @@ public class ArticleValidationAspect {
     @Before("@annotation(DNBN.spring.aop.annotation.ValidateArticle)")
     public void validateArticle(JoinPoint joinPoint) {
         Object[] args = joinPoint.getArgs();
+        // 파라미터 타입/순서 검증
+        if (args.length < 2 || !(args[0] instanceof Long) || !(args[1] instanceof Long)) {
+            throw new IllegalArgumentException("❌ ArticleValidationAspect: memberId, articleId 파라미터 타입/순서 오류");
+        }
         Object dto = extractDto(args);
         Long memberId = extractLongArg(args, 0, "memberId");
         Long articleId = extractLongArg(args, 1, "articleId");
