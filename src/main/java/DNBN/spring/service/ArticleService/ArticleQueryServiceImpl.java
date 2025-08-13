@@ -137,6 +137,13 @@ public class ArticleQueryServiceImpl implements ArticleQueryService {
     }
 
     @Override
+    @org.springframework.cache.annotation.Cacheable(
+        cacheNames = "articles:first-page",
+        key = "'place:' + #placeId + ':limit:' + (#limit == null ? 10 : #limit)",
+        condition = "#cursor == null",
+        unless = "#result == null || #result.isEmpty()",
+        sync = true
+    )
     public List<ArticleResponseDTO.ArticleListItemDTO> getArticleList(Long memberId, Long placeId, Long cursor, Long limit) {
         long effectiveLimit = (limit != null) ? limit : DEFAULT_LIMIT; // limit가 null인 경우 기본값 설정
 
