@@ -97,10 +97,11 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         // 3. CSRF 토큰 발급 + 쿠키로 내려주기
 //        CsrfTokenRepository csrfTokenRepository = new HttpSessionCsrfTokenRepository();
 //        CookieCsrfTokenRepository csrfTokenRepository = CookieCsrfTokenRepository.withHttpOnlyFalse();
-//        CsrfToken csrfToken = csrfTokenRepository.generateToken(request);
+        CsrfToken csrfToken = csrfTokenRepository.generateToken(request);
 //        csrfTokenRepository.saveToken(csrfToken, request, response);
 //        request.setAttribute(CsrfToken.class.getName(), csrfToken);
 //        request.setAttribute(csrfToken.getParameterName(), csrfToken);
+        addCookie(response, csrfToken.getHeaderName(), csrfToken.getToken(), false, 60 * 60 * 4);
 
         // 프론트에서 JS로 읽을 수 있게 HttpOnly = false
 //        ResponseCookie csrfCookie = ResponseCookie.from("XSRF-TOKEN", csrfToken.getToken())
