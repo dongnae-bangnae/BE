@@ -4,14 +4,12 @@ import DNBN.spring.apiPayload.code.status.ErrorStatus;
 
 import DNBN.spring.apiPayload.exception.handler.CategoryHandler;
 import DNBN.spring.apiPayload.exception.handler.MemberHandler;
-import DNBN.spring.aws.s3.AmazonS3Manager;
 import DNBN.spring.converter.ArticleConverter;
 import DNBN.spring.domain.*;
 import DNBN.spring.repository.ArticlePhotoRepository.ArticlePhotoRepository;
 
 import DNBN.spring.apiPayload.exception.handler.ArticleHandler;
 import DNBN.spring.domain.Article;
-import DNBN.spring.domain.Region;
 
 import DNBN.spring.repository.ArticleRepository.ArticleRepository;
 import DNBN.spring.repository.ArticleRepository.ArticleRepositoryCustom;
@@ -20,11 +18,10 @@ import DNBN.spring.repository.CommentRepository.CommentRepository;
 import DNBN.spring.repository.LikeRegionRepository.LikeRegionRepository;
 import DNBN.spring.repository.MemberRepository.MemberRepository;
 import DNBN.spring.repository.PlaceRepository.PlaceRepository;
-import DNBN.spring.repository.RegionRepository.RegionRepository;
 import DNBN.spring.repository.ArticleLikeRepository.ArticleLikeRepository;
 import DNBN.spring.repository.ArticleSpamRepository.ArticleSpamRepository;
 
-import DNBN.spring.web.dto.ArticleResponseDTO;
+import DNBN.spring.web.dto.response.ArticleResponseDTO;
 
 import DNBN.spring.web.dto.response.PostResponseDTO;
 
