@@ -111,4 +111,90 @@ class ArticleValidationAspectTest {
         when(joinPoint.getArgs()).thenReturn(new Object[]{1L, null, dto});
         assertThatCode(() -> aspect.validateArticle(joinPoint)).doesNotThrowAnyException();
     }
+
+    @Test
+    @DisplayName("articleId가 null인 경우 예외 발생")
+    void nullArticleId() {
+        JoinPoint joinPoint = mock(JoinPoint.class);
+        when(joinPoint.getArgs()).thenReturn(new Object[]{1L, null});
+        assertThatThrownBy(() -> aspect.validateArticle(joinPoint))
+                .isInstanceOf(ArticleHandler.class)
+                .hasMessageContaining(ErrorStatus.ARTICLE_NOT_FOUND.getMessage());
+    }
+
+    @Test
+    @DisplayName("articleId 타입이 Long이 아닌 경우 예외 발생")
+    void articleIdNotLong() {
+        JoinPoint joinPoint = mock(JoinPoint.class);
+        when(joinPoint.getArgs()).thenReturn(new Object[]{1L, "stringId"});
+        assertThatThrownBy(() -> aspect.validateArticle(joinPoint))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("파라미터 타입/순서 오류");
+    }
+
+    @Test
+    @DisplayName("ArticleRequestDTO가 null인 경우 예외 없음")
+    void nullArticleRequestDto() {
+        JoinPoint joinPoint = mock(JoinPoint.class);
+        when(joinPoint.getArgs()).thenReturn(new Object[]{1L, 2L, null});
+        Article article = mock(Article.class);
+        Member member = mock(Member.class);
+        when(article.getMember()).thenReturn(member);
+        when(member.getId()).thenReturn(1L);
+        when(article.getDeletedAt()).thenReturn(null);
+        when(articleRepository.findById(2L)).thenReturn(java.util.Optional.of(article));
+        assertThatCode(() -> aspect.validateArticle(joinPoint)).doesNotThrowAnyException();
+    }
+
+    @Test
+    @DisplayName("ArticleUpdateRequestDTO의 pinCategory가 잘못된 경우 예외 발생")
+    void invalidPinCategoryInUpdateDto() {
+        JoinPoint joinPoint = mock(JoinPoint.class);
+        ArticleUpdateRequestDTO dto = mock(ArticleUpdateRequestDTO.class);
+        when(dto.pinCategory()).thenReturn("invalid");
+        when(joinPoint.getArgs()).thenReturn(new Object[]{1L, 2L, dto});
+        Article article = mock(Article.class);
+        Member member = mock(Member.class);
+        when(article.getMember()).thenReturn(member);
+        when(member.getId()).thenReturn(1L);
+        when(article.getDeletedAt()).thenReturn(null);
+        when(articleRepository.findById(2L)).thenReturn(java.util.Optional.of(article));
+        assertThatThrownBy(() -> aspect.validateArticle(joinPoint))
+                .isInstanceOf(PlaceHandler.class)
+                .hasMessageContaining(ErrorStatus.PIN_CATEGORY_INVALID.getMessage());
+    }
+
+    @Test
+    @DisplayName("ArticleWithLocationRequestDTO의 pinCategory가 잘못된 경우 예외 발생")
+    void invalidPinCategoryInWithLocationDto() {
+        JoinPoint joinPoint = mock(JoinPoint.class);
+        ArticleWithLocationRequestDTO dto = mock(ArticleWithLocationRequestDTO.class);
+        when(dto.pinCategory()).thenReturn("invalid");
+        when(joinPoint.getArgs()).thenReturn(new Object[]{1L, 2L, dto});
+        Article article = mock(Article.class);
+        Member member = mock(Member.class);
+        when(article.getMember()).thenReturn(member);
+        when(member.getId()).thenReturn(1L);
+        when(article.getDeletedAt()).thenReturn(null);
+        when(articleRepository.findById(2L)).thenReturn(java.util.Optional.of(article));
+        assertThatThrownBy(() -> aspect.validateArticle(joinPoint))
+                .isInstanceOf(PlaceHandler.class)
+                .hasMessageContaining(ErrorStatus.PIN_CATEGORY_INVALID.getMessage());
+    }
+
+    @Test
+    @DisplayName("ArticleUpdateRequestDTO의 pinCategory가 정상인 경우 예외 없음")
+    void validPinCategoryInUpdateDto() {
+        JoinPoint joinPoint = mock(JoinPoint.class);
+        ArticleUpdateRequestDTO dto = mock(ArticleUpdateRequestDTO.class);
+        when(dto.pinCategory()).thenReturn(PinCategory.FOOD.name());
+        when(joinPoint.getArgs()).thenReturn(new Object[]{1L, 2L, dto});
+        Article article = mock(Article.class);
+        Member member = mock(Member.class);
+        when(article.getMember()).thenReturn(member);
+        when(member.getId()).thenReturn(1L);
+        when(article.getDeletedAt()).thenReturn(null);
+        when(articleRepository.findById(2L)).thenReturn(java.util.Optional.of(article));
+        assertThatCode(() -> aspect.validateArticle(joinPoint)).doesNotThrowAnyException();
+    }
 }
