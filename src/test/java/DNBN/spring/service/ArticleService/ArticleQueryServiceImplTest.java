@@ -17,7 +17,7 @@ import java.util.Optional;
 
 import DNBN.spring.domain.*;
 import DNBN.spring.domain.enums.PinCategory;
-import DNBN.spring.web.dto.ArticleResponseDTO;
+import DNBN.spring.web.dto.response.ArticleResponseDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;

@@ -1,6 +1,6 @@
 package DNBN.spring.converter;
 
-import DNBN.spring.web.dto.AuthResponseDTO;
+import DNBN.spring.web.dto.response.AuthResponseDTO;
 
 public class AuthConverter {
     public static AuthResponseDTO.ReissueTokenResponseDTO toReissueTokenResponseDTO(String accessToken) {

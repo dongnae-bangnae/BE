@@ -4,12 +4,11 @@ import DNBN.spring.apiPayload.code.status.ErrorStatus;
 import DNBN.spring.apiPayload.exception.handler.CommentHandler;
 import DNBN.spring.domain.Comment;
 import DNBN.spring.repository.CommentRepository.CommentRepository;
-import DNBN.spring.web.dto.CommentRequestDTO;
-import DNBN.spring.web.dto.CommentUpdateRequestDTO;
+import DNBN.spring.web.dto.request.CommentRequestDTO;
+import DNBN.spring.web.dto.request.CommentUpdateRequestDTO;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Component;
 

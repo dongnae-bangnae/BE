@@ -3,7 +3,7 @@ package DNBN.spring.service.RegionService;
 import DNBN.spring.converter.RegionConverter;
 import DNBN.spring.domain.Region;
 import DNBN.spring.repository.RegionRepository.RegionRepository;
-import DNBN.spring.web.dto.RegionResponseDTO;
+import DNBN.spring.web.dto.response.RegionResponseDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

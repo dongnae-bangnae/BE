@@ -6,15 +6,13 @@ import DNBN.spring.apiPayload.exception.handler.PlaceHandler;
 import DNBN.spring.domain.Article;
 import DNBN.spring.domain.enums.PinCategory;
 import DNBN.spring.repository.ArticleRepository.ArticleRepository;
-import DNBN.spring.web.dto.ArticleRequestDTO;
-import DNBN.spring.web.dto.ArticleUpdateRequestDTO;
-import DNBN.spring.web.dto.ArticleWithLocationRequestDTO;
-import java.util.Objects;
+import DNBN.spring.web.dto.request.ArticleRequestDTO;
+import DNBN.spring.web.dto.request.ArticleUpdateRequestDTO;
+import DNBN.spring.web.dto.request.ArticleWithLocationRequestDTO;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Component;
 
