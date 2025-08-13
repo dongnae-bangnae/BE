@@ -78,6 +78,7 @@ public class SecurityConfig {
                         (requests) -> requests
                                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                                 .requestMatchers("/", "/api/auth/reissue", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                                .requestMatchers("/actuator/**").hasRole("ADMIN")
 //                                .requestMatchers("/admin/**").hasRole("ADMIN") // pm이 ADMIN역할 기능 필요 X
                                 .anyRequest().authenticated()
                 )
