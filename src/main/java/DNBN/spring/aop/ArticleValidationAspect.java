@@ -31,7 +31,14 @@ public class ArticleValidationAspect {
         }
         Object dto = extractDto(args);
         Long memberId = extractLongArg(args, 0, "memberId");
-        Long articleId = extractLongArg(args, 1, "articleId");
+        Long articleId = null;
+
+        if (args.length > 1 && args[1] instanceof Long) {
+            articleId = (Long) args[1];
+        }
+        if (articleId == null) {
+            throw new ArticleHandler(ErrorStatus.ARTICLE_NOT_FOUND);
+        }
 
         // PinCategory 검증
         validatePinCategory(dto);
