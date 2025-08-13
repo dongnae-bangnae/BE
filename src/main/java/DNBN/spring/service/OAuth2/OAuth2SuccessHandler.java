@@ -116,6 +116,8 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
 //        addCookie(response, "XSRF-TOKEN", csrfToken.getToken(), false, 60 * 60 * 4);
 
+        clearJsessionCookie(response);
+
         // 4. 리다이렉트 (브릿지 페이지)
         response.sendRedirect("https://www.dnbn.site/oauth-redirect");
     }
@@ -131,5 +133,16 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
                 .build();
 
         response.addHeader("Set-Cookie", cookie.toString());
+    }
+
+    private void clearJsessionCookie(HttpServletResponse response) {
+        ResponseCookie deleteJsessionCookie = ResponseCookie.from("JSESSIONID", "")
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .maxAge(0) // 쿠키 즉시 만료
+                .build();
+        response.addHeader("Set-Cookie", deleteJsessionCookie.toString());
+        log.info("JSESSIONID 쿠키 삭제 완료");
     }
 }
