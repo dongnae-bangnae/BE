@@ -8,7 +8,6 @@ import DNBN.spring.domain.Article;
 import DNBN.spring.domain.Category;
 import DNBN.spring.domain.Place;
 import DNBN.spring.domain.Region;
-import DNBN.spring.domain.enums.PinCategory;
 import DNBN.spring.repository.CategoryRepository.CategoryRepository;
 import DNBN.spring.repository.PlaceRepository.PlaceRepository;
 import DNBN.spring.repository.RegionRepository.RegionRepository;

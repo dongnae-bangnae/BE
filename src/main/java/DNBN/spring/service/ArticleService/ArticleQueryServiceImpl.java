@@ -1,31 +1,31 @@
 package DNBN.spring.service.ArticleService;
 
 import DNBN.spring.apiPayload.code.status.ErrorStatus;
-
+import DNBN.spring.apiPayload.exception.handler.ArticleHandler;
 import DNBN.spring.apiPayload.exception.handler.CategoryHandler;
 import DNBN.spring.apiPayload.exception.handler.MemberHandler;
 import DNBN.spring.converter.ArticleConverter;
-import DNBN.spring.domain.*;
-import DNBN.spring.repository.ArticlePhotoRepository.ArticlePhotoRepository;
-
-import DNBN.spring.apiPayload.exception.handler.ArticleHandler;
 import DNBN.spring.domain.Article;
-
+import DNBN.spring.domain.ArticleLikeId;
+import DNBN.spring.domain.ArticlePhoto;
+import DNBN.spring.domain.ArticleSpamId;
+import DNBN.spring.domain.Category;
+import DNBN.spring.domain.Member;
+import DNBN.spring.domain.Place;
+import DNBN.spring.repository.ArticleLikeRepository.ArticleLikeRepository;
+import DNBN.spring.repository.ArticlePhotoRepository.ArticlePhotoRepository;
 import DNBN.spring.repository.ArticleRepository.ArticleRepository;
 import DNBN.spring.repository.ArticleRepository.ArticleRepositoryCustom;
+import DNBN.spring.repository.ArticleSpamRepository.ArticleSpamRepository;
 import DNBN.spring.repository.CategoryRepository.CategoryRepository;
 import DNBN.spring.repository.CommentRepository.CommentRepository;
 import DNBN.spring.repository.LikeRegionRepository.LikeRegionRepository;
 import DNBN.spring.repository.MemberRepository.MemberRepository;
 import DNBN.spring.repository.PlaceRepository.PlaceRepository;
-import DNBN.spring.repository.ArticleLikeRepository.ArticleLikeRepository;
-import DNBN.spring.repository.ArticleSpamRepository.ArticleSpamRepository;
-
 import DNBN.spring.web.dto.response.ArticleResponseDTO;
-
 import DNBN.spring.web.dto.response.PostResponseDTO;
-
 import java.time.LocalDateTime;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -36,8 +36,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Slf4j
 @Service
