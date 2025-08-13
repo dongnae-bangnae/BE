@@ -26,7 +26,7 @@ public class CommentValidationAspect {
     public void validateComment(JoinPoint joinPoint) {
         Object[] args = joinPoint.getArgs();
         // 파라미터 타입/순서 검증
-        if (args.length < 3 || !(args[0] instanceof Long) || !(args[1] instanceof Long) || !(args[2] instanceof Long)) {
+        if (args.length < 3 || !(args[0] instanceof Long) || (args[1] != null && !(args[1] instanceof Long)) || !(args[2] instanceof Long)) {
             throw new IllegalArgumentException("❌ CommentValidationAspect: memberId, commentId, articleId 파라미터 타입/순서 오류");
         }
         Long memberId = extractLongArg(args, 0, "memberId");
