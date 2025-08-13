@@ -26,7 +26,7 @@ public class ArticleValidationAspect {
     public void validateArticle(JoinPoint joinPoint) {
         Object[] args = joinPoint.getArgs();
         // 파라미터 타입/순서 검증
-        if (args.length < 2 || !(args[0] instanceof Long) || !(args[1] instanceof Long)) {
+        if (args.length < 2 || !(args[0] instanceof Long) || (args[1] != null && !(args[1] instanceof Long))) {
             throw new IllegalArgumentException("❌ ArticleValidationAspect: memberId, articleId 파라미터 타입/순서 오류");
         }
         Object dto = extractDto(args);
