@@ -103,5 +103,55 @@ class S3ImageValidationAspectTest {
         when(joinPoint.getArgs()).thenReturn(new Object[]{files});
         assertThatCode(() -> aspect.validateS3ImageUpload(joinPoint)).doesNotThrowAnyException();
     }
-}
 
+    @Test
+    @DisplayName("contentType이 null인 경우 예외 발생")
+    void nullContentType() {
+        MultipartFile file = mockImage(100_000, null, false);
+        JoinPoint joinPoint = mock(JoinPoint.class);
+        when(joinPoint.getArgs()).thenReturn(new Object[]{file});
+        assertThatThrownBy(() -> aspect.validateS3ImageUpload(joinPoint))
+                .isInstanceOf(ArticlePhotoHandler.class)
+                .hasMessageContaining(ErrorStatus.ARTICLE_PHOTO_IMAGE_INVALID_TYPE.getMessage());
+    }
+
+    @Test
+    @DisplayName("List<MultipartFile>에 null 요소가 포함된 경우 NPE 없이 동작")
+    void listWithNullElement() {
+        MultipartFile file1 = mockImage(100_000, "image/png", false);
+        List<MultipartFile> files = Arrays.asList(file1, null);
+        JoinPoint joinPoint = mock(JoinPoint.class);
+        when(joinPoint.getArgs()).thenReturn(new Object[]{files});
+        assertThatCode(() -> aspect.validateS3ImageUpload(joinPoint)).doesNotThrowAnyException();
+    }
+
+    @Test
+    @DisplayName("MultipartFile[]에 null 요소가 포함된 경우 NPE 없이 동작")
+    void arrayWithNullElement() {
+        MultipartFile file1 = mockImage(100_000, "image/png", false);
+        MultipartFile[] arr = new MultipartFile[]{file1, null};
+        JoinPoint joinPoint = mock(JoinPoint.class);
+        when(joinPoint.getArgs()).thenReturn(new Object[]{arr});
+        assertThatCode(() -> aspect.validateS3ImageUpload(joinPoint)).doesNotThrowAnyException();
+    }
+
+    @Test
+    @DisplayName("모든 파일이 empty인 경우 예외 없음")
+    void allFilesEmpty() {
+        MultipartFile file1 = mockImage(100_000, "image/png", true);
+        MultipartFile file2 = mockImage(100_000, "image/png", true);
+        MultipartFile[] arr = new MultipartFile[]{file1, file2};
+        JoinPoint joinPoint = mock(JoinPoint.class);
+        when(joinPoint.getArgs()).thenReturn(new Object[]{arr});
+        assertThatCode(() -> aspect.validateS3ImageUpload(joinPoint)).doesNotThrowAnyException();
+    }
+
+    @Test
+    @DisplayName("지원하지 않는 파라미터 타입이 들어온 경우 무시")
+    void unsupportedParameterType() {
+        String notAFile = "not a file";
+        JoinPoint joinPoint = mock(JoinPoint.class);
+        when(joinPoint.getArgs()).thenReturn(new Object[]{notAFile});
+        assertThatCode(() -> aspect.validateS3ImageUpload(joinPoint)).doesNotThrowAnyException();
+    }
+}
