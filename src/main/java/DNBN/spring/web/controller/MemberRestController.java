@@ -28,23 +28,15 @@ public class MemberRestController {
     private final MemberQueryService memberQueryService;
     private final MemberCommandService memberCommandService;
 
-    @PostMapping(
-            value = "/onboarding",
-            consumes = {MediaType.MULTIPART_FORM_DATA_VALUE}
-    )
+    @PostMapping(value = "/onboarding")
     @Operation(
             summary = "회원 초기 정보 등록 (온보딩) API - JWT AccessToken + CSRF 토큰 인증 필요",
-            description = "JWT 인증된 멤버가 닉네임, 프로필 이미지, 선호 지역을 등록하는 API입니다.",
+            description = "JWT 인증된 멤버가 닉네임, 선호 지역을 등록하는 API입니다.",
             security = @SecurityRequirement(name = "JWT TOKEN")
     )
-    public ApiResponse<MemberResponseDTO.OnboardingResultDTO> onboard(
-            @Parameter(content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE))
-            @AuthenticationPrincipal MemberDetails memberDetails,
-            @RequestPart("request") @Valid MemberRequestDTO.OnboardingDTO request,
-            @RequestPart(value = "profileImage", required = false) MultipartFile profileImage
-    ) {
+    public ApiResponse<MemberResponseDTO.OnboardingResultDTO> onboard(@AuthenticationPrincipal MemberDetails memberDetails) {
         Long memberId = memberDetails.getMember().getId();
-        Member member = memberCommandService.onboardingMember(memberId, request, profileImage);
+        Member member = memberCommandService.onboardingMember(memberId);
         return ApiResponse.onSuccess(MemberConverter.toOnboardingResponseDTO(member));
     }
 
@@ -74,24 +66,23 @@ public class MemberRestController {
     }
 
     @PatchMapping("/nickname")
-    @Operation(summary = "회원 닉네임 변경 API - JWT AccessToken + CSRF 토큰 인증 필요",
-            description = "JWT 인증된 멤버가 자신의 닉네임을 변경하는 API입니다.",
+    @Operation(summary = "회원 닉네임 등록 및 변경 API - JWT AccessToken + CSRF 토큰 인증 필요",
+            description = "JWT 인증된 멤버가 자신의 닉네임을 등록 및 수정하는 API입니다.",
             security = { @SecurityRequirement(name = "JWT TOKEN") }
     )
-    public ApiResponse<MemberResponseDTO.MemberInfoDTO> updateNickname(
+    public ApiResponse<MemberResponseDTO.NicknameUpdateResultDTO> updateNickname(
             @AuthenticationPrincipal MemberDetails memberDetails,
             @RequestBody @Valid MemberRequestDTO.NicknameUpdateDTO nicknameUpdate
     ) {
         Long memberId = memberDetails.getMember().getId();
-        memberCommandService.changeMemberNickname(memberId, nicknameUpdate.getNickname());
-        return ApiResponse.onSuccess(null);
-//        return ApiResponse.onSuccess(memberCommandervice.changeMemberNickname(request));
+        MemberResponseDTO.NicknameUpdateResultDTO response = memberCommandService.updateMemberNickname(memberId, nicknameUpdate.getNickname());
+        return ApiResponse.onSuccess(response);
     }
 
     @PatchMapping("/regions")
     @Operation(
-            summary = "관심 동네 변경 API - JWT AccessToken + CSRF 토큰 인증 필요",
-            description = "JWT 인증된 멤버가 자신의 관심 동네를 수정하는 API입니다.",
+            summary = "관심 동네 등록 및 변경 API - JWT AccessToken + CSRF 토큰 인증 필요",
+            description = "JWT 인증된 멤버가 자신의 관심 동네를 등록 및 수정하는 API입니다.",
             security = @SecurityRequirement(name = "JWT TOKEN")
     )
     public ApiResponse<MemberResponseDTO.ChosenRegionsDTO> updateRegions(
@@ -105,16 +96,17 @@ public class MemberRestController {
 
     @PatchMapping(
             value = "/profile-image",
-            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
+            consumes = {MediaType.MULTIPART_FORM_DATA_VALUE}
     )
     @Operation(
-            summary = "프로필 이미지 변경 API - JWT AccessToken + CSRF 토큰 인증 필요",
-            description = "JWT 인증된 사용자가 프로필 이미지를 변경합니다.",
+            summary = "프로필 이미지 등록 및 변경 API - JWT AccessToken + CSRF 토큰 인증 필요",
+            description = "JWT 인증된 사용자가 프로필 이미지를 등록 및 수정하는 API입니다.",
             security = { @SecurityRequirement(name = "JWT TOKEN") }
     )
     public ApiResponse<MemberResponseDTO.ProfileImageUpdateResultDTO> updateProfileImage(
+            @Parameter(content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE))
             @AuthenticationPrincipal MemberDetails memberDetails,
-            @RequestPart("profileImage") MultipartFile profileImage
+            @RequestPart(value = "profileImage", required = false) MultipartFile profileImage
     ) {
         Long memberId = memberDetails.getMember().getId();
         MemberResponseDTO.ProfileImageUpdateResultDTO result = memberCommandService.updateProfileImage(memberId, profileImage);

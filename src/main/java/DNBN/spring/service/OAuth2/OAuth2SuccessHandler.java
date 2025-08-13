@@ -86,7 +86,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         // 쿠키로 프론트에게 내려주기
         boolean isOnboardingCompleted = member.isOnboardingCompleted();
         SuccessStatus status = isOnboardingCompleted
-                ? SuccessStatus.MEMBER_ALREADY_LOGIN
+                ? SuccessStatus.MEMBER_ALREADY_ONBOARDING_COMPLETED
                 : SuccessStatus.MEMBER_NEEDS_ONBOARDING;
 
         // 1. 민감 정보: HttpOnly + Secure 쿠키
