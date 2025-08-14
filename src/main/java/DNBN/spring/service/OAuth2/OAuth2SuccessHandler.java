@@ -1,25 +1,19 @@
 package DNBN.spring.service.OAuth2;
 
-import DNBN.spring.apiPayload.ApiResponse;
 import DNBN.spring.apiPayload.code.status.SuccessStatus;
 import DNBN.spring.config.security.jwt.JwtTokenProvider;
 import DNBN.spring.domain.Member;
-import DNBN.spring.web.dto.AuthResponseDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.csrf.CsrfToken;
-import org.springframework.security.web.csrf.CsrfTokenRepository;
-import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -105,8 +99,8 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 //        CookieCsrfTokenRepository csrfTokenRepository = CookieCsrfTokenRepository.withHttpOnlyFalse();
         CsrfToken csrfToken = csrfTokenRepository.generateToken(request);
         csrfTokenRepository.saveToken(csrfToken, request, response);
-        request.setAttribute(CsrfToken.class.getName(), csrfToken);
-        request.setAttribute(csrfToken.getParameterName(), csrfToken);
+//        request.setAttribute(CsrfToken.class.getName(), csrfToken);
+//        request.setAttribute(csrfToken.getParameterName(), csrfToken);
 
         // 프론트에서 JS로 읽을 수 있게 HttpOnly = false
 //        ResponseCookie csrfCookie = ResponseCookie.from("XSRF-TOKEN", csrfToken.getToken())
@@ -121,6 +115,8 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 //        response.addHeader("Set-Cookie", csrfCookie.toString());
 
 //        addCookie(response, "XSRF-TOKEN", csrfToken.getToken(), false, 60 * 60 * 4);
+
+        clearJsessionCookie(response);
 
         // 4. 리다이렉트 (브릿지 페이지)
         response.sendRedirect("https://www.dnbn.site/oauth-redirect");
@@ -137,5 +133,16 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
                 .build();
 
         response.addHeader("Set-Cookie", cookie.toString());
+    }
+
+    private void clearJsessionCookie(HttpServletResponse response) {
+        ResponseCookie deleteJsessionCookie = ResponseCookie.from("JSESSIONID", "")
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .maxAge(0) // 쿠키 즉시 만료
+                .build();
+        response.addHeader("Set-Cookie", deleteJsessionCookie.toString());
+        log.info("JSESSIONID 쿠키 삭제 완료");
     }
 }

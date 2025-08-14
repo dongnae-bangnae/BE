@@ -16,8 +16,7 @@ import DNBN.spring.repository.ProfileImageRepository.ProfileImageRepository;
 import DNBN.spring.repository.RegionRepository.RegionRepository;
 import DNBN.spring.repository.UuidRepository.UuidRepository;
 import DNBN.spring.validation.validator.OnboardingValidator;
-import DNBN.spring.web.dto.MemberRequestDTO;
-import DNBN.spring.web.dto.MemberResponseDTO;
+import DNBN.spring.web.dto.response.MemberResponseDTO;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,7 +27,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service

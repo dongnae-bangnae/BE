@@ -38,6 +38,8 @@ public class OAuth2FailureHandler implements AuthenticationFailureHandler {
         addCookie(response, "code", "AUTH_FAILURE", false, 60);  // 필요 시 고유 코드로 변경 가능
         addCookie(response, "message", java.net.URLEncoder.encode(exception.getMessage(), java.nio.charset.StandardCharsets.UTF_8), false, 60);
 
+        clearJsessionCookie(response);
+
         // 2. 실패용 브릿지 페이지로 리다이렉트
         response.sendRedirect("https://www.dnbn.site/oauth-redirect");
 
@@ -61,5 +63,16 @@ public class OAuth2FailureHandler implements AuthenticationFailureHandler {
                 .build();
 
         response.addHeader("Set-Cookie", cookie.toString());
+    }
+
+    private void clearJsessionCookie(HttpServletResponse response) {
+        ResponseCookie deleteJsessionCookie = ResponseCookie.from("JSESSIONID", "")
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .maxAge(0) // 쿠키 즉시 만료
+                .build();
+        response.addHeader("Set-Cookie", deleteJsessionCookie.toString());
+        log.info("JSESSIONID 쿠키 삭제 완료");
     }
 }

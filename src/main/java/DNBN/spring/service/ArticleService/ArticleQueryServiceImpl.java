@@ -4,14 +4,12 @@ import DNBN.spring.apiPayload.code.status.ErrorStatus;
 
 import DNBN.spring.apiPayload.exception.handler.CategoryHandler;
 import DNBN.spring.apiPayload.exception.handler.MemberHandler;
-import DNBN.spring.aws.s3.AmazonS3Manager;
 import DNBN.spring.converter.ArticleConverter;
 import DNBN.spring.domain.*;
 import DNBN.spring.repository.ArticlePhotoRepository.ArticlePhotoRepository;
 
 import DNBN.spring.apiPayload.exception.handler.ArticleHandler;
 import DNBN.spring.domain.Article;
-import DNBN.spring.domain.Region;
 
 import DNBN.spring.repository.ArticleRepository.ArticleRepository;
 import DNBN.spring.repository.ArticleRepository.ArticleRepositoryCustom;
@@ -20,14 +18,14 @@ import DNBN.spring.repository.CommentRepository.CommentRepository;
 import DNBN.spring.repository.LikeRegionRepository.LikeRegionRepository;
 import DNBN.spring.repository.MemberRepository.MemberRepository;
 import DNBN.spring.repository.PlaceRepository.PlaceRepository;
-import DNBN.spring.repository.RegionRepository.RegionRepository;
 import DNBN.spring.repository.ArticleLikeRepository.ArticleLikeRepository;
 import DNBN.spring.repository.ArticleSpamRepository.ArticleSpamRepository;
 
-import DNBN.spring.web.dto.ArticleResponseDTO;
+import DNBN.spring.web.dto.response.ArticleResponseDTO;
 
 import DNBN.spring.web.dto.response.PostResponseDTO;
 
+import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -136,6 +134,7 @@ public class ArticleQueryServiceImpl implements ArticleQueryService {
         return ArticleConverter.toArticleDetailDTO(article, photos);
     }
 
+    // V1: 단일 커서(Long) 방식
     @Override
     @org.springframework.cache.annotation.Cacheable(
         cacheNames = "articles:first-page",
@@ -143,7 +142,7 @@ public class ArticleQueryServiceImpl implements ArticleQueryService {
         condition = "#cursor == null",
         unless = "#result == null || #result.isEmpty()"
     )
-    public List<ArticleResponseDTO.ArticleListItemDTO> getArticleList(Long memberId, Long placeId, Long cursor, Long limit) {
+    public List<ArticleResponseDTO.ArticleListItemDTO> getArticleListV1(Long memberId, Long placeId, Long cursor, Long limit) {
         long effectiveLimit = (limit != null) ? limit : DEFAULT_LIMIT; // limit가 null인 경우 기본값 설정
 
         if (cursor == null || cursor == -1L) {
@@ -155,7 +154,7 @@ public class ArticleQueryServiceImpl implements ArticleQueryService {
         Place place = placeRepository.findPlaceByPlaceId(placeId)
             .orElseThrow(() -> new ArticleHandler(ErrorStatus.PLACE_NOT_FOUND));
         
-        List<Article> articles = articleRepositoryCustom.findArticlesByPlaceWithCursor(placeId, cursor, effectiveLimit + 1);
+        List<Article> articles = articleRepositoryCustom.findArticlesByPlaceWithCursorV1(placeId, cursor, effectiveLimit + 1);
         boolean hasNext = articles.size() > effectiveLimit;
         if (hasNext) articles.remove(articles.size() - 1);
 
@@ -178,6 +177,36 @@ public class ArticleQueryServiceImpl implements ArticleQueryService {
                 // 내 글 여부
                 boolean isMine = memberId.equals(article.getMember().getId());
 
+                log.debug("articleId: {}, isLiked: {}, isSpammed: {}, isMine: {}", articleId, isLiked, isSpammed, isMine);
+                return ArticleConverter.toArticleListItemDTO(article, mainImageUuid, isLiked, isSpammed, isMine);
+            })
+            .toList();
+    }
+
+    // V2: 복합 커서(LocalDateTime, Long) 방식
+    @Override
+    public List<ArticleResponseDTO.ArticleListItemDTO> getArticleListV2(Long memberId, Long placeId, LocalDateTime cursorCreatedAt, Long cursorArticleId, Long limit) {
+        long effectiveLimit = (limit != null) ? limit : DEFAULT_LIMIT;
+        Member member = memberRepository.findById(memberId)
+            .orElseThrow(() -> new MemberHandler(ErrorStatus.MEMBER_NOT_FOUND));
+        Place place = placeRepository.findPlaceByPlaceId(placeId)
+            .orElseThrow(() -> new ArticleHandler(ErrorStatus.PLACE_NOT_FOUND));
+        List<Article> articles = articleRepositoryCustom.findArticlesByPlaceWithCursorV2(placeId, cursorCreatedAt, cursorArticleId, effectiveLimit + 1);
+        boolean hasNext = articles.size() > effectiveLimit;
+        if (hasNext) articles.remove(articles.size() - 1);
+        return articles.stream()
+            .map(article -> {
+                Long articleId = article.getArticleId();
+                String mainImageUuid = articlePhotoRepository.findFirstByArticleAndIsMainTrue(article)
+                    .map(ArticlePhoto::getFileKey)
+                    .orElseGet(() -> defaultImageUuid);
+                boolean isLiked = articleLikeRepository.existsById(
+                    new ArticleLikeId(articleId, memberId)
+                );
+                boolean isSpammed = articleSpamRepository.existsById(
+                    new ArticleSpamId(articleId, memberId)
+                );
+                boolean isMine = memberId.equals(article.getMember().getId());
                 log.debug("articleId: {}, isLiked: {}, isSpammed: {}, isMine: {}", articleId, isLiked, isSpammed, isMine);
                 return ArticleConverter.toArticleListItemDTO(article, mainImageUuid, isLiked, isSpammed, isMine);
             })

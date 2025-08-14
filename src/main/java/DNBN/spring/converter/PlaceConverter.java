@@ -3,7 +3,7 @@ package DNBN.spring.converter;
 import DNBN.spring.domain.Place;
 import DNBN.spring.domain.mapping.SavePlace;
 import DNBN.spring.repository.SavePlaceRepository.SavePlaceRepository;
-import DNBN.spring.web.dto.PlaceResponseDTO;
+import DNBN.spring.web.dto.response.PlaceResponseDTO;
 
 import java.util.List;
 import java.util.stream.Collectors;
