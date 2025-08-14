@@ -1,7 +1,6 @@
 package DNBN.spring.service.MemberService;
 
-import DNBN.spring.web.dto.MemberResponseDTO;
-import jakarta.servlet.http.HttpServletRequest;
+import DNBN.spring.web.dto.response.MemberResponseDTO;
 
 public interface MemberQueryService {
     MemberResponseDTO.MemberInfoDTO getMemberInfo(Long memberId);

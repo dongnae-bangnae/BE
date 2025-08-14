@@ -59,10 +59,13 @@ public class ArticleQueryServiceImpl implements ArticleQueryService {
     private final ArticleSpamRepository articleSpamRepository;
     private final PlaceRepository placeRepository;
 
+    @Cacheable(
+            cacheNames = "articles:region",
+            key = "'v1:m:' + #memberId + ':p:' + #page",
+            sync = true
+    )
     @Override
     public Page<Article> getArticleListByRegion(Long memberId, Integer page) {
-        log.info("[DB HIT] getArticleListByRegion m={}, p={}", memberId, page);
-
         List<Long> regionIds = likeRegionRepository.findRegionIdsByMemberId(memberId);
 
         if (regionIds.isEmpty()) {

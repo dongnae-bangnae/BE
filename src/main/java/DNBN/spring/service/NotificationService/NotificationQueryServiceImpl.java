@@ -1,11 +1,9 @@
 package DNBN.spring.service.NotificationService;
 
-import DNBN.spring.apiPayload.exception.GeneralException;
-import DNBN.spring.apiPayload.code.status.ErrorStatus;
 import DNBN.spring.converter.NotificationConverter;
 import DNBN.spring.domain.Notification;
 import DNBN.spring.repository.NotificationRepository.NotificationRepository;
-import DNBN.spring.web.dto.NotificationResponseDTO;
+import DNBN.spring.web.dto.response.NotificationResponseDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

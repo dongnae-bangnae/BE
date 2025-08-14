@@ -6,15 +6,16 @@ import DNBN.spring.converter.ArticleConverter;
 import DNBN.spring.domain.MemberDetails;
 import DNBN.spring.service.ArticleService.ArticleCommandService;
 import DNBN.spring.service.ArticleService.ArticleQueryService;
-import DNBN.spring.web.dto.ArticleRequestDTO;
-import DNBN.spring.web.dto.ArticleResponseDTO;
-import DNBN.spring.web.dto.ArticleUpdateRequestDTO;
-import DNBN.spring.web.dto.ArticleWithLocationRequestDTO;
+import DNBN.spring.web.dto.request.ArticleRequestDTO;
+import DNBN.spring.web.dto.response.ArticleResponseDTO;
+import DNBN.spring.web.dto.request.ArticleUpdateRequestDTO;
+import DNBN.spring.web.dto.request.ArticleWithLocationRequestDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -41,7 +42,7 @@ public class ArticleController {
             description = "새로운 게시물을 등록합니다. JWT 인증 필요.",
             security = @SecurityRequirement(name = "JWT TOKEN")
     )
-    public ApiResponse<ArticleResponseDTO> createArticle(
+    public ResponseEntity<ApiResponse<ArticleResponseDTO>> createArticle(
             @AuthenticationPrincipal MemberDetails memberDetails,
             @RequestPart("request") @Valid ArticleRequestDTO dto,
             @RequestPart(value = "mainImage", required = false) MultipartFile mainImage,
@@ -50,7 +51,7 @@ public class ArticleController {
         Long memberId = memberDetails.getMember().getId();
         ArticleCommandService.ArticleWithPhotos result = articleCommandService.createArticle(memberId, dto, mainImage, imageFiles);
         ArticleResponseDTO response = ArticleConverter.toArticleResponseDTO(result.article, result.photos);
-        return ApiResponse.of(SuccessStatus.ARTICLE_CREATE_SUCCESS, response);
+        return ResponseEntity.status(SuccessStatus.ARTICLE_CREATE_SUCCESS.getHttpStatus()).body(ApiResponse.of(SuccessStatus.ARTICLE_CREATE_SUCCESS, response));
     }
 
     @PostMapping(value = "/with-location", consumes = {"multipart/form-data"})
@@ -59,7 +60,7 @@ public class ArticleController {
             description = "핀(장소)이 등록되지 않은 경우, 위도/경도로 장소를 지정해 게시물을 등록합니다. JWT 인증 필요.",
             security = @SecurityRequirement(name = "JWT TOKEN")
     )
-    public ApiResponse<ArticleResponseDTO> createArticleWithLocation(
+    public ResponseEntity<ApiResponse<ArticleResponseDTO>> createArticleWithLocation(
             @AuthenticationPrincipal MemberDetails memberDetails,
             @RequestPart("request") @Valid ArticleWithLocationRequestDTO dto,
             @RequestPart(value = "mainImage", required = false) MultipartFile mainImage,
@@ -68,7 +69,7 @@ public class ArticleController {
         Long memberId = memberDetails.getMember().getId();
         ArticleCommandService.ArticleWithPhotos result = articleCommandService.createArticle(memberId, dto, mainImage, imageFiles);
         ArticleResponseDTO response = ArticleConverter.toArticleResponseDTO(result.article, result.photos);
-        return ApiResponse.of(SuccessStatus.ARTICLE_CREATE_SUCCESS, response);
+        return ResponseEntity.status(SuccessStatus.ARTICLE_CREATE_SUCCESS.getHttpStatus()).body(ApiResponse.of(SuccessStatus.ARTICLE_CREATE_SUCCESS, response));
     }
 
     @PutMapping(value = "/{articleId}", consumes = {"multipart/form-data"})
@@ -77,7 +78,7 @@ public class ArticleController {
             description = "기존 게시물을 수정합니다. JWT 인증 필요. 본인 게시물만 수정 가능합니다.",
             security = @SecurityRequirement(name = "JWT TOKEN")
     )
-    public ApiResponse<ArticleResponseDTO> updateArticle(
+    public ResponseEntity<ApiResponse<ArticleResponseDTO>> updateArticle(
             @AuthenticationPrincipal MemberDetails memberDetails,
             @PathVariable Long articleId,
             @RequestPart("request") @Valid ArticleUpdateRequestDTO dto,
@@ -87,7 +88,7 @@ public class ArticleController {
         Long memberId = memberDetails.getMember().getId();
         ArticleCommandService.ArticleWithPhotos result = articleCommandService.updateArticle(memberId, articleId, dto, mainImage, imageFiles);
         ArticleResponseDTO response = ArticleConverter.toArticleResponseDTO(result.article, result.photos);
-        return ApiResponse.of(SuccessStatus.ARTICLE_UPDATE_SUCCESS, response);
+        return ResponseEntity.status(SuccessStatus.ARTICLE_UPDATE_SUCCESS.getHttpStatus()).body(ApiResponse.of(SuccessStatus.ARTICLE_UPDATE_SUCCESS, response));
     }
 
     @DeleteMapping("/{articleId}")
@@ -96,13 +97,13 @@ public class ArticleController {
         description = "게시물을 삭제합니다. JWT 인증 필요.",
         security = @SecurityRequirement(name = "JWT TOKEN")
     )
-    public ApiResponse<Void> deleteArticle(
+    public ResponseEntity<ApiResponse<Void>> deleteArticle(
             @AuthenticationPrincipal MemberDetails memberDetails,
             @PathVariable Long articleId
     ) {
         Long memberId = memberDetails.getMember().getId();
         articleCommandService.deleteArticle(memberId, articleId);
-        return ApiResponse.of(SuccessStatus.ARTICLE_DELETE_SUCCESS, null);
+        return ResponseEntity.status(SuccessStatus.ARTICLE_DELETE_SUCCESS.getHttpStatus()).body(ApiResponse.of(SuccessStatus.ARTICLE_DELETE_SUCCESS, null));
     }
 
     @GetMapping("/{articleId}")
@@ -111,25 +112,47 @@ public class ArticleController {
         description = "게시물 상세페이지를 조회합니다.",
         security = @SecurityRequirement(name = "JWT TOKEN")
     )
-    public ApiResponse<ArticleResponseDTO.ArticleDetailDTO> getArticleDetail(@PathVariable Long articleId) {
+    public ResponseEntity<ApiResponse<ArticleResponseDTO.ArticleDetailDTO>> getArticleDetail(@PathVariable Long articleId) {
         ArticleResponseDTO.ArticleDetailDTO response = articleQueryService.getArticleDetail(articleId);
-        return ApiResponse.of(SuccessStatus.ARTICLE_READ_SUCCESS, response);
+        return ResponseEntity.status(SuccessStatus.ARTICLE_READ_SUCCESS.getHttpStatus()).body(ApiResponse.of(SuccessStatus.ARTICLE_READ_SUCCESS, response));
     }
 
     @GetMapping
     @Operation(
-        summary = "게시물 목록 조회",
-        description = "게시물 목록을 조회합니다. JWT 인증 필요.",
+        summary = "게시물 목록 조회 (V1: 단일 커서(Long) 방식)",
+        description = "게시물 목록을 단일 커서(Long) 방식으로 조회합니다.\n\n- V1: 단일 커서(Long) 방식\n- placeId(장소 ID), cursor(마지막으로 조회한 게시글 ID), limit(페이지 크기) 사용\n- cursor가 null 또는 -1이면 첫 페이지 조회로 간주합니다.\n- JWT 인증 필요.",
         security = @SecurityRequirement(name = "JWT TOKEN")
     )
-    public ApiResponse<List<ArticleResponseDTO.ArticleListItemDTO>> getArticleList(
+    public ResponseEntity<ApiResponse<List<ArticleResponseDTO.ArticleListItemDTO>>> getArticleList(
             @AuthenticationPrincipal MemberDetails memberDetails,
             @RequestParam("placeId") Long placeId,
             @RequestParam(value = "cursor", required = false) Long cursor,
             @RequestParam(value = "limit", required = false) Long limit
     ) {
         Long memberId = memberDetails.getMember().getId();
-        List<ArticleResponseDTO.ArticleListItemDTO> articles = articleQueryService.getArticleList(memberId, placeId, cursor, limit);
-        return ApiResponse.of(SuccessStatus.ARTICLE_READ_SUCCESS, articles);
+        List<ArticleResponseDTO.ArticleListItemDTO> articles = articleQueryService.getArticleListV1(memberId, placeId, cursor, limit);
+        return ResponseEntity.status(SuccessStatus.ARTICLE_READ_SUCCESS.getHttpStatus()).body(ApiResponse.of(SuccessStatus.ARTICLE_READ_SUCCESS, articles));
+    }
+
+    @GetMapping("/v2")
+    @Operation(
+        summary = "게시물 목록 조회 (V2: 복합 커서(LocalDateTime, Long) 방식)",
+        description = "게시물 목록을 복합 커서(LocalDateTime, Long) 방식으로 조회합니다.\n\n- V2: 복합 커서(LocalDateTime, Long) 방식\n- placeId(장소 ID), cursorCreatedAt(마지막 게시글 생성일시), cursorArticleId(마지막 게시글 ID), limit(페이지 크기) 사용\n- cursorCreatedAt, cursorArticleId가 null이면 첫 페이지 조회로 간주합니다.\n- JWT 인증 필요.",
+        security = @SecurityRequirement(name = "JWT TOKEN")
+    )
+    public ResponseEntity<ApiResponse<List<ArticleResponseDTO.ArticleListItemDTO>>> getArticleList(
+        @AuthenticationPrincipal MemberDetails memberDetails,
+        @RequestParam("placeId") Long placeId,
+        @RequestParam(value = "cursorCreatedAt", required = false) String cursorCreatedAtStr,
+        @RequestParam(value = "cursorArticleId", required = false) Long cursorArticleId,
+        @RequestParam(value = "limit", required = false) Long limit
+    ) {
+        Long memberId = memberDetails.getMember().getId();
+        java.time.LocalDateTime cursorCreatedAt = null;
+        if (cursorCreatedAtStr != null && !cursorCreatedAtStr.isBlank()) {
+            cursorCreatedAt = java.time.LocalDateTime.parse(cursorCreatedAtStr);
+        }
+        List<ArticleResponseDTO.ArticleListItemDTO> articles = articleQueryService.getArticleListV2(memberId, placeId, cursorCreatedAt, cursorArticleId, limit);
+        return ResponseEntity.status(SuccessStatus.ARTICLE_READ_SUCCESS.getHttpStatus()).body(ApiResponse.of(SuccessStatus.ARTICLE_READ_SUCCESS, articles));
     }
 }

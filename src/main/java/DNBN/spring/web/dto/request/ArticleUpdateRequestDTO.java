@@ -1,4 +1,4 @@
-package DNBN.spring.web.dto;
+package DNBN.spring.web.dto.request;
 
 import java.time.LocalDate;
 
