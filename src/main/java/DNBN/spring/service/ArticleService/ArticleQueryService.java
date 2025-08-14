@@ -3,10 +3,8 @@ package DNBN.spring.service.ArticleService;
 import DNBN.spring.domain.Article;
 import DNBN.spring.web.dto.response.ArticleResponseDTO;
 import DNBN.spring.web.dto.response.PostResponseDTO;
-import java.time.LocalDateTime;
-import org.springframework.data.domain.Page;
-
 import java.util.List;
+import org.springframework.data.domain.Page;
 
 public interface ArticleQueryService {
     Page<Article> getArticleListByRegion(Long memberId, Integer page);

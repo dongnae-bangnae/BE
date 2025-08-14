@@ -1,31 +1,31 @@
 package DNBN.spring.service.ArticleService;
 
 import DNBN.spring.apiPayload.code.status.ErrorStatus;
-
+import DNBN.spring.apiPayload.exception.handler.ArticleHandler;
 import DNBN.spring.apiPayload.exception.handler.CategoryHandler;
 import DNBN.spring.apiPayload.exception.handler.MemberHandler;
 import DNBN.spring.converter.ArticleConverter;
-import DNBN.spring.domain.*;
-import DNBN.spring.repository.ArticlePhotoRepository.ArticlePhotoRepository;
-
-import DNBN.spring.apiPayload.exception.handler.ArticleHandler;
 import DNBN.spring.domain.Article;
-
+import DNBN.spring.domain.ArticleLikeId;
+import DNBN.spring.domain.ArticlePhoto;
+import DNBN.spring.domain.ArticleSpamId;
+import DNBN.spring.domain.Category;
+import DNBN.spring.domain.Member;
+import DNBN.spring.domain.Place;
+import DNBN.spring.repository.ArticleLikeRepository.ArticleLikeRepository;
+import DNBN.spring.repository.ArticlePhotoRepository.ArticlePhotoRepository;
 import DNBN.spring.repository.ArticleRepository.ArticleRepository;
 import DNBN.spring.repository.ArticleRepository.ArticleRepositoryCustom;
+import DNBN.spring.repository.ArticleSpamRepository.ArticleSpamRepository;
 import DNBN.spring.repository.CategoryRepository.CategoryRepository;
 import DNBN.spring.repository.CommentRepository.CommentRepository;
 import DNBN.spring.repository.LikeRegionRepository.LikeRegionRepository;
 import DNBN.spring.repository.MemberRepository.MemberRepository;
 import DNBN.spring.repository.PlaceRepository.PlaceRepository;
-import DNBN.spring.repository.ArticleLikeRepository.ArticleLikeRepository;
-import DNBN.spring.repository.ArticleSpamRepository.ArticleSpamRepository;
-
 import DNBN.spring.web.dto.response.ArticleResponseDTO;
-
 import DNBN.spring.web.dto.response.PostResponseDTO;
-
 import java.time.LocalDateTime;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -36,8 +36,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Slf4j
 @Service
@@ -147,28 +145,21 @@ public class ArticleQueryServiceImpl implements ArticleQueryService {
             .orElseThrow(() -> new MemberHandler(ErrorStatus.MEMBER_NOT_FOUND));
         Place place = placeRepository.findPlaceByPlaceId(placeId)
             .orElseThrow(() -> new ArticleHandler(ErrorStatus.PLACE_NOT_FOUND));
-        
         List<Article> articles = articleRepositoryCustom.findArticlesByPlaceWithCursorV1(placeId, cursor, effectiveLimit + 1);
+
         boolean hasNext = articles.size() > effectiveLimit;
         if (hasNext) articles.remove(articles.size() - 1);
 
         return articles.stream()
             .map(article -> {
                 Long articleId = article.getArticleId();
-
-                // 대표 이미지
-                String mainImageUuid = articlePhotoRepository.findFirstByArticleAndIsMainTrue(article)
-                    .map(ArticlePhoto::getFileKey)
-                    .orElseGet(() -> defaultImageUuid);
-                // 좋아요 여부
+                String mainImageUuid = getMainImageUuid(article);
                 boolean isLiked = articleLikeRepository.existsById(
                     new ArticleLikeId(articleId, memberId)
                 );
-                // 스팸 여부
                 boolean isSpammed = articleSpamRepository.existsById(
                     new ArticleSpamId(articleId, memberId)
                 );
-                // 내 글 여부
                 boolean isMine = memberId.equals(article.getMember().getId());
 
                 log.debug("articleId: {}, isLiked: {}, isSpammed: {}, isMine: {}", articleId, isLiked, isSpammed, isMine);
@@ -186,14 +177,14 @@ public class ArticleQueryServiceImpl implements ArticleQueryService {
         Place place = placeRepository.findPlaceByPlaceId(placeId)
             .orElseThrow(() -> new ArticleHandler(ErrorStatus.PLACE_NOT_FOUND));
         List<Article> articles = articleRepositoryCustom.findArticlesByPlaceWithCursorV2(placeId, cursorCreatedAt, cursorArticleId, effectiveLimit + 1);
+
         boolean hasNext = articles.size() > effectiveLimit;
         if (hasNext) articles.remove(articles.size() - 1);
+
         return articles.stream()
             .map(article -> {
                 Long articleId = article.getArticleId();
-                String mainImageUuid = articlePhotoRepository.findFirstByArticleAndIsMainTrue(article)
-                    .map(ArticlePhoto::getFileKey)
-                    .orElseGet(() -> defaultImageUuid);
+                String mainImageUuid = getMainImageUuid(article);
                 boolean isLiked = articleLikeRepository.existsById(
                     new ArticleLikeId(articleId, memberId)
                 );
@@ -201,9 +192,20 @@ public class ArticleQueryServiceImpl implements ArticleQueryService {
                     new ArticleSpamId(articleId, memberId)
                 );
                 boolean isMine = memberId.equals(article.getMember().getId());
+
                 log.debug("articleId: {}, isLiked: {}, isSpammed: {}, isMine: {}", articleId, isLiked, isSpammed, isMine);
                 return ArticleConverter.toArticleListItemDTO(article, mainImageUuid, isLiked, isSpammed, isMine);
             })
             .toList();
+    }
+
+    /**
+     * 게시글의 대표 이미지 UUID 반환
+     * 대표 이미지가 없는 경우 기본 이미지 UUID 반환
+     */
+    private String getMainImageUuid(Article article) {
+        return articlePhotoRepository.findFirstByArticleAndIsMainTrue(article)
+            .map(ArticlePhoto::getFileKey)
+            .orElseGet(() -> defaultImageUuid);
     }
 }
