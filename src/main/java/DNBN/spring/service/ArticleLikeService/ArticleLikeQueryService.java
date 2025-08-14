@@ -1,8 +1,7 @@
 package DNBN.spring.service.ArticleLikeService;
 
-import DNBN.spring.domain.ArticleLikeId;
 import DNBN.spring.repository.ArticleLikeRepository.ArticleLikeRepository;
-import DNBN.spring.web.dto.LikeStatusResponseDTO;
+import DNBN.spring.web.dto.response.LikeStatusResponseDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

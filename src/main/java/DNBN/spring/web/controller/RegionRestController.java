@@ -1,15 +1,18 @@
 package DNBN.spring.web.controller;
 
 import DNBN.spring.apiPayload.ApiResponse;
+import DNBN.spring.apiPayload.code.status.SuccessStatus;
 import DNBN.spring.service.RegionService.RegionQueryService;
-import DNBN.spring.web.dto.RegionResponseDTO;
+import DNBN.spring.web.dto.response.RegionResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.RequiredArgsConstructor;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
@@ -35,6 +38,6 @@ public class RegionRestController {
             @RequestParam(defaultValue = "20") int limit
     ) {
         RegionResponseDTO.SearchRegionResult result = regionQueryService.searchRegion(keyword, cursor, limit);
-        return ResponseEntity.ok(ApiResponse.onSuccess(result));
+        return ResponseEntity.status(SuccessStatus.REGION_SEARCH_SUCCESS.getHttpStatus()).body(ApiResponse.of(SuccessStatus.REGION_SEARCH_SUCCESS, result));
     }
 }

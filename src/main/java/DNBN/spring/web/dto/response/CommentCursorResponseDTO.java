@@ -1,4 +1,4 @@
-package DNBN.spring.web.dto;
+package DNBN.spring.web.dto.response;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -6,9 +6,8 @@ import java.util.List;
 
 @Getter
 @Builder
-public class CommentListCursorResponseDTO {
+public class CommentCursorResponseDTO {
     private List<CommentResponseDTO> comments;
     private Long nextCursor;
     private boolean hasNext;
 }
-

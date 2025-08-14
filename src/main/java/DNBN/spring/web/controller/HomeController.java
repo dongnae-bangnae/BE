@@ -1,10 +1,10 @@
 package DNBN.spring.web.controller;
 
 import DNBN.spring.apiPayload.ApiResponse;
+import DNBN.spring.apiPayload.code.status.SuccessStatus;
 import DNBN.spring.config.security.SecurityUtils;
 import DNBN.spring.converter.ArticleConverter;
 import DNBN.spring.domain.Article;
-import DNBN.spring.repository.ArticleRepository.ArticleRepository;
 import DNBN.spring.service.ArticleService.ArticleQueryService;
 import DNBN.spring.service.ChallengeService.ChallengeQueryService;
 import DNBN.spring.web.dto.response.ChallengeResponseDTO;
@@ -12,16 +12,15 @@ import DNBN.spring.web.dto.response.PostResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
-import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
@@ -38,22 +37,22 @@ public class HomeController {
     @Parameters({
             @Parameter(name = "page", description = "페이지 번호 (1부터 시작)", schema = @Schema(defaultValue = "1", minimum = "1"))
     })
-    public ApiResponse<PostResponseDTO.PostPreViewListDTO> getNewArticleList(
-            // @ValidPage
+    public ResponseEntity<ApiResponse<PostResponseDTO.PostPreViewListDTO>> getNewArticleList(
             @RequestParam(name = "page", defaultValue = "1") Integer page
-            ) {
+    ) {
         Long memberId = SecurityUtils.getCurrentMemberId();
         Page<Article> articlePreviewList = articleQueryService.getArticleListByRegion(memberId, page);
-
-        return ApiResponse.onSuccess(ArticleConverter.articlePreViewListDTO(articlePreviewList));
+        return ResponseEntity.status(SuccessStatus.HOME_ARTICLE_LIST_READ_SUCCESS.getHttpStatus())
+                .body(ApiResponse.of(SuccessStatus.HOME_ARTICLE_LIST_READ_SUCCESS, ArticleConverter.articlePreViewListDTO(articlePreviewList)));
     }
 
     @GetMapping("/challenges/{challengeId}")
     @Operation(
             summary = "챌린지 상세 정보 조회 API - JWT 인증 필요",
             description = "챌린지 상세 정보 조회입니다. 챌린지 아이디를 입력하세요." )
-    public ApiResponse<ChallengeResponseDTO.ChallengeDetailDTO> getChallengeDetail(@PathVariable Long challengeId) {
-        return ApiResponse.onSuccess(challengeQueryService.getChallengeDetail(challengeId));
+    public ResponseEntity<ApiResponse<ChallengeResponseDTO.ChallengeDetailDTO>> getChallengeDetail(@PathVariable Long challengeId) {
+        return ResponseEntity.status(SuccessStatus.HOME_CHALLENGE_DETAIL_READ_SUCCESS.getHttpStatus())
+                .body(ApiResponse.of(SuccessStatus.HOME_CHALLENGE_DETAIL_READ_SUCCESS, challengeQueryService.getChallengeDetail(challengeId)));
     }
 
     @GetMapping("/challenge/top-article")
@@ -61,7 +60,8 @@ public class HomeController {
             summary = "챌린지 좋아요 1등 게시물 조회 API - JWT 인증 필요",
             description = "챌린지 게시물 중 좋아요 1등 게시물을 조회하는 api입니다."
     )
-    public ApiResponse<PostResponseDTO.PostPreViewDTO> getTopArticle() {
-        return ApiResponse.onSuccess(articleQueryService.getTopChallengeArticle());
+    public ResponseEntity<ApiResponse<PostResponseDTO.PostPreViewDTO>> getTopArticle() {
+        return ResponseEntity.status(SuccessStatus.HOME_TOP_ARTICLE_READ_SUCCESS.getHttpStatus())
+                .body(ApiResponse.of(SuccessStatus.HOME_TOP_ARTICLE_READ_SUCCESS, articleQueryService.getTopChallengeArticle()));
     }
 }

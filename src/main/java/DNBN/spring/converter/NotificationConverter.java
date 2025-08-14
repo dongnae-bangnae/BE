@@ -1,7 +1,7 @@
 package DNBN.spring.converter;
 
 import DNBN.spring.domain.Notification;
-import DNBN.spring.web.dto.NotificationResponseDTO;
+import DNBN.spring.web.dto.response.NotificationResponseDTO;
 
 public class NotificationConverter {
     public static NotificationResponseDTO.commentResponse toCommentDto(Notification notification) {

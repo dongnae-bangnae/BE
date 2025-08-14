@@ -6,10 +6,8 @@ import DNBN.spring.config.security.jwt.JwtTokenProvider;
 import DNBN.spring.converter.MemberConverter;
 import DNBN.spring.domain.Member;
 import DNBN.spring.repository.MemberRepository.MemberRepository;
-import DNBN.spring.web.dto.MemberResponseDTO;
-import jakarta.servlet.http.HttpServletRequest;
+import DNBN.spring.web.dto.response.MemberResponseDTO;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

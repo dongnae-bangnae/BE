@@ -1,9 +1,20 @@
 spring:
+  profiles:
+    active: prod
   datasource:
     url: ${DB_URL}
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      pool-name: app-hikari
+      maximum-pool-size: 20          # CPU/부하/DB 여건에 따라 10~30부터 시작
+      minimum-idle: 5
+      connection-timeout: 30000      # 밀리초, 풀에서 빌리는 대기 최대시간
+      idle-timeout: 600000           # 10분, 놀고있는 커넥션 정리
+      max-lifetime: 1700000          # 28m20s, DB wait_timeout보다 1~2분 짧게
+      validation-timeout: 5000
+      leak-detection-threshold: 20000   # 20초 넘게 반납 안 하면 로그로 경고(원인 추적용)
   sql:
     init:
       mode: never

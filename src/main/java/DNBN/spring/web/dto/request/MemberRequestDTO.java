@@ -1,4 +1,4 @@
-package DNBN.spring.web.dto;
+package DNBN.spring.web.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
@@ -11,6 +11,7 @@ import lombok.Setter;
 import java.util.List;
 
 public class MemberRequestDTO {
+
     @Getter
     @Setter
     public static class OnboardingDTO {
@@ -28,13 +29,13 @@ public class MemberRequestDTO {
     @Setter
     public static class NicknameUpdateDTO {
         @NotBlank(message = "닉네임은 필수입니다.")
+        @Size(max = 10, message = "닉네임은 최대 10자까지 가능합니다.")
         String nickname;
     }
 
     @Getter
     @Setter
     public static class RegionUpdateDTO {
-
         @NotNull(message = "관심 동네 ID 목록은 필수입니다.")
         @Size(min = 1, max = 3, message = "관심 동네는 최소 1개, 최대 3개까지 선택할 수 있습니다.")
         List<Long> regionIds;
