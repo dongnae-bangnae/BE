@@ -40,7 +40,6 @@ public class SecurityConfig {
     private final OAuth2FailureHandler oAuth2FailureHandler;
     private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
     private final CustomAccessDeniedHandler customAccessDeniedHandler;
-//    private final CookieCsrfTokenRepository csrfTokenRepository;
 
     @Bean
     CorsConfigurationSource corsConfigurationSource() { // CORS 설정
@@ -48,7 +47,7 @@ public class SecurityConfig {
 
         // 동네방네 프론트, 백엔드 로컬, 운영 도메인 등 실제 사용하는 도메인 입력
         config.setAllowedOrigins(List.of(
-                "https://www.dnbn.site", // 프론트 도메인
+                "https://dnbn.site", // 프론트 도메인
                 "https://api.dnbn.site", // 백엔드 도메인
                 "http://3.36.90.173:3000",
                 "http://3.36.90.173:8080",
@@ -78,18 +77,16 @@ public class SecurityConfig {
                         (requests) -> requests
                                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                                 .requestMatchers("/", "/api/auth/reissue", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
-                                .requestMatchers("/actuator/**").hasRole("ADMIN")
 //                                .requestMatchers("/admin/**").hasRole("ADMIN") // pm이 ADMIN역할 기능 필요 X
                                 .anyRequest().authenticated()
                 )
 //                .csrf()
 //                .disable()
-                .csrf(AbstractHttpConfigurer::disable)
-//                .csrf(csrf -> csrf
-////                        .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()) // CSRF 토큰을 일반 쿠키(HttpOnly=false)에 저장하여 JS가 읽을 수 있게 하는 설정
-//                        .csrfTokenRepository(csrfTokenRepository)
-//                        .ignoringRequestMatchers("/api/auth/**") // GET은 자동으로 제외됨
-//                )
+//                .csrf(AbstractHttpConfigurer::disable)
+                .csrf(csrf -> csrf
+                        .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()) // CSRF 토큰을 일반 쿠키(HttpOnly=false)에 저장하여 JS가 읽을 수 있게 하는 설정
+                        .ignoringRequestMatchers("/api/auth/**") // GET은 자동으로 제외됨
+                )
                 .oauth2Login(oauth2 -> oauth2
                         .userInfoEndpoint(userInfo -> userInfo
                                 .oidcUserService(customOidcUserService) // 구글
@@ -100,7 +97,7 @@ public class SecurityConfig {
                 )
                 .exceptionHandling(exception -> exception
                         .authenticationEntryPoint(customAuthenticationEntryPoint) // 인증 실패 처리 (401)
-//                        .accessDeniedHandler(customAccessDeniedHandler) // 권한 거부 및 CSRF 예외 처리 (403)
+                        .accessDeniedHandler(customAccessDeniedHandler) // 권한 거부 및 CSRF 예외 처리 (403)
                 )
 //                .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);
                 .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);

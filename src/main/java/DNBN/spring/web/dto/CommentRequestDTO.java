@@ -1,4 +1,4 @@
-package DNBN.spring.web.dto.request;
+package DNBN.spring.web.dto;
 
 public record CommentRequestDTO(
     String content,

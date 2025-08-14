@@ -1,7 +1,7 @@
 package DNBN.spring.converter;
 
 import DNBN.spring.domain.Comment;
-import DNBN.spring.web.dto.response.CommentResponseDTO;
+import DNBN.spring.web.dto.CommentResponseDTO;
 
 public class CommentConverter {
     public static CommentResponseDTO toCommentResponseDTO(Comment comment) {

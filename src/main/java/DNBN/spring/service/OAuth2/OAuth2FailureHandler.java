@@ -31,13 +31,12 @@ public class OAuth2FailureHandler implements AuthenticationFailureHandler {
 //        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 //        response.getWriter().write("{\"success\": false, \"message\": \"" + exception.getMessage() + "\"}");
 
+        /**/
         // 쿠키로 프론트에게 내려주기
         // 1. 실패 상태 쿠키 설정 (HttpOnly false → JS에서 읽음)
         addCookie(response, "isSuccess", "false", false, 60);
         addCookie(response, "code", "AUTH_FAILURE", false, 60);  // 필요 시 고유 코드로 변경 가능
         addCookie(response, "message", java.net.URLEncoder.encode(exception.getMessage(), java.nio.charset.StandardCharsets.UTF_8), false, 60);
-
-        clearJsessionCookie(response);
 
         // 2. 실패용 브릿지 페이지로 리다이렉트
         response.sendRedirect("https://www.dnbn.site/oauth-redirect");
@@ -58,20 +57,9 @@ public class OAuth2FailureHandler implements AuthenticationFailureHandler {
                 .path("/")
                 .domain("dnbn.site")
                 .maxAge(maxAgeInSeconds)
-                .sameSite("None")
+                .sameSite("Lax")
                 .build();
 
         response.addHeader("Set-Cookie", cookie.toString());
-    }
-
-    private void clearJsessionCookie(HttpServletResponse response) {
-        ResponseCookie deleteJsessionCookie = ResponseCookie.from("JSESSIONID", "")
-                .httpOnly(true)
-                .secure(true)
-                .path("/")
-                .maxAge(0) // 쿠키 즉시 만료
-                .build();
-        response.addHeader("Set-Cookie", deleteJsessionCookie.toString());
-        log.info("JSESSIONID 쿠키 삭제 완료");
     }
 }

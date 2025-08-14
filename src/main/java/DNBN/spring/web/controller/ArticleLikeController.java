@@ -2,25 +2,21 @@ package DNBN.spring.web.controller;
 
 import DNBN.spring.apiPayload.ApiResponse;
 import DNBN.spring.apiPayload.code.status.ErrorStatus;
-import DNBN.spring.apiPayload.code.status.SuccessStatus;
 import DNBN.spring.apiPayload.exception.handler.MemberHandler;
 import DNBN.spring.config.security.jwt.JwtTokenProvider;
+import DNBN.spring.domain.Member;
 import DNBN.spring.repository.MemberRepository.MemberRepository;
 import DNBN.spring.service.ArticleLikeService.ArticleLikeQueryService;
 import DNBN.spring.service.ArticleLikeService.ArticleLikeService;
-import DNBN.spring.web.dto.response.LikeResponseDTO;
-import DNBN.spring.web.dto.response.LikeStatusResponseDTO;
+import DNBN.spring.web.dto.AuthResponseDTO;
+import DNBN.spring.web.dto.LikeResponseDTO;
+import DNBN.spring.web.dto.LikeStatusResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @SecurityRequirement(name = "JWT TOKEN")
 @RestController
@@ -44,7 +40,7 @@ public class ArticleLikeController {
         String token = JwtTokenProvider.resolveToken(request);
         Long memberId = extractMemberIdFromToken(token);
         LikeStatusResponseDTO response = articleLikeQueryService.getLikeStatus(articleId, memberId);
-        return ResponseEntity.status(SuccessStatus.LIKE_STATUS_READ_SUCCESS.getHttpStatus()).body(ApiResponse.of(SuccessStatus.LIKE_STATUS_READ_SUCCESS, response));
+        return ResponseEntity.ok(ApiResponse.onSuccess(response));
     }
 
     @Operation(
@@ -58,7 +54,7 @@ public class ArticleLikeController {
         String token = JwtTokenProvider.resolveToken(request);
         Long memberId = extractMemberIdFromToken(token);
         LikeResponseDTO response = articleLikeService.likeArticle(articleId, memberId);
-        return ResponseEntity.status(SuccessStatus.LIKE_CREATE_SUCCESS.getHttpStatus()).body(ApiResponse.of(SuccessStatus.LIKE_CREATE_SUCCESS, response));
+        return ResponseEntity.ok(ApiResponse.onSuccess(response));
     }
 
     @Operation(
@@ -72,7 +68,7 @@ public class ArticleLikeController {
         String token = JwtTokenProvider.resolveToken(request);
         Long memberId = extractMemberIdFromToken(token);
         LikeResponseDTO response = articleLikeService.unlikeArticle(articleId, memberId);
-        return ResponseEntity.status(SuccessStatus.LIKE_DELETE_SUCCESS.getHttpStatus()).body(ApiResponse.of(SuccessStatus.LIKE_DELETE_SUCCESS, response));
+        return ResponseEntity.ok(ApiResponse.onSuccess(response));
     }
 
 

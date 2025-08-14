@@ -1,16 +1,19 @@
 package DNBN.spring.service.CategoryService;
 
 import DNBN.spring.apiPayload.code.status.ErrorStatus;
+import DNBN.spring.apiPayload.exception.DuplicateCategoryException;
 import DNBN.spring.apiPayload.exception.handler.CategoryHandler;
 import DNBN.spring.domain.Category;
 import DNBN.spring.domain.Member;
+import DNBN.spring.domain.Place;
+import DNBN.spring.domain.Region;
 import DNBN.spring.domain.enums.Color;
 import DNBN.spring.repository.CategoryRepository.CategoryRepository;
 import DNBN.spring.repository.MemberRepository.MemberRepository;
 import DNBN.spring.repository.PlaceRepository.PlaceRepository;
 import DNBN.spring.repository.RegionRepository.RegionRepository;
-import DNBN.spring.web.dto.request.CategoryRequestDTO;
-import DNBN.spring.web.dto.response.CategoryResponseDTO;
+import DNBN.spring.web.dto.CategoryRequestDTO;
+import DNBN.spring.web.dto.CategoryResponseDTO;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

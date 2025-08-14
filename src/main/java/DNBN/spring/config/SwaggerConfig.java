@@ -39,7 +39,6 @@ public class SwaggerConfig {
                 .components(components);
     }
 
-    /*
     @Bean
     public OpenApiCustomizer csrfHeaderCustomizer() {
         return openApi -> {
@@ -55,5 +54,4 @@ public class SwaggerConfig {
             });
         };
     }
-    */
 }

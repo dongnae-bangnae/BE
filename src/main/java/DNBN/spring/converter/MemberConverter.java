@@ -3,8 +3,8 @@ package DNBN.spring.converter;
 import DNBN.spring.domain.Member;
 import DNBN.spring.domain.ProfileImage;
 import DNBN.spring.domain.Region;
-import DNBN.spring.web.dto.response.MemberResponseDTO;
-import DNBN.spring.web.dto.response.RegionResponseDTO;
+import DNBN.spring.web.dto.MemberResponseDTO;
+import DNBN.spring.web.dto.RegionResponseDTO;
 
 import java.util.List;
 import java.util.stream.Collectors;

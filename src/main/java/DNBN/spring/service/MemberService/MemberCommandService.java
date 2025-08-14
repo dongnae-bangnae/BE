@@ -1,17 +1,18 @@
 package DNBN.spring.service.MemberService;
 
 import DNBN.spring.domain.Member;
-import DNBN.spring.web.dto.response.MemberResponseDTO;
+import DNBN.spring.web.dto.MemberRequestDTO;
+import DNBN.spring.web.dto.MemberResponseDTO;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
 public interface MemberCommandService {
-    Member onboardingMember(Long memberId);
+    Member onboardingMember(Long memberId, MemberRequestDTO.OnboardingDTO request, MultipartFile profileImage);
     void logout(HttpServletResponse response, Long memberId);
     void deleteMember(Long memberId);
-    MemberResponseDTO.NicknameUpdateResultDTO updateMemberNickname(Long memberId, String newNickname);
+    void changeMemberNickname(Long memberId, String newNickname);
     MemberResponseDTO.ChosenRegionsDTO updateRegions(Long memberId, List<Long> regionIds);
     MemberResponseDTO.ProfileImageUpdateResultDTO updateProfileImage(Long memberId, MultipartFile profileImage);
 }

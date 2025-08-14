@@ -6,13 +6,15 @@ import DNBN.spring.apiPayload.exception.handler.PlaceHandler;
 import DNBN.spring.domain.Article;
 import DNBN.spring.domain.enums.PinCategory;
 import DNBN.spring.repository.ArticleRepository.ArticleRepository;
-import DNBN.spring.web.dto.request.ArticleRequestDTO;
-import DNBN.spring.web.dto.request.ArticleUpdateRequestDTO;
-import DNBN.spring.web.dto.request.ArticleWithLocationRequestDTO;
+import DNBN.spring.web.dto.ArticleRequestDTO;
+import DNBN.spring.web.dto.ArticleUpdateRequestDTO;
+import DNBN.spring.web.dto.ArticleWithLocationRequestDTO;
+import java.util.Objects;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Component;
 
@@ -25,20 +27,9 @@ public class ArticleValidationAspect {
     @Before("@annotation(DNBN.spring.aop.annotation.ValidateArticle)")
     public void validateArticle(JoinPoint joinPoint) {
         Object[] args = joinPoint.getArgs();
-        // 파라미터 타입/순서 검증
-        if (args.length < 2 || !(args[0] instanceof Long) || (args[1] != null && !(args[1] instanceof Long))) {
-            throw new IllegalArgumentException("❌ ArticleValidationAspect: memberId, articleId 파라미터 타입/순서 오류");
-        }
         Object dto = extractDto(args);
         Long memberId = extractLongArg(args, 0, "memberId");
-        Long articleId = null;
-
-        if (args.length > 1 && args[1] instanceof Long) {
-            articleId = (Long) args[1];
-        }
-        if (articleId == null) {
-            throw new ArticleHandler(ErrorStatus.ARTICLE_NOT_FOUND);
-        }
+        Long articleId = extractLongArg(args, 1, "articleId");
 
         // PinCategory 검증
         validatePinCategory(dto);

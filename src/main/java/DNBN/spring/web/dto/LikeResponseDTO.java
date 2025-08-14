@@ -1,5 +1,6 @@
-package DNBN.spring.web.dto.response;
+package DNBN.spring.web.dto;
 
+import DNBN.spring.domain.Article;
 import lombok.Builder;
 import lombok.Getter;
 

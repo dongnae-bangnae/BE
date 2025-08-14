@@ -23,46 +23,45 @@ public class S3ImageValidationAspect {
     @Value("${article.validation.image.max-size}")
     private long maxImageSize;
 
-    @Before("@annotation(DNBN.spring.aop.annotation.ValidateS3ImageUpload)")
+    @Before("execution(* *(.., org.springframework.web.multipart.MultipartFile, java.util.List, ..)) && @annotation(DNBN.spring.aop.annotation.ValidateS3ImageUpload)")
     public void validateS3ImageUpload(JoinPoint joinPoint) {
         Object[] args = joinPoint.getArgs();
-        int imageCount = 0;
-        // 파라미터 검증 및 다양한 MultipartFile 타입 지원
+        MultipartFile mainImage = null;
+        List<MultipartFile> imageFiles = null;
         for (Object arg : args) {
-            if (arg instanceof MultipartFile file) {
-                if (!file.isEmpty()) {
-                    imageCount++;
-                    validateFile(file);
-                }
-            } else if (arg instanceof List<?> list && !list.isEmpty() && list.get(0) instanceof MultipartFile) {
-                for (Object o : list) {
-                    MultipartFile file = (MultipartFile) o;
-                    if (file != null && !file.isEmpty()) {
-                        imageCount++;
-                        validateFile(file);
+            if (mainImage == null && arg instanceof MultipartFile file) {
+                mainImage = file;
+            } else if (imageFiles == null && arg instanceof List<?> list && !list.isEmpty() && list.get(0) instanceof MultipartFile) {
+                imageFiles = (List<MultipartFile>) list;
+            }
+        }
+        int imageCount = (mainImage != null && !mainImage.isEmpty() ? 1 : 0)
+                + (imageFiles != null ? (int) imageFiles.stream().filter(f -> f != null && !f.isEmpty()).count() : 0);
+        if (imageCount > maxImageCount) {
+            throw new ArticlePhotoHandler(ErrorStatus.ARTICLE_PHOTO_IMAGE_COUNT_EXCEEDED);
+        }
+        if (mainImage != null && !mainImage.isEmpty()) {
+            if (mainImage.getSize() > maxImageSize) {
+                throw new ArticlePhotoHandler(ErrorStatus.ARTICLE_PHOTO_IMAGE_TOO_LARGE);
+            }
+            String contentType = mainImage.getContentType();
+            if (contentType == null || !contentType.startsWith("image/")) {
+                throw new ArticlePhotoHandler(ErrorStatus.ARTICLE_PHOTO_IMAGE_INVALID_TYPE);
+            }
+        }
+        if (imageFiles != null) {
+            for (MultipartFile file : imageFiles) {
+                if (file != null && !file.isEmpty()) {
+                    if (file.getSize() > maxImageSize) {
+                        throw new ArticlePhotoHandler(ErrorStatus.ARTICLE_PHOTO_IMAGE_TOO_LARGE);
                     }
-                }
-            } else if (arg instanceof MultipartFile[] arr) {
-                for (MultipartFile file : arr) {
-                    if (file != null && !file.isEmpty()) {
-                        imageCount++;
-                        validateFile(file);
+                    String contentType = file.getContentType();
+                    if (contentType == null || !contentType.startsWith("image/")) {
+                        throw new ArticlePhotoHandler(ErrorStatus.ARTICLE_PHOTO_IMAGE_INVALID_TYPE);
                     }
                 }
             }
         }
-        if (imageCount > maxImageCount) {
-            throw new ArticlePhotoHandler(ErrorStatus.ARTICLE_PHOTO_IMAGE_COUNT_EXCEEDED);
-        }
-    }
-
-    private void validateFile(MultipartFile file) {
-        if (file.getSize() > maxImageSize) {
-            throw new ArticlePhotoHandler(ErrorStatus.ARTICLE_PHOTO_IMAGE_TOO_LARGE);
-        }
-        String contentType = file.getContentType();
-        if (contentType == null || !contentType.startsWith("image/")) {
-            throw new ArticlePhotoHandler(ErrorStatus.ARTICLE_PHOTO_IMAGE_INVALID_TYPE);
-        }
     }
 }
+

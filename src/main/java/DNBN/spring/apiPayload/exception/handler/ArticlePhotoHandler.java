@@ -7,9 +7,4 @@ public class ArticlePhotoHandler extends GeneralException {
     public ArticlePhotoHandler(BaseErrorCode errorCode) {
         super(errorCode);
     }
-
-    @Override
-    public String getMessage() {
-        return getErrorReason().getMessage();
-    }
 }

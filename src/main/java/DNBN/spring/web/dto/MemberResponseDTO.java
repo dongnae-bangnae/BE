@@ -1,4 +1,4 @@
-package DNBN.spring.web.dto.response;
+package DNBN.spring.web.dto;
 
 import lombok.*;
 
@@ -28,16 +28,6 @@ public class MemberResponseDTO {
     }
 
     @Getter
-    @Setter
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class NicknameUpdateResultDTO {
-        Long memberId;
-        private String nickname;
-    }
-
-    @Getter
     @Builder
     public static class ChosenRegionsDTO {
         private List<RegionInfo> chosenRegions;
@@ -56,7 +46,6 @@ public class MemberResponseDTO {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class ProfileImageUpdateResultDTO {
-        Long memberId;
         private String profileImageUrl;
     }
 

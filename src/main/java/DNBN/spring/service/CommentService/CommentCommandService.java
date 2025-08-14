@@ -1,8 +1,8 @@
 package DNBN.spring.service.CommentService;
 
-import DNBN.spring.web.dto.request.CommentRequestDTO;
-import DNBN.spring.web.dto.response.CommentResponseDTO;
-import DNBN.spring.web.dto.request.CommentUpdateRequestDTO;
+import DNBN.spring.web.dto.CommentRequestDTO;
+import DNBN.spring.web.dto.CommentResponseDTO;
+import DNBN.spring.web.dto.CommentUpdateRequestDTO;
 
 public interface CommentCommandService {
     CommentResponseDTO createComment(Long memberId, Long articleId, CommentRequestDTO request);

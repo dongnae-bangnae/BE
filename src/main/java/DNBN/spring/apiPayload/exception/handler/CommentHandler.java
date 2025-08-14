@@ -7,9 +7,4 @@ public class CommentHandler extends GeneralException {
     public CommentHandler(BaseErrorCode errorCode) {
         super(errorCode);
     }
-
-    @Override
-    public String getMessage() {
-        return getErrorReason().getMessage();
-    }
 }

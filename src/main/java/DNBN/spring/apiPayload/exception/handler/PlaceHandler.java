@@ -6,9 +6,4 @@ public class PlaceHandler extends GeneralException {
     public PlaceHandler(BaseErrorCode errorCode) {
         super(errorCode);
     }
-
-    @Override
-    public String getMessage() {
-        return getErrorReason().getMessage();
-    }
 }

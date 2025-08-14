@@ -6,7 +6,7 @@ import DNBN.spring.domain.*;
 import DNBN.spring.repository.ArticleRepository.ArticleRepository;
 import DNBN.spring.repository.MemberRepository.MemberRepository;
 import DNBN.spring.repository.NotificationRepository.NotificationRepository;
-import DNBN.spring.web.dto.response.SpamResponseDTO;
+import DNBN.spring.web.dto.SpamResponseDTO;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

@@ -4,6 +4,7 @@ import DNBN.spring.aop.annotation.ValidateArticle;
 import DNBN.spring.aop.annotation.ValidateS3ImageUpload;
 import DNBN.spring.apiPayload.code.status.ErrorStatus;
 import DNBN.spring.apiPayload.exception.handler.ArticleHandler;
+import DNBN.spring.apiPayload.exception.handler.ArticlePhotoHandler;
 import DNBN.spring.apiPayload.exception.handler.CategoryHandler;
 import DNBN.spring.apiPayload.exception.handler.MemberHandler;
 import DNBN.spring.apiPayload.exception.handler.PlaceHandler;
@@ -22,11 +23,12 @@ import DNBN.spring.repository.CategoryRepository.CategoryRepository;
 import DNBN.spring.repository.MemberRepository.MemberRepository;
 import DNBN.spring.repository.PlaceRepository.PlaceRepository;
 import DNBN.spring.repository.RegionRepository.RegionRepository;
-import DNBN.spring.validation.validator.ContentLengthValidator;
-import DNBN.spring.validation.validator.TitleLengthValidator;
-import DNBN.spring.web.dto.request.ArticleRequestDTO;
-import DNBN.spring.web.dto.request.ArticleUpdateRequestDTO;
-import DNBN.spring.web.dto.request.ArticleWithLocationRequestDTO;
+import DNBN.spring.validation.ContentLengthValidator;
+import DNBN.spring.validation.TitleLengthValidator;
+import DNBN.spring.web.dto.ArticleRequestDTO;
+import DNBN.spring.web.dto.ArticleUpdateRequestDTO;
+import DNBN.spring.web.dto.ArticleWithLocationRequestDTO;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -49,10 +51,6 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
     private final AmazonS3Manager s3Manager;
     private final TitleLengthValidator titleLengthValidator;
     private final ContentLengthValidator contentLengthValidator;
-    private final ArticleImageService articleImageService;
-    private final ArticleUpdater articleUpdater;
-    private final PlaceUpdater placeUpdater;
-    private final ArticleFactory articleFactory;
 
     @Override
     @ValidateS3ImageUpload
@@ -70,10 +68,10 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
         titleLengthValidator.validateArticleTitle(request.title());
         contentLengthValidator.validateArticleContent(request.content());
 
-        Article article = articleFactory.create(member, category, place, region, request);
+        Article article = createArticleEntity(member, category, place, region, request);
         articleRepository.save(article);
 
-        List<ArticlePhoto> photos = articleImageService.uploadAndSaveImages(article, place, region, mainImage, imageFiles);
+        List<ArticlePhoto> photos = handleImages(article, place, region, mainImage, imageFiles);
         return new ArticleWithPhotos(article, photos);
     }
 
@@ -99,10 +97,10 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
 
         place = placeRepository.save(place);
 
-        Article article = articleFactory.create(member, category, place, region, request);
+        Article article = createArticleEntity(member, category, place, region, request);
         articleRepository.save(article);
 
-        List<ArticlePhoto> photos = articleImageService.uploadAndSaveImages(article, place, region, mainImage, imageFiles);
+        List<ArticlePhoto> photos = handleImages(article, place, region, mainImage, imageFiles);
         return new ArticleWithPhotos(article, photos);
     }
 
@@ -128,6 +126,92 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
                 .orElseThrow(() -> new RegionHandler(ErrorStatus.REGION_NOT_FOUND));
     }
 
+    // TODO: 팩토리 검토
+    private Article createArticleEntity(Member member, Category category, Place place, Region region, ArticleRequestDTO request) {
+        return Article.builder()
+                .member(member)
+                .category(category)
+                .place(place)
+                .region(region)
+                .title(request.title())
+                .date(request.date())
+                .content(request.content())
+                .likesCount(0L)
+                .spamCount(0L)
+                .build();
+    }
+    private Article createArticleEntity(Member member, Category category, Place place, Region region, ArticleWithLocationRequestDTO request) {
+        return Article.builder()
+                .member(member)
+                .category(category)
+                .place(place)
+                .region(region)
+                .title(request.title())
+                .date(request.date())
+                .content(request.content())
+                .likesCount(0L)
+                .spamCount(0L)
+                .build();
+    }
+
+    // TODO: SRP 위반
+    private List<ArticlePhoto> handleImages(Article article, Place place, Region region, MultipartFile mainImage, List<MultipartFile> imageFiles) {
+        List<ArticlePhoto> photos = new ArrayList<>();
+        List<String> uploadedKeys = new ArrayList<>();
+        try {
+            if (mainImage != null && !mainImage.isEmpty()) {
+                String uuid = java.util.UUID.randomUUID().toString();
+                String mainImageKey = s3Manager.uploadFile(s3Manager.generateArticlePhotoKeyName(uuid), mainImage);
+                if (mainImageKey == null || mainImageKey.isBlank()) {
+                    throw new ArticlePhotoHandler(ErrorStatus.ARTICLE_PHOTO_S3_UPLOAD_FAILED);
+                }
+                uploadedKeys.add(mainImageKey);
+                ArticlePhoto mainPhoto = ArticlePhoto.builder()
+                        .article(article)
+                        .place(place)
+                        .region(region)
+                        .fileKey(mainImageKey)
+                        .orderIndex(0)
+                        .isMain(true)
+                        .build();
+                photos.add(articlePhotoRepository.save(mainPhoto));
+            }
+            if (imageFiles != null) {
+                int idx = 1;
+                for (MultipartFile file : imageFiles) {
+                    if (file != null && !file.isEmpty()) {
+                        String uuid = java.util.UUID.randomUUID().toString();
+                        String imageKey = s3Manager.uploadFile(s3Manager.generateArticlePhotoKeyName(uuid), file);
+                        if (imageKey == null || imageKey.isBlank()) {
+                            throw new ArticlePhotoHandler(ErrorStatus.ARTICLE_PHOTO_S3_UPLOAD_FAILED);
+                        }
+                        uploadedKeys.add(imageKey);
+                        ArticlePhoto photo = ArticlePhoto.builder()
+                                .article(article)
+                                .place(place)
+                                .region(region)
+                                .fileKey(imageKey)
+                                .orderIndex(idx++)
+                                .isMain(false)
+                                .build();
+                        photos.add(articlePhotoRepository.save(photo));
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.error("S3 업로드 실패", e);
+            for (String key : uploadedKeys) {
+                try {
+                    s3Manager.deleteFile(key);
+                } catch (Exception ex) {
+                    log.error("S3 롤백(파일 삭제) 실패: {}", key, ex);
+                }
+            }
+            throw new ArticlePhotoHandler(ErrorStatus.ARTICLE_PHOTO_S3_UPLOAD_FAILED);
+        }
+        return photos;
+    }
+
     @Override
     @ValidateS3ImageUpload
     @ValidateArticle
@@ -135,8 +219,8 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
         Article article = articleRepository.findById(articleId)
                 .orElseThrow(() -> new ArticleHandler(ErrorStatus.ARTICLE_NOT_FOUND));
 
-        articleUpdater.updateArticleEntity(article, request);
-        placeUpdater.updatePlaceEntity(article.getPlace(), request);
+        updateArticleEntity(article, request);
+        updatePlaceEntity(article.getPlace(), request);
 
         List<ArticlePhoto> photos = articlePhotoRepository.findAllByArticle(article);
         // 새로운 이미지가 제공된 경우, 기존 이미지 삭제 후 새로 추가
@@ -146,12 +230,55 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
                 s3Manager.deleteFile(photo.getFileKey());
                 articlePhotoRepository.delete(photo);
             }
-
-            photos = articleImageService.uploadAndSaveImages(article, article.getPlace(), article.getRegion(), mainImage, imageFiles);
+            // 새 이미지 업로드 및 저장
+            photos = handleImages(article, article.getPlace(), article.getRegion(), mainImage, imageFiles);
         }
 
         return new ArticleWithPhotos(article, photos);
     }
+
+    // TODO: 책임 분리
+    private void updateArticleEntity(Article article, ArticleUpdateRequestDTO request) {
+        if (request.title() != null) {
+            titleLengthValidator.validateArticleTitle(request.title());
+            article.setTitle(request.title());
+        }
+        if (request.content() != null) {
+            contentLengthValidator.validateArticleContent(request.content());
+            article.setContent(request.content());
+        }
+        if (request.date() != null) {
+            article.setDate(request.date());
+        }
+        if (request.categoryId() != null) {
+            Category category = getCategory(request.categoryId());
+            article.setCategory(category);
+        }
+        if (request.regionId() != null) {
+            Region region = getRegion(request.regionId());
+            article.setRegion(region);
+        }
+        if (request.placeId() != null) {
+            Place place = getPlace(request.placeId());
+            article.setPlace(place);
+        }
+    }
+
+    // TODO: 책임 분리
+    private void updatePlaceEntity(Place place, ArticleUpdateRequestDTO request) {
+        if (request.placeName() != null) {
+            place.updateTitle(request.placeName());
+        }
+        if (request.pinCategory() != null) {
+            try {
+                PinCategory newPinCategory = PinCategory.valueOf(request.pinCategory().toUpperCase());
+                place.updatePinCategory(newPinCategory);
+            } catch (IllegalArgumentException e) {
+                throw new PlaceHandler(ErrorStatus.PIN_CATEGORY_INVALID);
+            }
+        }
+    }
+
 
     @Override
     @ValidateArticle
