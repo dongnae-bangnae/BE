@@ -27,7 +27,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
     private final JwtTokenProvider jwtTokenProvider;
     private final ObjectMapper objectMapper;
-    private final CookieCsrfTokenRepository csrfTokenRepository;
+//    private final CookieCsrfTokenRepository csrfTokenRepository;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
@@ -43,6 +43,8 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         // JWT 발급
         String accessToken = jwtTokenProvider.generateAccessToken(authentication); // kakao_12345
         String refreshToken = jwtTokenProvider.generateRefreshToken(member.getSocialId());
+
+        log.info("🔑 AccessToken: {}, RefreshToken: {}", accessToken, refreshToken);
 
         /*
         // 리다이렉트 + 쿼리파라미터 방식: 프론트엔드가 토큰 읽을 수 있도록 전달 -> url에 토큰 노출
@@ -97,8 +99,8 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         // 3. CSRF 토큰 발급 + 쿠키로 내려주기
 //        CsrfTokenRepository csrfTokenRepository = new HttpSessionCsrfTokenRepository();
 //        CookieCsrfTokenRepository csrfTokenRepository = CookieCsrfTokenRepository.withHttpOnlyFalse();
-        CsrfToken csrfToken = csrfTokenRepository.generateToken(request);
-        csrfTokenRepository.saveToken(csrfToken, request, response);
+//        CsrfToken csrfToken = csrfTokenRepository.generateToken(request);
+//        csrfTokenRepository.saveToken(csrfToken, request, response);
 //        request.setAttribute(CsrfToken.class.getName(), csrfToken);
 //        request.setAttribute(csrfToken.getParameterName(), csrfToken);
 

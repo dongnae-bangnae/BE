@@ -31,7 +31,6 @@ public class OAuth2FailureHandler implements AuthenticationFailureHandler {
 //        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 //        response.getWriter().write("{\"success\": false, \"message\": \"" + exception.getMessage() + "\"}");
 
-        /**/
         // 쿠키로 프론트에게 내려주기
         // 1. 실패 상태 쿠키 설정 (HttpOnly false → JS에서 읽음)
         addCookie(response, "isSuccess", "false", false, 60);
