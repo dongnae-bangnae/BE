@@ -35,7 +35,7 @@ public class AuthRestController {
     private final CookieCsrfTokenRepository csrfTokenRepository;
 
     @PostMapping("/logout")
-    @Operation(summary = "회원 로그아웃 API - JWT AccessToken 인증 필요, CSRF 인증은 요구되지 않습니다.",
+    @Operation(summary = "회원 로그아웃 API - JWT AccessToken 인증 필요",
             description = "JWT 인증된 멤버가 로그아웃하는 API입니다.",
             security = { @SecurityRequirement(name = "JWT TOKEN") }
     )
@@ -45,8 +45,8 @@ public class AuthRestController {
     }
 
     @PostMapping("/reissue")
-    @Operation(summary = "토큰 재발급 API - JWT RefreshToken 인증 필요, CSRF 인증은 요구되지 않습니다.",
-            description = "RefreshToken으로 AccessToken과 CSRF 토큰을 재발급받는 API입니다. AccessToken은 HttpOnly 쿠키로, CSRF 토큰은 일반 쿠키로 내려줍니다."
+    @Operation(summary = "토큰 재발급 API - JWT RefreshToken 인증 필요",
+            description = "RefreshToken으로 AccessToken을 재발급받는 API입니다. AccessToken은 HttpOnly 쿠키로 내려줍니다."
     )
 //    public ApiResponse<AuthResponseDTO.ReissueTokenResponseDTO> reissueAccessToken(HttpServletRequest request) {
 //        String refreshToken = JwtTokenProvider.resolveToken(request); // Authorization 헤더에서 Bearer 토큰을 추출

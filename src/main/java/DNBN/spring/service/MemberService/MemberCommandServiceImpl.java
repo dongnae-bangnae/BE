@@ -81,6 +81,7 @@ public class MemberCommandServiceImpl implements MemberCommandService {
                 .sameSite("None")
                 .build();
 
+        /*
         // CSRF 토큰 쿠키 삭제
         ResponseCookie deleteCsrfCookie = ResponseCookie.from("XSRF-TOKEN", "")
                 .httpOnly(false) // 일반 쿠키라 false
@@ -90,12 +91,13 @@ public class MemberCommandServiceImpl implements MemberCommandService {
                 .maxAge(0)
                 .sameSite("None")
                 .build();
+        */
 
         response.addHeader("Set-Cookie", deleteAccessTokenCookie.toString());
         response.addHeader("Set-Cookie", deleteRefreshTokenCookie.toString());
-        response.addHeader("Set-Cookie", deleteCsrfCookie.toString());
+//        response.addHeader("Set-Cookie", deleteCsrfCookie.toString());
 
-        log.info("사용자 {} 로그아웃 처리 및 JWT와 CSRF 쿠키 삭제 완료", member.getId());
+        log.info("사용자 {} 로그아웃 처리 및 JWT 쿠키 삭제 완료", member.getId());
     }
 
     @Override

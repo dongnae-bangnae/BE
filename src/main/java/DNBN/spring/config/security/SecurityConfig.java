@@ -40,7 +40,7 @@ public class SecurityConfig {
     private final OAuth2FailureHandler oAuth2FailureHandler;
     private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
     private final CustomAccessDeniedHandler customAccessDeniedHandler;
-    private final CookieCsrfTokenRepository csrfTokenRepository;
+//    private final CookieCsrfTokenRepository csrfTokenRepository;
 
     @Bean
     CorsConfigurationSource corsConfigurationSource() { // CORS 설정
@@ -84,12 +84,12 @@ public class SecurityConfig {
                 )
 //                .csrf()
 //                .disable()
-//                .csrf(AbstractHttpConfigurer::disable)
-                .csrf(csrf -> csrf
-//                        .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()) // CSRF 토큰을 일반 쿠키(HttpOnly=false)에 저장하여 JS가 읽을 수 있게 하는 설정
-                        .csrfTokenRepository(csrfTokenRepository)
-                        .ignoringRequestMatchers("/api/auth/**") // GET은 자동으로 제외됨
-                )
+                .csrf(AbstractHttpConfigurer::disable)
+//                .csrf(csrf -> csrf
+////                        .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()) // CSRF 토큰을 일반 쿠키(HttpOnly=false)에 저장하여 JS가 읽을 수 있게 하는 설정
+//                        .csrfTokenRepository(csrfTokenRepository)
+//                        .ignoringRequestMatchers("/api/auth/**") // GET은 자동으로 제외됨
+//                )
                 .oauth2Login(oauth2 -> oauth2
                         .userInfoEndpoint(userInfo -> userInfo
                                 .oidcUserService(customOidcUserService) // 구글
@@ -100,7 +100,7 @@ public class SecurityConfig {
                 )
                 .exceptionHandling(exception -> exception
                         .authenticationEntryPoint(customAuthenticationEntryPoint) // 인증 실패 처리 (401)
-                        .accessDeniedHandler(customAccessDeniedHandler) // 권한 거부 및 CSRF 예외 처리 (403)
+//                        .accessDeniedHandler(customAccessDeniedHandler) // 권한 거부 및 CSRF 예외 처리 (403)
                 )
 //                .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);
                 .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);

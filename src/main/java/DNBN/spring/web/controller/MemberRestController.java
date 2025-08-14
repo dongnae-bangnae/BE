@@ -32,7 +32,7 @@ public class MemberRestController {
 
     @PostMapping(value = "/onboarding")
     @Operation(
-            summary = "회원 초기 정보 등록 (온보딩) API - JWT AccessToken + CSRF 토큰 인증 필요",
+            summary = "회원 초기 정보 등록 (온보딩) API - JWT AccessToken 인증 필요",
             description = "JWT 인증된 멤버가 닉네임, 선호 지역을 등록하는 API입니다.",
             security = @SecurityRequirement(name = "JWT TOKEN")
     )
@@ -58,7 +58,7 @@ public class MemberRestController {
     }
 
     @DeleteMapping
-    @Operation(summary = "회원 탈퇴 API - JWT AccessToken + CSRF 토큰 인증 필요",
+    @Operation(summary = "회원 탈퇴 API - JWT AccessToken 인증 필요",
             description = "JWT 인증된 멤버가 자신의 계정을 탈퇴(삭제)하는 API입니다.",
             security = { @SecurityRequirement(name = "JWT TOKEN") }
     )
@@ -69,7 +69,7 @@ public class MemberRestController {
     }
 
     @PatchMapping("/nickname")
-    @Operation(summary = "회원 닉네임 등록 및 변경 API - JWT AccessToken + CSRF 토큰 인증 필요",
+    @Operation(summary = "회원 닉네임 등록 및 변경 API - JWT AccessToken 인증 필요",
             description = "JWT 인증된 멤버가 자신의 닉네임을 등록 및 수정하는 API입니다.",
             security = { @SecurityRequirement(name = "JWT TOKEN") }
     )
@@ -85,7 +85,7 @@ public class MemberRestController {
 
     @PatchMapping("/regions")
     @Operation(
-            summary = "관심 동네 등록 및 변경 API - JWT AccessToken + CSRF 토큰 인증 필요",
+            summary = "관심 동네 등록 및 변경 API - JWT AccessToken 인증 필요",
             description = "JWT 인증된 멤버가 자신의 관심 동네를 등록 및 수정하는 API입니다.",
             security = @SecurityRequirement(name = "JWT TOKEN")
     )
@@ -104,7 +104,7 @@ public class MemberRestController {
             consumes = {MediaType.MULTIPART_FORM_DATA_VALUE}
     )
     @Operation(
-            summary = "프로필 이미지 등록 및 변경 API - JWT AccessToken + CSRF 토큰 인증 필요",
+            summary = "프로필 이미지 등록 및 변경 API - JWT AccessToken 인증 필요",
             description = "JWT 인증된 사용자가 프로필 이미지를 등록 및 수정하는 API입니다.",
             security = { @SecurityRequirement(name = "JWT TOKEN") }
     )
