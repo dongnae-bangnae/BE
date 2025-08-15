@@ -1,12 +1,8 @@
 package DNBN.spring.web.controller;
 
 import DNBN.spring.apiPayload.ApiResponse;
-import DNBN.spring.apiPayload.code.status.ErrorStatus;
 import DNBN.spring.apiPayload.code.status.SuccessStatus;
-import DNBN.spring.apiPayload.exception.handler.MemberHandler;
-import DNBN.spring.config.security.jwt.JwtTokenProvider;
-import DNBN.spring.domain.Member;
-import DNBN.spring.repository.MemberRepository.MemberRepository;
+import DNBN.spring.domain.MemberDetails;
 import DNBN.spring.service.PlaceService.PlaceCommandService;
 import DNBN.spring.service.PlaceService.PlaceQueryService;
 import DNBN.spring.web.dto.request.PlaceRequestDTO;
@@ -15,19 +11,13 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Digits;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @SecurityRequirement(name = "JWT TOKEN")
 @RestController
@@ -38,19 +28,17 @@ public class PlaceRestController {
 
     private final PlaceCommandService placeCommandService;
     private final PlaceQueryService placeQueryService;
-    private final JwtTokenProvider jwtTokenProvider;
-    private final MemberRepository memberRepository;
 
     @Operation(summary = "장소 카테고리에 저장", description = "장소를 사용자의 카테고리에 저장합니다.")
     @PostMapping("/{placeId}/categories")
     public ResponseEntity<ApiResponse<PlaceResponseDTO.SavePlaceResultDTO>> savePlaceToCategory(
-            HttpServletRequest request,
+            @AuthenticationPrincipal MemberDetails user,
             @PathVariable Long placeId,
             @RequestBody @Valid PlaceRequestDTO.SavePlaceDTO dto) {
-        Long memberId = extractMemberIdFromToken(request);
+        Long memberId = user.getMember().getId();
         PlaceResponseDTO.SavePlaceResultDTO response = placeCommandService.savePlaceToCategory(memberId, placeId, dto);
-        return ResponseEntity.status(SuccessStatus.SAVED_PLACE_CREATE_SUCCESS.getHttpStatus()).body(ApiResponse.of(
-            SuccessStatus.SAVED_PLACE_CREATE_SUCCESS, response));
+        return ResponseEntity.status(SuccessStatus.SAVED_PLACE_CREATE_SUCCESS.getHttpStatus())
+                .body(ApiResponse.of(SuccessStatus.SAVED_PLACE_CREATE_SUCCESS, response));
     }
 
     @Operation(
@@ -59,7 +47,7 @@ public class PlaceRestController {
     )
     @GetMapping("/map")
     public ResponseEntity<ApiResponse<PlaceResponseDTO.MapPlacesResultDTO>> getPlacesInMap(
-            HttpServletRequest request,
+            @AuthenticationPrincipal MemberDetails user,
             @Parameter(
                     name        = "latMin",
                     description = "조회할 영역의 최소 위도 (소수점 5자리까지 입력 가능)",
@@ -90,23 +78,9 @@ public class PlaceRestController {
             )
             @RequestParam @Digits(integer = 3, fraction = 5, message = "COORDINATE_PRECISION_INVALID") Double lngMax
     ) {
-        // 1) 토큰에서 memberId 추출
-        Long memberId = extractMemberIdFromToken(request);
-        // 2) 서비스에 memberId 포함하여 한 번만 호출
+        Long memberId = user.getMember().getId();
         PlaceResponseDTO.MapPlacesResultDTO result = placeQueryService.getPlacesInMapBounds(memberId, latMin, latMax, lngMin, lngMax);
-        // 1) 토큰에서 memberId 추출
-        return ResponseEntity.status(SuccessStatus.PLACE_MAP_LIST_READ_SUCCESS.getHttpStatus()).body(ApiResponse.of(SuccessStatus.PLACE_MAP_LIST_READ_SUCCESS, result));
-    }
-
-    private Long extractMemberIdFromToken(HttpServletRequest request) {
-        String token = JwtTokenProvider.resolveToken(request);
-        if (token != null && token.startsWith("Bearer ")) {
-            token = token.substring(7);
-        }
-
-        String socialId = jwtTokenProvider.getSubjectFromToken(token);
-        Member member = memberRepository.findBySocialId(socialId)
-                .orElseThrow(() -> new MemberHandler(ErrorStatus.MEMBER_NOT_FOUND));
-        return member.getId();
+        return ResponseEntity.status(SuccessStatus.PLACE_MAP_LIST_READ_SUCCESS.getHttpStatus())
+                .body(ApiResponse.of(SuccessStatus.PLACE_MAP_LIST_READ_SUCCESS, result));
     }
 }
