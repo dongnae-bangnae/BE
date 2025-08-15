@@ -19,6 +19,10 @@ import org.springframework.stereotype.Component;
 @Aspect
 @Component
 public class ArticleValidationAspect {
+    private static final int MEMBER_ID_INDEX = 0;
+    private static final int ARTICLE_ID_INDEX = 1;
+    private static final String PARAMETER_ERROR_MESSAGE = "❌ ArticleValidationAspect: memberId 파라미터 타입/순서 오류";
+    
     @Autowired
     private ArticleRepository articleRepository;
 
@@ -26,15 +30,15 @@ public class ArticleValidationAspect {
     public void validateArticle(JoinPoint joinPoint) {
         Object[] args = joinPoint.getArgs();
         // 파라미터 타입/순서 검증
-        if (args.length < 1 || !(args[0] instanceof Long)) {
-            throw new IllegalArgumentException("❌ ArticleValidationAspect: memberId 파라미터 타입/순서 오류");
+        if (args.length < 1 || !(args[MEMBER_ID_INDEX] instanceof Long)) {
+            throw new IllegalArgumentException(PARAMETER_ERROR_MESSAGE);
         }
 
-        Long memberId = (Long) args[0];
+        Long memberId = (Long) args[MEMBER_ID_INDEX];
         Long articleId = null;
         // 두 번째 인자가 Long이면 articleId로 간주 (생성 시에는 null)
-        if (args.length > 1 && args[1] instanceof Long) {
-            articleId = (Long) args[1];
+        if (args.length > 1 && args[ARTICLE_ID_INDEX] instanceof Long) {
+            articleId = (Long) args[ARTICLE_ID_INDEX];
         }
 
         Object dto = extractDto(args);
