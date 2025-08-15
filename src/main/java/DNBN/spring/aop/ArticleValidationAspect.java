@@ -29,19 +29,13 @@ public class ArticleValidationAspect {
     @Before("@annotation(DNBN.spring.aop.annotation.ValidateArticle)")
     public void validateArticle(JoinPoint joinPoint) {
         Object[] args = joinPoint.getArgs();
-        // 파라미터 타입/순서 검증
-        if (args.length < 1 || !(args[MEMBER_ID_INDEX] instanceof Long)) {
-            throw new IllegalArgumentException(PARAMETER_ERROR_MESSAGE);
-        }
-
-        Long memberId = (Long) args[MEMBER_ID_INDEX];
-        Long articleId = null;
-        // 두 번째 인자가 Long이면 articleId로 간주 (생성 시에는 null)
-        if (args.length > 1 && args[ARTICLE_ID_INDEX] instanceof Long) {
-            articleId = (Long) args[ARTICLE_ID_INDEX];
-        }
-
+        
+        validateParameterStructure(args);
+        
+        Long memberId = extractMemberId(args);
+        Long articleId = extractArticleId(args);
         Object dto = extractDto(args);
+        
         validatePinCategory(dto);
 
         // articleId가 있으면(수정/삭제) 권한 및 삭제 여부 검증, 없으면(생성) 생략
@@ -54,6 +48,12 @@ public class ArticleValidationAspect {
             if (article.getDeletedAt() != null) {
                 throw new ArticleHandler(ErrorStatus.ARTICLE_ALREADY_DELETED);
             }
+        }
+    }
+
+    private void validateParameterStructure(Object[] args) {
+        if (args.length < 1 || !(args[MEMBER_ID_INDEX] instanceof Long)) {
+            throw new IllegalArgumentException(PARAMETER_ERROR_MESSAGE);
         }
     }
 
@@ -78,6 +78,17 @@ public class ArticleValidationAspect {
                 arg instanceof ArticleUpdateRequestDTO) {
                 return arg;
             }
+        }
+        return null;
+    }
+
+    private Long extractMemberId(Object[] args) {
+        return (Long) args[MEMBER_ID_INDEX];
+    }
+
+    private Long extractArticleId(Object[] args) {
+        if (args.length > 1 && args[ARTICLE_ID_INDEX] instanceof Long) {
+            return (Long) args[ARTICLE_ID_INDEX];
         }
         return null;
     }
