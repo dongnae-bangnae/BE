@@ -37,7 +37,7 @@ public class DefaultImageController {
         "af1ca572-0298-4931-908d-3362d588bc7a"
     };
 
-    @GetMapping("/default-images")
+    @GetMapping
     public ResponseEntity<ApiResponse<List<String>>> getDefaultImageUrls() {
         List<String> urls = java.util.Arrays.stream(UUIDS)
                 .map(uuid -> S3_BASE_URL + uuid)
