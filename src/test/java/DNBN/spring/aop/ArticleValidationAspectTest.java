@@ -113,24 +113,21 @@ class ArticleValidationAspectTest {
     }
 
     @Test
-    @DisplayName("articleId가 null인 경우 예외 발생")
+    @DisplayName("articleId가 null인 경우 예외 없음 (생성 상황 허용)")
     void nullArticleId() {
         JoinPoint joinPoint = mock(JoinPoint.class);
         when(joinPoint.getArgs()).thenReturn(new Object[]{1L, null});
-        when(articleRepository.findById(null)).thenReturn(java.util.Optional.empty());
-        assertThatThrownBy(() -> aspect.validateArticle(joinPoint))
-                .isInstanceOf(ArticleHandler.class)
-                .hasMessageContaining(ErrorStatus.ARTICLE_NOT_FOUND.getMessage());
+        // articleId가 null이어도 예외가 발생하지 않아야 함
+        assertThatCode(() -> aspect.validateArticle(joinPoint)).doesNotThrowAnyException();
     }
 
     @Test
-    @DisplayName("articleId 타입이 Long이 아닌 경우 예외 발생")
+    @DisplayName("articleId 타입이 Long이 아닌 경우 예외 없음 (생성 상황 허용)")
     void articleIdNotLong() {
         JoinPoint joinPoint = mock(JoinPoint.class);
         when(joinPoint.getArgs()).thenReturn(new Object[]{1L, "stringId"});
-        assertThatThrownBy(() -> aspect.validateArticle(joinPoint))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("파라미터 타입/순서 오류");
+        // articleId가 Long이 아니어도 예외가 발생하지 않아야 함
+        assertThatCode(() -> aspect.validateArticle(joinPoint)).doesNotThrowAnyException();
     }
 
     @Test
