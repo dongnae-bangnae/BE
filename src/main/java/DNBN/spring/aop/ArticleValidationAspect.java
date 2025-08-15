@@ -13,7 +13,6 @@ import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Component;
 
 @Aspect
@@ -43,12 +42,36 @@ public class ArticleValidationAspect {
         }
     }
 
+    // 파라미터 검증 관련
     private void validateParameterStructure(Object[] args) {
         if (args.length < 1 || !(args[MEMBER_ID_INDEX] instanceof Long)) {
             throw new IllegalArgumentException(PARAMETER_ERROR_MESSAGE);
         }
     }
 
+    private Long extractMemberId(Object[] args) {
+        return (Long) args[MEMBER_ID_INDEX];
+    }
+
+    private Long extractArticleId(Object[] args) {
+        if (args.length > 1 && args[ARTICLE_ID_INDEX] instanceof Long) {
+            return (Long) args[ARTICLE_ID_INDEX];
+        }
+        return null;
+    }
+
+    private Object extractDto(Object[] args) {
+        for (Object arg : args) {
+            if (arg instanceof ArticleRequestDTO ||
+                arg instanceof ArticleWithLocationRequestDTO ||
+                arg instanceof ArticleUpdateRequestDTO) {
+                return arg;
+            }
+        }
+        return null;
+    }
+
+    // DTO 검증 관련
     private void validatePinCategory(Object dto) {
         if (dto == null) return;
         try {
@@ -63,28 +86,7 @@ public class ArticleValidationAspect {
         }
     }
 
-    private Object extractDto(Object[] args) {
-        for (Object arg : args) {
-            if (arg instanceof ArticleRequestDTO ||
-                arg instanceof ArticleWithLocationRequestDTO ||
-                arg instanceof ArticleUpdateRequestDTO) {
-                return arg;
-            }
-        }
-        return null;
-    }
-
-    private Long extractMemberId(Object[] args) {
-        return (Long) args[MEMBER_ID_INDEX];
-    }
-
-    private Long extractArticleId(Object[] args) {
-        if (args.length > 1 && args[ARTICLE_ID_INDEX] instanceof Long) {
-            return (Long) args[ARTICLE_ID_INDEX];
-        }
-        return null;
-    }
-
+    // 게시글 접근 검증 관련
     private void validateArticleAccess(Long memberId, Long articleId) {
         Article article = findArticleById(articleId);
         validateArticleOwnership(article, memberId);
