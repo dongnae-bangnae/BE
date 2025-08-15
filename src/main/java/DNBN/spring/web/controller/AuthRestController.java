@@ -88,7 +88,7 @@ public class AuthRestController {
                 .path("/")
                 .domain("dnbn.site")
                 .maxAge(maxAgeInSeconds)
-                .sameSite("None")
+                .sameSite("Lax")
                 .build();
 
         response.addHeader("Set-Cookie", cookie.toString());

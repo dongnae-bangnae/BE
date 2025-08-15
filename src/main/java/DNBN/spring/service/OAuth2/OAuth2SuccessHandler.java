@@ -131,7 +131,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
                 .path("/")
                 .domain("dnbn.site")
                 .maxAge(maxAgeInSeconds)
-                .sameSite("None")
+                .sameSite("Lax")
                 .build();
 
         response.addHeader("Set-Cookie", cookie.toString());
