@@ -85,35 +85,6 @@ public class ArticleValidationAspect {
         return null;
     }
 
-    private Pair<String, String> extractTitleAndContentFromRecord(Object recordDto) {
-        try {
-            var titleMethod = recordDto.getClass().getMethod("title");
-            var contentMethod = recordDto.getClass().getMethod("content");
-            String title = (String) titleMethod.invoke(recordDto);
-            String content = (String) contentMethod.invoke(recordDto);
-
-            return Pair.of(title, content);
-        } catch (Exception e) {
-            throw new IllegalArgumentException("❌ ArticleValidationAspect: DTO에서 title/content 추출 실패", e);
-        }
-    }
-
-    private void validateLength(String value, int min, int max, ErrorStatus nullErrorStatus, ErrorStatus lengthErrorStatus) {
-        if (value == null) {
-            throw new ArticleHandler(nullErrorStatus);
-        }
-        if (value.length() < min || value.length() > max) {
-            throw new ArticleHandler(lengthErrorStatus);
-        }
-    }
-
-    private Long extractLongArg(Object[] args, int idx, String name) {
-        if (args.length > idx && args[idx] instanceof Long value) {
-            return value;
-        }
-        return null;
-    }
-
     private void validateArticleAccess(Long memberId, Long articleId) {
         Article article = findArticleById(articleId);
         validateArticleOwnership(article, memberId);
