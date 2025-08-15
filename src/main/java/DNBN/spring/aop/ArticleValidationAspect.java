@@ -19,37 +19,33 @@ import org.springframework.stereotype.Component;
 @Aspect
 @Component
 public class ArticleValidationAspect {
+    private static final int MEMBER_ID_INDEX = 0;
+    private static final int ARTICLE_ID_INDEX = 1;
+    private static final String PARAMETER_ERROR_MESSAGE = "❌ ArticleValidationAspect: memberId 파라미터 타입/순서 오류";
+    
     @Autowired
     private ArticleRepository articleRepository;
 
     @Before("@annotation(DNBN.spring.aop.annotation.ValidateArticle)")
     public void validateArticle(JoinPoint joinPoint) {
         Object[] args = joinPoint.getArgs();
-        // 파라미터 타입/순서 검증
-        if (args.length < 1 || !(args[0] instanceof Long)) {
-            throw new IllegalArgumentException("❌ ArticleValidationAspect: memberId 파라미터 타입/순서 오류");
-        }
-
-        Long memberId = (Long) args[0];
-        Long articleId = null;
-        // 두 번째 인자가 Long이면 articleId로 간주 (생성 시에는 null)
-        if (args.length > 1 && args[1] instanceof Long) {
-            articleId = (Long) args[1];
-        }
-
+        
+        validateParameterStructure(args);
+        
+        Long memberId = extractMemberId(args);
+        Long articleId = extractArticleId(args);
         Object dto = extractDto(args);
+        
         validatePinCategory(dto);
-
-        // articleId가 있으면(수정/삭제) 권한 및 삭제 여부 검증, 없으면(생성) 생략
+        
         if (articleId != null) {
-            Article article = articleRepository.findById(articleId)
-                .orElseThrow(() -> new ArticleHandler(ErrorStatus.ARTICLE_NOT_FOUND));
-            if (!article.getMember().getId().equals(memberId)) {
-                throw new ArticleHandler(ErrorStatus.ARTICLE_FORBIDDEN);
-            }
-            if (article.getDeletedAt() != null) {
-                throw new ArticleHandler(ErrorStatus.ARTICLE_ALREADY_DELETED);
-            }
+            validateArticleAccess(memberId, articleId);
+        }
+    }
+
+    private void validateParameterStructure(Object[] args) {
+        if (args.length < 1 || !(args[MEMBER_ID_INDEX] instanceof Long)) {
+            throw new IllegalArgumentException(PARAMETER_ERROR_MESSAGE);
         }
     }
 
@@ -78,32 +74,37 @@ public class ArticleValidationAspect {
         return null;
     }
 
-    private Pair<String, String> extractTitleAndContentFromRecord(Object recordDto) {
-        try {
-            var titleMethod = recordDto.getClass().getMethod("title");
-            var contentMethod = recordDto.getClass().getMethod("content");
-            String title = (String) titleMethod.invoke(recordDto);
-            String content = (String) contentMethod.invoke(recordDto);
-
-            return Pair.of(title, content);
-        } catch (Exception e) {
-            throw new IllegalArgumentException("❌ ArticleValidationAspect: DTO에서 title/content 추출 실패", e);
-        }
+    private Long extractMemberId(Object[] args) {
+        return (Long) args[MEMBER_ID_INDEX];
     }
 
-    private void validateLength(String value, int min, int max, ErrorStatus nullErrorStatus, ErrorStatus lengthErrorStatus) {
-        if (value == null) {
-            throw new ArticleHandler(nullErrorStatus);
-        }
-        if (value.length() < min || value.length() > max) {
-            throw new ArticleHandler(lengthErrorStatus);
-        }
-    }
-
-    private Long extractLongArg(Object[] args, int idx, String name) {
-        if (args.length > idx && args[idx] instanceof Long value) {
-            return value;
+    private Long extractArticleId(Object[] args) {
+        if (args.length > 1 && args[ARTICLE_ID_INDEX] instanceof Long) {
+            return (Long) args[ARTICLE_ID_INDEX];
         }
         return null;
+    }
+
+    private void validateArticleAccess(Long memberId, Long articleId) {
+        Article article = findArticleById(articleId);
+        validateArticleOwnership(article, memberId);
+        validateArticleNotDeleted(article);
+    }
+
+    private Article findArticleById(Long articleId) {
+        return articleRepository.findById(articleId)
+            .orElseThrow(() -> new ArticleHandler(ErrorStatus.ARTICLE_NOT_FOUND));
+    }
+
+    private void validateArticleOwnership(Article article, Long memberId) {
+        if (!article.getMember().getId().equals(memberId)) {
+            throw new ArticleHandler(ErrorStatus.ARTICLE_FORBIDDEN);
+        }
+    }
+
+    private void validateArticleNotDeleted(Article article) {
+        if (article.getDeletedAt() != null) {
+            throw new ArticleHandler(ErrorStatus.ARTICLE_ALREADY_DELETED);
+        }
     }
 }
