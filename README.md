@@ -40,6 +40,8 @@
 | DataBase          | MySQL |
 | Cloud          | AWS |
 
+<img width="938" height="565" alt="image" src="https://github.com/user-attachments/assets/d69563bf-d93d-48f1-be7a-94d94c194ef6" />
+
 <br/>
 
 ## 📚 <span id="git-컨벤션">git 컨벤션</span>
