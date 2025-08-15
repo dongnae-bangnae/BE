@@ -58,7 +58,7 @@ public class OAuth2FailureHandler implements AuthenticationFailureHandler {
                 .path("/")
                 .domain("dnbn.site")
                 .maxAge(maxAgeInSeconds)
-                .sameSite("None")
+                .sameSite("Lax")
                 .build();
 
         response.addHeader("Set-Cookie", cookie.toString());

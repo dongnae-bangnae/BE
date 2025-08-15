@@ -63,15 +63,17 @@ public class AuthRestController {
         // 어세스 토큰 재발급
         addCookie(response, "accessToken", tokens.getAccessToken(), true, 60 * 60 * 4); // 4시간
 
+        /*
         // csrf 토큰 재발급
-//        CsrfToken csrfToken = authCommandService.generateCsrfToken(request, response);addCookie(response, "XSRF-TOKEN", csrfToken.getToken(), false, 60 * 60 * 4);
-//        CookieCsrfTokenRepository csrfTokenRepository = CookieCsrfTokenRepository.withHttpOnlyFalse();
-//        CsrfToken csrfToken = csrfTokenRepository.generateToken(request);
-//        csrfTokenRepository.saveToken(csrfToken, request, response);
-//
-//        request.setAttribute(CsrfToken.class.getName(), csrfToken);
-//        request.setAttribute(csrfToken.getParameterName(), csrfToken);
-//        addCookie(response, "XSRF-TOKEN", csrfToken.getToken(), false, 60 * 60 * 4);
+        CsrfToken csrfToken = authCommandService.generateCsrfToken(request, response);addCookie(response, "XSRF-TOKEN", csrfToken.getToken(), false, 60 * 60 * 4);
+        CookieCsrfTokenRepository csrfTokenRepository = CookieCsrfTokenRepository.withHttpOnlyFalse();
+        CsrfToken csrfToken = csrfTokenRepository.generateToken(request);
+        csrfTokenRepository.saveToken(csrfToken, request, response);
+
+        request.setAttribute(CsrfToken.class.getName(), csrfToken);
+        request.setAttribute(csrfToken.getParameterName(), csrfToken);
+        addCookie(response, "XSRF-TOKEN", csrfToken.getToken(), false, 60 * 60 * 4);
+        */
 
         // 응답 바디 없이 204 No Content
         response.setStatus(HttpServletResponse.SC_NO_CONTENT);
@@ -88,7 +90,7 @@ public class AuthRestController {
                 .path("/")
                 .domain("dnbn.site")
                 .maxAge(maxAgeInSeconds)
-                .sameSite("None")
+                .sameSite("Lax")
                 .build();
 
         response.addHeader("Set-Cookie", cookie.toString());

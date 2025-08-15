@@ -68,7 +68,7 @@ public class MemberCommandServiceImpl implements MemberCommandService {
                 .path("/")
                 .domain("dnbn.site")
                 .maxAge(0)
-                .sameSite("None")
+                .sameSite("Lax")
                 .build();
 
         // refreshToken 쿠키 삭제 (즉시 만료 설정)
@@ -78,7 +78,7 @@ public class MemberCommandServiceImpl implements MemberCommandService {
                 .path("/")
                 .domain("dnbn.site") // 운영 도메인과 맞춰서 설정
                 .maxAge(0) // 즉시 만료
-                .sameSite("None")
+                .sameSite("Lax")
                 .build();
 
         /*
