@@ -26,24 +26,21 @@ public class ArticleValidationAspect {
     public void validateArticle(JoinPoint joinPoint) {
         Object[] args = joinPoint.getArgs();
         // 파라미터 타입/순서 검증
-        if (args.length < 2 || !(args[0] instanceof Long) || (args[1] != null && !(args[1] instanceof Long))) {
-            throw new IllegalArgumentException("❌ ArticleValidationAspect: memberId, articleId 파라미터 타입/순서 오류");
+        if (args.length < 1 || !(args[0] instanceof Long)) {
+            throw new IllegalArgumentException("❌ ArticleValidationAspect: memberId 파라미터 타입/순서 오류");
         }
-        Object dto = extractDto(args);
-        Long memberId = extractLongArg(args, 0, "memberId");
-        Long articleId = null;
 
+        Long memberId = (Long) args[0];
+        Long articleId = null;
+        // 두 번째 인자가 Long이면 articleId로 간주 (생성 시에는 null)
         if (args.length > 1 && args[1] instanceof Long) {
             articleId = (Long) args[1];
         }
-        if (articleId == null) {
-            throw new ArticleHandler(ErrorStatus.ARTICLE_NOT_FOUND);
-        }
 
-        // PinCategory 검증
+        Object dto = extractDto(args);
         validatePinCategory(dto);
 
-        // 권한 및 삭제 여부 검증 (수정/삭제 시)
+        // articleId가 있으면(수정/삭제) 권한 및 삭제 여부 검증, 없으면(생성) 생략
         if (articleId != null) {
             Article article = articleRepository.findById(articleId)
                 .orElseThrow(() -> new ArticleHandler(ErrorStatus.ARTICLE_NOT_FOUND));
