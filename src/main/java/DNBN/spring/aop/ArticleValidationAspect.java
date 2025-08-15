@@ -37,17 +37,9 @@ public class ArticleValidationAspect {
         Object dto = extractDto(args);
         
         validatePinCategory(dto);
-
-        // articleId가 있으면(수정/삭제) 권한 및 삭제 여부 검증, 없으면(생성) 생략
+        
         if (articleId != null) {
-            Article article = articleRepository.findById(articleId)
-                .orElseThrow(() -> new ArticleHandler(ErrorStatus.ARTICLE_NOT_FOUND));
-            if (!article.getMember().getId().equals(memberId)) {
-                throw new ArticleHandler(ErrorStatus.ARTICLE_FORBIDDEN);
-            }
-            if (article.getDeletedAt() != null) {
-                throw new ArticleHandler(ErrorStatus.ARTICLE_ALREADY_DELETED);
-            }
+            validateArticleAccess(memberId, articleId);
         }
     }
 
@@ -120,5 +112,28 @@ public class ArticleValidationAspect {
             return value;
         }
         return null;
+    }
+
+    private void validateArticleAccess(Long memberId, Long articleId) {
+        Article article = findArticleById(articleId);
+        validateArticleOwnership(article, memberId);
+        validateArticleNotDeleted(article);
+    }
+
+    private Article findArticleById(Long articleId) {
+        return articleRepository.findById(articleId)
+            .orElseThrow(() -> new ArticleHandler(ErrorStatus.ARTICLE_NOT_FOUND));
+    }
+
+    private void validateArticleOwnership(Article article, Long memberId) {
+        if (!article.getMember().getId().equals(memberId)) {
+            throw new ArticleHandler(ErrorStatus.ARTICLE_FORBIDDEN);
+        }
+    }
+
+    private void validateArticleNotDeleted(Article article) {
+        if (article.getDeletedAt() != null) {
+            throw new ArticleHandler(ErrorStatus.ARTICLE_ALREADY_DELETED);
+        }
     }
 }
