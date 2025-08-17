@@ -77,10 +77,12 @@ public class ArticleLikeController {
 
 
     private Long extractMemberIdFromToken(String token) {
-        if (token.startsWith("Bearer ")) {
-            token = token.substring(7);
+//        if (token.startsWith("Bearer ")) {
+//            token = token.substring(7);
+//        }
+        if (token == null) {
+            throw new MemberHandler(ErrorStatus.INVALID_JWT_ACCESS_TOKEN);
         }
-
         String socialId = jwtTokenProvider.getSubjectFromToken(token);
         return memberRepository.findBySocialId(socialId)
                 .orElseThrow(() -> new MemberHandler(ErrorStatus.MEMBER_NOT_FOUND))
