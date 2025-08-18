@@ -51,15 +51,6 @@ public class PlaceQueryServiceImpl implements PlaceQueryService {
                 .build();
     }
 
-//    @Override
-//    public PlaceResponseDTO.MapPlacesResultDTO getPlacesInMapBounds(PlaceRequestDTO.MapSearchDTO request) {
-//        List<Place> places = placeRepositoryCustom.findAllInBounds(
-//                request.getLatMin(), request.getLatMax(),
-//                request.getLngMin(), request.getLngMax()
-//        );
-//        return PlaceConverter.toMapPlacesResult(places);
-//    }
-
     @Override
     public PlaceResponseDTO.MapPlacesResultDTO getPlacesInMapBounds(
             Long memberId, Double latMin, Double latMax, Double lngMin, Double lngMax

@@ -9,5 +9,5 @@ import java.util.List;
 
 public interface SavePlaceRepository extends JpaRepository<SavePlace, Long>, SavePlaceRepositoryCustom {
     boolean existsByPlace(Place place);
-    boolean existsByPlace_PlaceIdAndCategory_Member_Id(Long placeId, Long memberId);
+    boolean existsByPlace_PlaceIdAndCategory_Member_IdAndCategory_DeletedAtIsNull(Long placeId, Long memberId);
 }
