@@ -14,8 +14,6 @@ public interface PlaceRepository extends JpaRepository<Place, Long> {
 
     Optional<Place> findPlaceByPlaceId(Long placeId);
 
-    Optional<Place> findByLatitudeAndLongitude(Double lat, Double lng);
-
     List<Place> findByRegionId(Long regionId);
 
 }

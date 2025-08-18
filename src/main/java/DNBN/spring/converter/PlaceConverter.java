@@ -34,7 +34,7 @@ public class PlaceConverter {
         List<PlaceResponseDTO.MapPlaceDTO> list = places.stream()
                 .map(p -> {
                     boolean saved = savePlaceRepository
-                            .existsByPlace_PlaceIdAndCategory_Member_Id(p.getPlaceId(), memberId);
+                            .existsByPlace_PlaceIdAndCategory_Member_IdAndCategory_DeletedAtIsNull(p.getPlaceId(), memberId);
                     return PlaceResponseDTO.MapPlaceDTO.builder()
                             .placeId(p.getPlaceId())
                             .regionId(p.getRegion().getId())

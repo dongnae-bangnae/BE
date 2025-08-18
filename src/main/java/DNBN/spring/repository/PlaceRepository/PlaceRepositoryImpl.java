@@ -9,6 +9,8 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+import static DNBN.spring.domain.QCategory.category;
+
 @Repository
 @RequiredArgsConstructor
 public class PlaceRepositoryImpl implements PlaceRepositoryCustom {
@@ -20,7 +22,6 @@ public class PlaceRepositoryImpl implements PlaceRepositoryCustom {
         BooleanBuilder b = new BooleanBuilder();
         b.and(place.latitude.between(latMin, latMax))
                 .and(place.longitude.between(lngMin, lngMax));
-//                .and(place.deletedAt.isNull()); // 필요하다면 삭제 여부 체크
 
         return queryFactory
                 .selectFrom(place)
