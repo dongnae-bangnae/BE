@@ -21,6 +21,15 @@ public class MemberResponseDTO {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
+    public static class NicknameCheckResultDTO {
+        private Long memberId;
+        private String nickname;
+    }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class MemberInfoDTO {
         Long memberId;
         String nickname;

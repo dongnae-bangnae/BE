@@ -42,7 +42,7 @@ public class MemberCommandServiceImpl implements MemberCommandService {
     private final AmazonS3Manager s3Manager;
     private final UuidRepository uuidRepository;
     private final ProfileImageRepository profileImageRepository;
-    private final OnboardingValidator onboardingValidator;
+//    private final OnboardingValidator onboardingValidator;
 
     @Override
     @Transactional
@@ -62,7 +62,7 @@ public class MemberCommandServiceImpl implements MemberCommandService {
             throw new MemberHandler(ErrorStatus.NICKNAME_NOT_EXIST);
         }
 
-        validateNicknameDuplicate(request.getNickname());
+        validateNicknameDuplicate(memberId, request.getNickname());
 
         // 좋아하는 동네 개수 최소 1개 ~ 최대 3개
         int chosenRegionCount = request.getChosenRegionIds() == null ? 0 : request.getChosenRegionIds().size();
@@ -115,6 +115,17 @@ public class MemberCommandServiceImpl implements MemberCommandService {
     private Region findRegion(Long regionId) {
         return regionRepository.findById(regionId)
                 .orElseThrow(() -> new RegionHandler(ErrorStatus.REGION_NOT_FOUND));
+    }
+
+    @Override
+    public MemberResponseDTO.NicknameCheckResultDTO checkNickname(Long memberId, String nickname) {
+
+        validateNicknameDuplicate(memberId, nickname);
+
+        return MemberResponseDTO.NicknameCheckResultDTO.builder()
+                .memberId(memberId)
+                .nickname(nickname)
+                .build();
     }
 
     @Override
@@ -185,7 +196,7 @@ public class MemberCommandServiceImpl implements MemberCommandService {
             throw new MemberHandler(ErrorStatus.NICKNAME_NOT_EXIST);
         }
 
-        validateNicknameDuplicate(newNickname);
+        validateNicknameDuplicate(memberId, newNickname);
 
 //        member.setNickname(newNickname);
         member.updateNickname(newNickname); // 도메인 주도 설계(Domain-Driven Design) 원칙에 부합하도록
@@ -285,8 +296,8 @@ public class MemberCommandServiceImpl implements MemberCommandService {
                 .build();
     }
 
-    private void validateNicknameDuplicate(String nickname) {
-        boolean exists = memberRepository.existsByNickname(nickname);
+    private void validateNicknameDuplicate(Long memberId, String nickname) {
+        boolean exists = memberRepository.existsByNicknameAndIdNot(nickname, memberId);
         if (exists) {
             throw new MemberHandler(ErrorStatus.NICKNAME_DUPLICATE);
         }

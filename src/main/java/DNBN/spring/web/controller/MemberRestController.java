@@ -51,6 +51,21 @@ public class MemberRestController {
                 .body(ApiResponse.of(SuccessStatus.MEMBER_ONBOARDING_SUCCESS, MemberConverter.toOnboardingResponseDTO(member)));
     }
 
+    @PostMapping("/check-nickname")
+    @Operation(summary = "닉네임 검증 API - JWT AccessToken 인증 필요",
+            description = "이미 존재하는 닉네임인지 검증하는 API입니다.",
+            security = { @SecurityRequirement(name = "JWT TOKEN") }
+    )
+    public ResponseEntity<ApiResponse<MemberResponseDTO.NicknameCheckResultDTO>> checkNickname(
+            @AuthenticationPrincipal MemberDetails memberDetails,
+            @RequestBody @Valid MemberRequestDTO.NicknameCheckDTO request
+    ) {
+        Long memberId = memberDetails.getMember().getId();
+        MemberResponseDTO.NicknameCheckResultDTO response = memberCommandService.checkNickname(memberId, request.getNickname());
+        return ResponseEntity.status(SuccessStatus.MEMBER_NICKNAME_CHECK_COMPLETED.getHttpStatus())
+                .body(ApiResponse.of(SuccessStatus.MEMBER_NICKNAME_CHECK_COMPLETED, response));
+    }
+
     @GetMapping("/info")
     @Operation(summary = "회원 정보 조회 API - JWT AccessToken 인증 필요",
             description = "JWT 인증된 멤버가 자신의 정보를 조회하는 API입니다.",
