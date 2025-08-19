@@ -204,11 +204,17 @@ public class MemberCommandServiceImpl implements MemberCommandService {
             throw new MemberHandler(ErrorStatus.INVALID_REGION_COUNT);
         }
 
+        // findRegion() 사용해서 모든 지역 ID 확인 및 조회
+        List<Region> regions = regionIds.stream()
+                .map(this::findRegion)
+                .toList();
+        /*
         // 모든 지역 ID가 존재하는지 확인
         List<Region> regions = regionIds.stream()
                 .map(id -> regionRepository.findById(id)
                         .orElseThrow(() -> new RegionHandler(ErrorStatus.REGION_NOT_FOUND)))
                 .toList();
+        */
 
         // 기존 관심 동네 삭제
         likeRegionRepository.deleteByMember(member);
