@@ -43,8 +43,8 @@ public class PlaceCommandServiceImpl implements PlaceCommandService {
                 .findByCategoryIdAndMemberAndDeletedAtIsNull(request.getCategoryId(), member)
                 .orElseThrow(() -> new CategoryHandler(ErrorStatus._FORBIDDEN));
 
-        // 4. 이미 다른 카테고리에 저장된 장소인지 검사
-        if (savePlaceRepository.existsByPlace(place)) {
+        // 4. 중복 저장 여부
+        if (savePlaceRepository.existsByPlace_PlaceIdAndCategory_Member_IdAndCategory_DeletedAtIsNull(placeId, memberId)) {
             throw new PlaceHandler(ErrorStatus.CATEGORY_ALREADY_SAVED_FOR_PLACE);
         }
 
