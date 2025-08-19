@@ -242,4 +242,112 @@ class ArticleCommandServiceImplTest {
       });
     }
   }
+
+  @Nested
+  @DisplayName("createArticle(ArticleWithLocationRequestDTO) 단위 테스트")
+  class CreateArticleWithNewLocationTest {
+
+    @Test
+    @DisplayName("정상적으로 게시물 생성 - 신규 장소, 이미지 없음")
+    void createArticleWithLocation_success_noImage() {
+      ArticleWithLocationRequestDTO request = getWithLocationRequest();
+      Member member = getMember();
+      Category category = getCategory();
+      Region region = getRegion();
+      Place place = Place.builder().placeId(100L).title(placeName).latitude(latitude).longitude(longitude).address(detailAddress).pinCategory(PinCategory.CAFE).region(region).build();
+      Article article = getArticle(member, category, place, region);
+
+      when(memberRepository.findById(memberId)).thenReturn(Optional.of(member));
+      when(categoryRepository.findById(categoryId)).thenReturn(Optional.of(category));
+      when(regionRepository.findById(regionId)).thenReturn(Optional.of(region));
+      when(placeRepository.save(any(Place.class))).thenReturn(place);
+      when(articleFactory.create(member, category, place, region, request)).thenReturn(article);
+      when(articlePhotoRepository.findAllByArticle(article)).thenReturn(List.of());
+
+      ArticleCommandService.ArticleWithPhotos result = articleCommandService.createArticle(memberId, request, null, null);
+
+      assertNotNull(result);
+      assertEquals(article, result.article);
+      assertTrue(result.photos.isEmpty());
+      verify(articleRepository).save(article);
+      verify(articleImageService).uploadAndSaveImages(article, place, region, null, null);
+    }
+
+    @Test
+    @DisplayName("정상적으로 게시물 생성 - 신규 장소, 이미지 여러 개")
+    void createArticleWithLocation_success_withImages() {
+      ArticleWithLocationRequestDTO request = getWithLocationRequest();
+      Member member = getMember();
+      Category category = getCategory();
+      Region region = getRegion();
+      Place place = Place.builder().placeId(100L).title(placeName).latitude(latitude).longitude(longitude).address(detailAddress).pinCategory(PinCategory.CAFE).region(region).build();
+      Article article = getArticle(member, category, place, region);
+
+      MultipartFile mainImage = mock(MultipartFile.class);
+      MultipartFile image1 = mock(MultipartFile.class);
+      List<MultipartFile> imageFiles = List.of(image1);
+
+      List<ArticlePhoto> photos = List.of(
+          ArticlePhoto.builder().fileKey("main-uuid").isMain(true).build(),
+          ArticlePhoto.builder().fileKey("uuid-1").isMain(false).build()
+      );
+
+      when(memberRepository.findById(memberId)).thenReturn(Optional.of(member));
+      when(categoryRepository.findById(categoryId)).thenReturn(Optional.of(category));
+      when(regionRepository.findById(regionId)).thenReturn(Optional.of(region));
+      when(placeRepository.save(any(Place.class))).thenReturn(place);
+      when(articleFactory.create(member, category, place, region, request)).thenReturn(article);
+      when(articlePhotoRepository.findAllByArticle(article)).thenReturn(photos);
+
+      ArticleCommandService.ArticleWithPhotos result = articleCommandService.createArticle(memberId, request, mainImage, imageFiles);
+
+      assertNotNull(result);
+      assertEquals(article, result.article);
+      assertEquals(2, result.photos.size());
+      verify(articleRepository).save(article);
+      verify(articleImageService).uploadAndSaveImages(article, place, region, mainImage, imageFiles);
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 멤버로 생성 시 예외 발생")
+    void createArticleWithLocation_memberNotFound() {
+      ArticleWithLocationRequestDTO request = getWithLocationRequest();
+      when(memberRepository.findById(memberId)).thenReturn(Optional.empty());
+
+      assertThrows(RuntimeException.class, () -> {
+        articleCommandService.createArticle(memberId, request, null, null);
+      });
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 카테고리로 생성 시 예외 발생")
+    void createArticleWithLocation_categoryNotFound() {
+      ArticleWithLocationRequestDTO request = getWithLocationRequest();
+      Member member = getMember();
+      when(memberRepository.findById(memberId)).thenReturn(Optional.of(member));
+      when(categoryRepository.findById(categoryId)).thenReturn(Optional.empty());
+
+      assertThrows(RuntimeException.class, () -> {
+        articleCommandService.createArticle(memberId, request, null, null);
+      });
+    }
+
+    @Test
+    @DisplayName("제목/내용 유효성 검증 실패 시 예외 발생")
+    void createArticleWithLocation_validationFail() {
+      ArticleWithLocationRequestDTO request = getWithLocationRequest();
+      Member member = getMember();
+      Category category = getCategory();
+      Region region = getRegion();
+
+      when(memberRepository.findById(memberId)).thenReturn(Optional.of(member));
+      when(categoryRepository.findById(categoryId)).thenReturn(Optional.of(category));
+      when(regionRepository.findById(regionId)).thenReturn(Optional.of(region));
+      doThrow(new IllegalArgumentException("제목 길이 오류")).when(titleLengthValidator).validateArticleTitle(anyString());
+
+      assertThrows(IllegalArgumentException.class, () -> {
+        articleCommandService.createArticle(memberId, request, null, null);
+      });
+    }
+  }
 }
