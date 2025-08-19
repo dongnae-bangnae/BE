@@ -74,6 +74,14 @@ public class Article extends BaseEntity {
     this.spamCount = Math.max(0, this.spamCount - 1);
   }
  
+  public void increaseCommentCount() {
+    this.commentCount = this.commentCount == null ? 1 : this.commentCount + 1;
+  }
+
+  public void decreaseCommentCount() {
+    this.commentCount = (this.commentCount == null || this.commentCount <= 0) ? 0 : this.commentCount - 1;
+  }
+
   @Column(nullable = false)
   private LocalDate date;
 
