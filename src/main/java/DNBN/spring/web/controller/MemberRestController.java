@@ -30,17 +30,24 @@ public class MemberRestController {
     private final MemberQueryService memberQueryService;
     private final MemberCommandService memberCommandService;
 
-    @PostMapping(value = "/onboarding")
+    @PostMapping(
+            value = "/onboarding",
+            consumes = {MediaType.MULTIPART_FORM_DATA_VALUE}
+    )
     @Operation(
             summary = "회원 초기 정보 등록 (온보딩) API - JWT AccessToken 인증 필요",
-            description = "JWT 인증된 멤버가 닉네임, 선호 지역을 등록하는 API입니다.",
+            description = "JWT 인증된 멤버가 닉네임, 프로필 이미지, 선호 지역을 등록하는 API입니다.",
             security = @SecurityRequirement(name = "JWT TOKEN")
     )
-    public ResponseEntity<ApiResponse<MemberResponseDTO.OnboardingResultDTO>> onboard(@AuthenticationPrincipal MemberDetails memberDetails) {
+    public ApiResponse<MemberResponseDTO.OnboardingResultDTO> onboard(
+            @Parameter(content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE))
+            @AuthenticationPrincipal MemberDetails memberDetails,
+            @RequestPart("request") @Valid MemberRequestDTO.OnboardingDTO request,
+            @RequestPart(value = "profileImage", required = false) MultipartFile profileImage
+    ) {
         Long memberId = memberDetails.getMember().getId();
-        Member member = memberCommandService.onboardingMember(memberId);
-        return ResponseEntity.status(SuccessStatus.MEMBER_ONBOARDING_SUCCESS.getHttpStatus())
-                .body(ApiResponse.of(SuccessStatus.MEMBER_ONBOARDING_SUCCESS, MemberConverter.toOnboardingResponseDTO(member)));
+        Member member = memberCommandService.onboardingMember(memberId, request, profileImage);
+        return ApiResponse.onSuccess(MemberConverter.toOnboardingResponseDTO(member));
     }
 
     @GetMapping("/info")
