@@ -32,7 +32,7 @@ public class MemberConverter {
                 .build();
     }
 
-    public static MemberResponseDTO.MemberInfoDTO toMemberInfoDTO(Member member) {
+    public static MemberResponseDTO.MemberInfoDTO toMemberInfoDTO(Member member, boolean isOnboardingCompleted) {
         List<RegionResponseDTO.RegionPreviewnDTO> likeRegions = member.getLikeRegionList()
                 .stream()
                 .map(lp -> {
@@ -55,7 +55,8 @@ public class MemberConverter {
 //                .profileImage(member.getProfileImage().getImageUrl())
                 .profileImage(profileImageUrl)
                 .likeRegions(likeRegions)
-                .isOnboardingCompleted(member.isOnboardingCompleted())
+//                .isOnboardingCompleted(member.isOnboardingCompleted())
+                .isOnboardingCompleted(isOnboardingCompleted)
                 .build();
     }
 }
