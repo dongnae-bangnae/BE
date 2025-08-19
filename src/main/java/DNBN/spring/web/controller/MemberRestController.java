@@ -39,7 +39,7 @@ public class MemberRestController {
             description = "JWT 인증된 멤버가 닉네임, 프로필 이미지, 선호 지역을 등록하는 API입니다.",
             security = @SecurityRequirement(name = "JWT TOKEN")
     )
-    public ApiResponse<MemberResponseDTO.OnboardingResultDTO> onboard(
+    public ResponseEntity<ApiResponse<MemberResponseDTO.OnboardingResultDTO>> onboard(
             @Parameter(content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE))
             @AuthenticationPrincipal MemberDetails memberDetails,
             @RequestPart("request") @Valid MemberRequestDTO.OnboardingDTO request,
@@ -47,7 +47,8 @@ public class MemberRestController {
     ) {
         Long memberId = memberDetails.getMember().getId();
         Member member = memberCommandService.onboardingMember(memberId, request, profileImage);
-        return ApiResponse.onSuccess(MemberConverter.toOnboardingResponseDTO(member));
+        return ResponseEntity.status(SuccessStatus.MEMBER_ONBOARDING_SUCCESS.getHttpStatus())
+                .body(ApiResponse.of(SuccessStatus.MEMBER_ONBOARDING_SUCCESS, MemberConverter.toOnboardingResponseDTO(member)));
     }
 
     @GetMapping("/info")
