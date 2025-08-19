@@ -1,5 +1,6 @@
 package DNBN.spring.service.ArticleService;
 
+import DNBN.spring.aws.s3.AmazonS3Manager;
 import DNBN.spring.domain.*;
 import DNBN.spring.domain.enums.PinCategory;
 import DNBN.spring.repository.ArticlePhotoRepository.ArticlePhotoRepository;
@@ -11,6 +12,7 @@ import DNBN.spring.repository.RegionRepository.RegionRepository;
 import DNBN.spring.validation.validator.ContentLengthValidator;
 import DNBN.spring.validation.validator.TitleLengthValidator;
 import DNBN.spring.web.dto.request.ArticleRequestDTO;
+import DNBN.spring.web.dto.request.ArticleUpdateRequestDTO;
 import DNBN.spring.web.dto.request.ArticleWithLocationRequestDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -40,6 +42,7 @@ class ArticleCommandServiceImplTest {
   @Mock private ArticleUpdater articleUpdater;
   @Mock private PlaceUpdater placeUpdater;
   @Mock private ArticleFactory articleFactory;
+  @Mock private AmazonS3Manager s3Manager;
 
   @InjectMocks
   private ArticleCommandServiceImpl articleCommandService;
@@ -49,7 +52,6 @@ class ArticleCommandServiceImplTest {
     MockitoAnnotations.openMocks(this);
   }
 
-  // 공통 테스트 데이터
   private final Long memberId = 1L;
   private final Long categoryId = 2L;
   private final Long placeId = 3L;
@@ -350,4 +352,90 @@ class ArticleCommandServiceImplTest {
       });
     }
   }
+
+  @Nested
+@DisplayName("updateArticle 단위 테스트")
+class UpdateArticleTest {
+
+    private final Long memberId = 1L;
+    private final Long articleId = 10L;
+
+    private Article getArticle() {
+        Place place = Place.builder().placeId(3L).build();
+        Region region = Region.builder().id(4L).build();
+        return Article.builder()
+                .articleId(articleId)
+                .place(place)
+                .region(region)
+                .build();
+    }
+
+    @Test
+    @DisplayName("정상적으로 게시물 수정 - 이미지 변경 없음")
+    void updateArticle_success_noImageChange() {
+        Article article = getArticle();
+        ArticleUpdateRequestDTO request = mock(ArticleUpdateRequestDTO.class);
+        List<ArticlePhoto> photos = List.of(
+                ArticlePhoto.builder().fileKey("uuid1").isMain(true).build()
+        );
+
+        when(articleRepository.findById(articleId)).thenReturn(Optional.of(article));
+        when(articlePhotoRepository.findAllByArticle(article)).thenReturn(photos);
+
+        ArticleCommandService.ArticleWithPhotos result = articleCommandService.updateArticle(memberId, articleId, request, null, null);
+
+        assertNotNull(result);
+        assertEquals(article, result.article);
+        assertEquals(photos, result.photos);
+        verify(articleUpdater).updateArticleEntity(article, request);
+        verify(placeUpdater).updatePlaceEntity(article.getPlace(), request);
+        verify(articlePhotoRepository, never()).delete(any());
+        verify(s3Manager, never()).deleteFile(anyString());
+        verify(articleImageService, never()).uploadAndSaveImages(any(), any(), any(), any(), any());
+    }
+
+    @Test
+    @DisplayName("정상적으로 게시물 수정 - 이미지 변경(대표/추가)")
+    void updateArticle_success_withImageChange() {
+        Article article = getArticle();
+        ArticleUpdateRequestDTO request = mock(ArticleUpdateRequestDTO.class);
+        MultipartFile mainImage = mock(MultipartFile.class);
+        MultipartFile image1 = mock(MultipartFile.class);
+        List<MultipartFile> imageFiles = List.of(image1);
+
+        List<ArticlePhoto> oldPhotos = List.of(
+                ArticlePhoto.builder().fileKey("old-uuid1").isMain(true).build(),
+                ArticlePhoto.builder().fileKey("old-uuid2").isMain(false).build()
+        );
+        List<ArticlePhoto> newPhotos = List.of(
+                ArticlePhoto.builder().fileKey("new-uuid1").isMain(true).build(),
+                ArticlePhoto.builder().fileKey("new-uuid2").isMain(false).build()
+        );
+
+        when(articleRepository.findById(articleId)).thenReturn(Optional.of(article));
+        when(articlePhotoRepository.findAllByArticle(article)).thenReturn(oldPhotos).thenReturn(newPhotos);
+
+        ArticleCommandService.ArticleWithPhotos result = articleCommandService.updateArticle(memberId, articleId, request, mainImage, imageFiles);
+
+        assertNotNull(result);
+        assertEquals(article, result.article);
+        assertEquals(newPhotos, result.photos);
+        verify(articleUpdater).updateArticleEntity(article, request);
+        verify(placeUpdater).updatePlaceEntity(article.getPlace(), request);
+        verify(articlePhotoRepository, times(2)).delete(any());
+        verify(s3Manager, times(2)).deleteFile(anyString());
+        verify(articleImageService).uploadAndSaveImages(article, article.getPlace(), article.getRegion(), mainImage, imageFiles);
+    }
+
+    @Test
+    @DisplayName("게시물이 존재하지 않을 때 예외 발생")
+    void updateArticle_articleNotFound() {
+        ArticleUpdateRequestDTO request = mock(ArticleUpdateRequestDTO.class);
+        when(articleRepository.findById(articleId)).thenReturn(Optional.empty());
+
+        assertThrows(RuntimeException.class, () -> {
+            articleCommandService.updateArticle(memberId, articleId, request, null, null);
+        });
+    }
+}
 }
