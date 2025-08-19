@@ -19,6 +19,7 @@ import java.util.Optional;
 import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 import java.lang.reflect.Field;
+import java.util.List;
 
 class CommentCommandServiceImplTest {
 
@@ -47,19 +48,19 @@ class CommentCommandServiceImplTest {
 
     private Article getArticleWithCommentCount(long commentCount) {
         return Article.builder()
-                .articleId(articleId)
-                .commentCount(commentCount)
-                .member(getMember())
-                .build();
+            .articleId(articleId)
+            .commentCount(commentCount)
+            .member(getMember())
+            .build();
     }
 
     private Comment getComment(Article article, Member member) {
         return Comment.builder()
-                .commentId(commentId)
-                .article(article)
-                .member(member)
-                .content(content)
-                .build();
+            .commentId(commentId)
+            .article(article)
+            .member(member)
+            .content(content)
+            .build();
     }
 
     private void setCreatedAndUpdatedAt(Object entity, LocalDateTime createdAt, LocalDateTime updatedAt) {
@@ -137,6 +138,120 @@ class CommentCommandServiceImplTest {
             commentCommandService.deleteComment(memberId, commentId, articleId);
 
             assertEquals(0L, article.getCommentCount());
+        }
+    }
+
+    @Nested
+    @DisplayName("댓글 예외/경계 및 비즈니스 로직 테스트")
+    class CommentExceptionAndBusinessTest {
+
+        @Test
+        @DisplayName("존재하지 않는 게시물로 댓글 생성 시 예외 발생")
+        void createComment_articleNotFound() {
+            when(articleRepository.findById(articleId)).thenReturn(Optional.empty());
+            CommentRequestDTO request = new CommentRequestDTO(content, null);
+
+            assertThrows(RuntimeException.class, () -> {
+                commentCommandService.createComment(memberId, articleId, request);
+            });
+        }
+
+        @Test
+        @DisplayName("존재하지 않는 멤버로 댓글 생성 시 예외 발생")
+        void createComment_memberNotFound() {
+            Article article = getArticleWithCommentCount(0L);
+            when(articleRepository.findById(articleId)).thenReturn(Optional.of(article));
+            when(memberRepository.findById(memberId)).thenReturn(Optional.empty());
+            CommentRequestDTO request = new CommentRequestDTO(content, null);
+
+            assertThrows(RuntimeException.class, () -> {
+                commentCommandService.createComment(memberId, articleId, request);
+            });
+        }
+
+        @Test
+        @DisplayName("존재하지 않는 댓글 삭제 시 예외 발생")
+        void deleteComment_commentNotFound() {
+            when(commentRepository.findById(commentId)).thenReturn(Optional.empty());
+            when(articleRepository.findById(articleId)).thenReturn(Optional.of(getArticleWithCommentCount(0L)));
+
+            assertThrows(RuntimeException.class, () -> {
+                commentCommandService.deleteComment(memberId, commentId, articleId);
+            });
+        }
+
+        @Test
+        @DisplayName("대댓글 생성 시 부모 댓글이 없으면 예외 발생")
+        void createReply_parentCommentNotFound() {
+            Article article = getArticleWithCommentCount(0L);
+            Member member = getMember();
+            when(articleRepository.findById(articleId)).thenReturn(Optional.of(article));
+            when(memberRepository.findById(memberId)).thenReturn(Optional.of(member));
+            when(commentRepository.findById(999L)).thenReturn(Optional.empty()); // 부모 댓글 없음
+
+            CommentRequestDTO request = new CommentRequestDTO(content, 999L);
+
+            assertThrows(RuntimeException.class, () -> {
+                commentCommandService.createComment(memberId, articleId, request);
+            });
+        }
+
+        @Test
+        @DisplayName("대댓글 생성 시 부모 댓글이 다른 게시물에 속하면 예외 발생")
+        void createReply_parentCommentOfOtherArticle() {
+            Article article = getArticleWithCommentCount(0L);
+            Member member = getMember();
+            Article otherArticle = getArticleWithCommentCount(0L);
+            otherArticle = Article.builder().articleId(999L).commentCount(0L).member(member).build();
+            Comment parentComment = getComment(otherArticle, member);
+            setCreatedAndUpdatedAt(parentComment, LocalDateTime.now(), LocalDateTime.now());
+
+            when(articleRepository.findById(articleId)).thenReturn(Optional.of(article));
+            when(memberRepository.findById(memberId)).thenReturn(Optional.of(member));
+            when(commentRepository.findById(parentComment.getCommentId())).thenReturn(Optional.of(parentComment));
+
+            CommentRequestDTO request = new CommentRequestDTO(content, parentComment.getCommentId());
+
+            assertThrows(RuntimeException.class, () -> {
+                commentCommandService.createComment(memberId, articleId, request);
+            });
+        }
+
+        @Test
+        @DisplayName("댓글 삭제 시 알림(Notification)도 함께 삭제된다")
+        void deleteComment_alsoDeletesNotification() {
+            Article article = getArticleWithCommentCount(1L);
+            Member member = getMember();
+            Comment comment = getComment(article, member);
+            setCreatedAndUpdatedAt(comment, LocalDateTime.now(), LocalDateTime.now());
+
+            when(commentRepository.findById(commentId)).thenReturn(Optional.of(comment));
+            when(articleRepository.findById(articleId)).thenReturn(Optional.of(article));
+            when(notificationRepository.findByComment_CommentId(commentId)).thenReturn(List.of(Notification.builder().comment(comment).build()));
+
+            commentCommandService.deleteComment(memberId, commentId, articleId);
+
+            verify(notificationRepository).delete(any(Notification.class));
+        }
+
+        @Test
+        @DisplayName("댓글 작성 시 본인 글에는 알림이 생성되지 않는다")
+        void createComment_noNotificationIfSelf() {
+            Article article = getArticleWithCommentCount(0L);
+            Member member = getMember();
+            when(articleRepository.findById(articleId)).thenReturn(Optional.of(article));
+            when(memberRepository.findById(memberId)).thenReturn(Optional.of(member));
+            when(commentRepository.save(any(Comment.class))).thenAnswer(invocation -> {
+                Comment c = invocation.getArgument(0);
+                setCreatedAndUpdatedAt(c, LocalDateTime.now(), LocalDateTime.now());
+                return c;
+            });
+
+            CommentRequestDTO request = new CommentRequestDTO(content, null);
+
+            commentCommandService.createComment(memberId, articleId, request);
+
+            verify(notificationRepository, never()).save(any(Notification.class));
         }
     }
 }
