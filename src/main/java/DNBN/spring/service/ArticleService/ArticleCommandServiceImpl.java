@@ -63,7 +63,6 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
         Place place = getPlace(request.placeId());
         Region region = getRegion(request.regionId());
 
-        // Place에 업데이트
         place.updateTitle(request.placeName());
         place.updatePinCategory(PinCategory.valueOf(request.pinCategory().toUpperCase()));
 
@@ -73,8 +72,9 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
         Article article = articleFactory.create(member, category, place, region, request);
         articleRepository.save(article);
 
-        List<ArticlePhoto> photos = articleImageService.uploadAndSaveImages(article, place, region, mainImage, imageFiles);
-        return new ArticleWithPhotos(article, photos);
+        articleImageService.uploadAndSaveImages(article, place, region, mainImage, imageFiles);
+        List<ArticlePhoto> savedPhotos = articlePhotoRepository.findAllByArticle(article);
+        return new ArticleWithPhotos(article, savedPhotos);
     }
 
     @Override
@@ -102,13 +102,9 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
         Article article = articleFactory.create(member, category, place, region, request);
         articleRepository.save(article);
 
-        List<ArticlePhoto> photos = articleImageService.uploadAndSaveImages(article, place, region, mainImage, imageFiles);
-        return new ArticleWithPhotos(article, photos);
-    }
-
-    private Article getArticle(Long articleId) {
-        return articleRepository.findById(articleId)
-                .orElseThrow(() -> new ArticleHandler(ErrorStatus.ARTICLE_NOT_FOUND));
+        articleImageService.uploadAndSaveImages(article, place, region, mainImage, imageFiles);
+        List<ArticlePhoto> savedPhotos = articlePhotoRepository.findAllByArticle(article);
+        return new ArticleWithPhotos(article, savedPhotos);
     }
 
     private Member getMember(Long memberId) {
@@ -132,8 +128,7 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
     @ValidateS3ImageUpload
     @ValidateArticle
     public ArticleWithPhotos updateArticle(Long memberId, Long articleId, ArticleUpdateRequestDTO request, MultipartFile mainImage, List<MultipartFile> imageFiles) {
-        Article article = articleRepository.findById(articleId)
-                .orElseThrow(() -> new ArticleHandler(ErrorStatus.ARTICLE_NOT_FOUND));
+        Article article = getArticle(articleId);
 
         articleUpdater.updateArticleEntity(article, request);
         placeUpdater.updatePlaceEntity(article.getPlace(), request);
@@ -141,23 +136,27 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
         List<ArticlePhoto> photos = articlePhotoRepository.findAllByArticle(article);
         // 새로운 이미지가 제공된 경우, 기존 이미지 삭제 후 새로 추가
         if ((mainImage != null && !mainImage.isEmpty()) || (imageFiles != null && !imageFiles.isEmpty())) {
-            // 기존 이미지 S3에서 삭제 및 DB에서 삭제
             for (ArticlePhoto photo : photos) {
                 s3Manager.deleteFile(photo.getFileKey());
                 articlePhotoRepository.delete(photo);
             }
 
-            photos = articleImageService.uploadAndSaveImages(article, article.getPlace(), article.getRegion(), mainImage, imageFiles);
+            articleImageService.uploadAndSaveImages(article, article.getPlace(), article.getRegion(), mainImage, imageFiles);
+            photos = articlePhotoRepository.findAllByArticle(article);
         }
 
         return new ArticleWithPhotos(article, photos);
     }
 
+    private Article getArticle(Long articleId) {
+        return articleRepository.findById(articleId)
+            .orElseThrow(() -> new ArticleHandler(ErrorStatus.ARTICLE_NOT_FOUND));
+    }
+
     @Override
     @ValidateArticle
     public void deleteArticle(Long memberId, Long articleId) {
-        Article article = articleRepository.findById(articleId)
-                .orElseThrow(() -> new ArticleHandler(ErrorStatus.ARTICLE_NOT_FOUND));
+        Article article = getArticle(articleId);
         article.delete(); // dirty checking
     }
 }
