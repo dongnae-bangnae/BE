@@ -68,6 +68,7 @@ public class CommentCommandServiceImpl implements CommentCommandService {
                 .build();
 
         commentRepository.save(comment);
+        article.increaseCommentCount();
 
         // (1) 원글 작성자
         Member articleOwner = article.getMember();
@@ -89,7 +90,10 @@ public class CommentCommandServiceImpl implements CommentCommandService {
     public void deleteComment(Long memberId, Long commentId, Long articleId) {
         Comment comment = commentRepository.findById(commentId)
             .orElseThrow(() -> new CommentHandler(ErrorStatus.COMMENT_NOT_FOUND));
+        Article article = articleRepository.findById(articleId)
+            .orElseThrow(() -> new ArticleHandler(ErrorStatus.ARTICLE_NOT_FOUND));
         comment.delete();
+        article.decreaseCommentCount();
 
         notificationRepository.findByComment_CommentId(commentId)
                 .forEach(notificationRepository::delete);
