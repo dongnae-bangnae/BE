@@ -131,6 +131,7 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
         Article article = getArticle(articleId);
         
         validateArticleOwner(article, memberId);
+        validateArticleNotDeleted(article);
 
         articleUpdater.updateArticleEntity(article, request);
         placeUpdater.updatePlaceEntity(article.getPlace(), request);
@@ -161,12 +162,20 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
         }
     }
 
+    // 삭제된 게시물 검증 메서드 추가
+    private void validateArticleNotDeleted(Article article) {
+        if (article.isDeleted()) {
+            throw new RuntimeException("이미 삭제된 게시물입니다.");
+        }
+    }
+
     @Override
     @ValidateArticle
     public void deleteArticle(Long memberId, Long articleId) {
         Article article = getArticle(articleId);
         
         validateArticleOwner(article, memberId);
+        validateArticleNotDeleted(article);
         
         article.delete(); // dirty checking
     }
