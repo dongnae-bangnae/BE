@@ -88,6 +88,11 @@ spring:
       # false (기본값): 파일 파싱이 컨트롤러 진입 전에 이뤄짐
       # true: 파일 파싱을 컨트롤러 파라미터 바인딩 시점으로 미룸
       resolve-lazily: false
+  cache:
+    type: redis
+    redis:
+      time-to-live:
+        articles:first-page: 120s
 server:
   forward-headers-strategy: framework
   tomcat:
