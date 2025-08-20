@@ -129,6 +129,8 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
     @ValidateArticle
     public ArticleWithPhotos updateArticle(Long memberId, Long articleId, ArticleUpdateRequestDTO request, MultipartFile mainImage, List<MultipartFile> imageFiles) {
         Article article = getArticle(articleId);
+        
+        validateArticleOwner(article, memberId);
 
         articleUpdater.updateArticleEntity(article, request);
         placeUpdater.updatePlaceEntity(article.getPlace(), request);
@@ -153,10 +155,19 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
             .orElseThrow(() -> new ArticleHandler(ErrorStatus.ARTICLE_NOT_FOUND));
     }
 
+    private void validateArticleOwner(Article article, Long memberId) {
+        if (!article.getMember().getId().equals(memberId)) {
+            throw new RuntimeException("게시물 작성자만 수정/삭제할 수 있습니다.");
+        }
+    }
+
     @Override
     @ValidateArticle
     public void deleteArticle(Long memberId, Long articleId) {
         Article article = getArticle(articleId);
+        
+        validateArticleOwner(article, memberId);
+        
         article.delete(); // dirty checking
     }
 }
