@@ -65,18 +65,26 @@ public class ArticleImageService {
                     }
                 }
             }
+        } catch (ArticlePhotoHandler e) {
+            log.error("S3 업로드 실패 - ArticlePhotoHandler", e);
+            rollbackUploadedFiles(uploadedKeys);
+            throw e;
         } catch (Exception e) {
-            log.error("S3 업로드 실패", e);
-            for (String key : uploadedKeys) {
-                try {
-                    s3Manager.deleteFile(key);
-                } catch (Exception ex) {
-                    log.error("S3 롤백(파일 삭제) 실패: {}", key, ex);
-                }
-            }
+            log.error("S3 업로드 실패 - 예상치 못한 오류", e);
+            rollbackUploadedFiles(uploadedKeys);
             throw new ArticlePhotoHandler(ErrorStatus.ARTICLE_PHOTO_S3_UPLOAD_FAILED);
         }
         return photos;
+    }
+
+    private void rollbackUploadedFiles(List<String> uploadedKeys) {
+        for (String key : uploadedKeys) {
+            try {
+                s3Manager.deleteFile(key);
+            } catch (Exception ex) {
+                log.error("S3 롤백(파일 삭제) 실패: {}", key, ex);
+            }
+        }
     }
 }
 
