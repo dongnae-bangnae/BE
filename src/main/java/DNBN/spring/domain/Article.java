@@ -89,6 +89,18 @@ public class Article extends BaseEntity {
         this.deletedAt = java.time.LocalDateTime.now();
     }
 
+  public boolean isDeleted() {
+    return this.deletedAt != null;
+  }
+
+  public boolean isActive() {
+    return !isDeleted();
+  }
+
+  public boolean isNotDeleted() {
+    return !isDeleted();
+  }
+
   public void setTitle(String title) {
     this.title = title;
   }
