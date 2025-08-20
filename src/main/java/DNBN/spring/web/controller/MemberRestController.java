@@ -30,17 +30,40 @@ public class MemberRestController {
     private final MemberQueryService memberQueryService;
     private final MemberCommandService memberCommandService;
 
-    @PostMapping(value = "/onboarding")
+    @PostMapping(
+            value = "/onboarding",
+            consumes = {MediaType.MULTIPART_FORM_DATA_VALUE}
+    )
     @Operation(
             summary = "회원 초기 정보 등록 (온보딩) API - JWT AccessToken 인증 필요",
-            description = "JWT 인증된 멤버가 닉네임, 선호 지역을 등록하는 API입니다.",
+            description = "JWT 인증된 멤버가 닉네임, 프로필 이미지, 선호 지역을 등록하는 API입니다.",
             security = @SecurityRequirement(name = "JWT TOKEN")
     )
-    public ResponseEntity<ApiResponse<MemberResponseDTO.OnboardingResultDTO>> onboard(@AuthenticationPrincipal MemberDetails memberDetails) {
+    public ResponseEntity<ApiResponse<MemberResponseDTO.OnboardingResultDTO>> onboard(
+            @Parameter(content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE))
+            @AuthenticationPrincipal MemberDetails memberDetails,
+            @RequestPart("request") @Valid MemberRequestDTO.OnboardingDTO request,
+            @RequestPart(value = "profileImage", required = false) MultipartFile profileImage
+    ) {
         Long memberId = memberDetails.getMember().getId();
-        Member member = memberCommandService.onboardingMember(memberId);
+        Member member = memberCommandService.onboardingMember(memberId, request, profileImage);
         return ResponseEntity.status(SuccessStatus.MEMBER_ONBOARDING_SUCCESS.getHttpStatus())
                 .body(ApiResponse.of(SuccessStatus.MEMBER_ONBOARDING_SUCCESS, MemberConverter.toOnboardingResponseDTO(member)));
+    }
+
+    @PostMapping("/check-nickname")
+    @Operation(summary = "닉네임 검증 API - JWT AccessToken 인증 필요",
+            description = "이미 존재하는 닉네임인지 검증하는 API입니다.",
+            security = { @SecurityRequirement(name = "JWT TOKEN") }
+    )
+    public ResponseEntity<ApiResponse<MemberResponseDTO.NicknameCheckResultDTO>> checkNickname(
+            @AuthenticationPrincipal MemberDetails memberDetails,
+            @RequestBody @Valid MemberRequestDTO.NicknameCheckDTO request
+    ) {
+        Long memberId = memberDetails.getMember().getId();
+        MemberResponseDTO.NicknameCheckResultDTO response = memberCommandService.checkNickname(memberId, request.getNickname());
+        return ResponseEntity.status(SuccessStatus.MEMBER_NICKNAME_CHECK_COMPLETED.getHttpStatus())
+                .body(ApiResponse.of(SuccessStatus.MEMBER_NICKNAME_CHECK_COMPLETED, response));
     }
 
     @GetMapping("/info")

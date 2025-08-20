@@ -6,6 +6,7 @@ import DNBN.spring.config.security.jwt.JwtTokenProvider;
 import DNBN.spring.converter.MemberConverter;
 import DNBN.spring.domain.Member;
 import DNBN.spring.repository.MemberRepository.MemberRepository;
+import DNBN.spring.validation.validator.OnboardingValidator;
 import DNBN.spring.web.dto.response.MemberResponseDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -17,6 +18,7 @@ public class MemberQueryServiceImpl implements MemberQueryService {
 
     private final MemberRepository memberRepository;
     private final JwtTokenProvider jwtTokenProvider;
+    private final OnboardingValidator onboardingValidator;
 
     @Override
     @Transactional(readOnly = true)
@@ -26,6 +28,9 @@ public class MemberQueryServiceImpl implements MemberQueryService {
 
         Member member = memberRepository.findById(memberId) // MemberRepository 로부터 사용자 정보를 조회
                 .orElseThrow(()-> new MemberHandler(ErrorStatus.MEMBER_NOT_FOUND));
-        return MemberConverter.toMemberInfoDTO(member); // 정보 조회에 성공하면, 우리가 정의한 Response DTO인 MemberInfoDTO 로 반환
+
+        boolean complete = onboardingValidator.isCompleteOnboarding(member);
+
+        return MemberConverter.toMemberInfoDTO(member, complete); // 정보 조회에 성공하면, 우리가 정의한 Response DTO인 MemberInfoDTO 로 반환
     }
 }

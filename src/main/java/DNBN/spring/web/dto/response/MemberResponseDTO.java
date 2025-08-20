@@ -12,8 +12,18 @@ public class MemberResponseDTO {
     public static class OnboardingResultDTO {
         private Long memberId;
         private String nickname;
+        String profileImage;
         private List<Long> chosenRegionIds;
         private Boolean isOnboardingCompleted;
+    }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class NicknameCheckResultDTO {
+        private Long memberId;
+        private String nickname;
     }
 
     @Getter
@@ -25,6 +35,7 @@ public class MemberResponseDTO {
         String nickname;
         String profileImage;
         List<RegionResponseDTO.RegionPreviewnDTO> likeRegions;
+        private Boolean isOnboardingCompleted;
     }
 
     @Getter

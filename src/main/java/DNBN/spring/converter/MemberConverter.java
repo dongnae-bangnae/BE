@@ -22,6 +22,7 @@ public class MemberConverter {
         return MemberResponseDTO.OnboardingResultDTO.builder()
                 .memberId(member.getId())
                 .nickname(member.getNickname())
+                .profileImage(member.getProfileImage() != null ? member.getProfileImage().getImageUrl() : null)
                 .chosenRegionIds(
                         member.getLikeRegionList().stream()
                                 .map(lp -> lp.getRegion().getId())
@@ -31,7 +32,7 @@ public class MemberConverter {
                 .build();
     }
 
-    public static MemberResponseDTO.MemberInfoDTO toMemberInfoDTO(Member member) {
+    public static MemberResponseDTO.MemberInfoDTO toMemberInfoDTO(Member member, boolean isOnboardingCompleted) {
         List<RegionResponseDTO.RegionPreviewnDTO> likeRegions = member.getLikeRegionList()
                 .stream()
                 .map(lp -> {
@@ -54,6 +55,8 @@ public class MemberConverter {
 //                .profileImage(member.getProfileImage().getImageUrl())
                 .profileImage(profileImageUrl)
                 .likeRegions(likeRegions)
+//                .isOnboardingCompleted(member.isOnboardingCompleted())
+                .isOnboardingCompleted(isOnboardingCompleted)
                 .build();
     }
 }

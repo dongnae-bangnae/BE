@@ -15,7 +15,8 @@ public class MemberRequestDTO {
     @Getter
     @Setter
     public static class OnboardingDTO {
-        @NotBlank(message = "닉네임은 필수입니다.")
+        @NotBlank(message = "닉네임을 입력해주세요.")
+        @Size(max = 10, message = "닉네임은 최대 10자입니다.")
         String nickname;
 
 //        String profileImage;
@@ -27,9 +28,17 @@ public class MemberRequestDTO {
 
     @Getter
     @Setter
+    public static class NicknameCheckDTO {
+        @NotBlank(message = "닉네임을 입력해주세요.")
+        @Size(max = 10, message = "닉네임은 최대 10자입니다.")
+        String nickname;
+    }
+
+    @Getter
+    @Setter
     public static class NicknameUpdateDTO {
-        @NotBlank(message = "닉네임은 필수입니다.")
-        @Size(max = 10, message = "닉네임은 최대 10자까지 가능합니다.")
+        @NotBlank(message = "닉네임을 입력해주세요.")
+        @Size(max = 10, message = "닉네임은 최대 10자입니다.")
         String nickname;
     }
 

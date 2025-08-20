@@ -1,8 +1,10 @@
 package DNBN.spring.service.OAuth2;
 
+import DNBN.spring.apiPayload.ApiResponse;
 import DNBN.spring.apiPayload.code.status.SuccessStatus;
 import DNBN.spring.config.security.jwt.JwtTokenProvider;
 import DNBN.spring.domain.Member;
+import DNBN.spring.web.dto.response.AuthResponseDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletResponse;
