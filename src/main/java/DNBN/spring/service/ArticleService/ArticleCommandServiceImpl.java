@@ -208,8 +208,59 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
                 .orElseThrow(() -> new RegionHandler(ErrorStatus.REGION_NOT_FOUND));
     }
 
+    @Override
+    @ValidateS3ImageUpload
+    @ValidateArticle
+    public ArticleWithPhotos updateArticle(Long memberId, Long articleId, ArticleUpdateRequestDTO request, MultipartFile mainImage, List<MultipartFile> imageFiles) {
+        Article article = getArticle(articleId);
+        
+        validateArticleOwner(article, memberId);
+        validateArticleNotDeleted(article);
+
+        articleUpdater.updateArticleEntity(article, request);
+        placeUpdater.updatePlaceEntity(article.getPlace(), request);
+
+        List<ArticlePhoto> photos = articlePhotoRepository.findAllByArticle(article);
+        // 새로운 이미지가 제공된 경우, 기존 이미지 삭제 후 새로 추가
+        if ((mainImage != null && !mainImage.isEmpty()) || (imageFiles != null && !imageFiles.isEmpty())) {
+            for (ArticlePhoto photo : photos) {
+                s3Manager.deleteFile(photo.getFileKey());
+                articlePhotoRepository.delete(photo);
+            }
+
+            articleImageService.uploadAndSaveImages(article, article.getPlace(), article.getRegion(), mainImage, imageFiles);
+            photos = articlePhotoRepository.findAllByArticle(article);
+        }
+
+        return new ArticleWithPhotos(article, photos);
+    }
+
     private Article getArticle(Long articleId) {
         return articleRepository.findById(articleId)
-                .orElseThrow(() -> new ArticleHandler(ErrorStatus.ARTICLE_NOT_FOUND));
+            .orElseThrow(() -> new ArticleHandler(ErrorStatus.ARTICLE_NOT_FOUND));
+    }
+
+    private void validateArticleOwner(Article article, Long memberId) {
+        if (!article.getMember().getId().equals(memberId)) {
+            throw new RuntimeException("게시물 작성자만 수정/삭제할 수 있습니다.");
+        }
+    }
+
+    // 삭제된 게시물 검증 메서드 추가
+    private void validateArticleNotDeleted(Article article) {
+        if (article.isDeleted()) {
+            throw new RuntimeException("이미 삭제된 게시물입니다.");
+        }
+    }
+
+    @Override
+    @ValidateArticle
+    public void deleteArticle(Long memberId, Long articleId) {
+        Article article = getArticle(articleId);
+        
+        validateArticleOwner(article, memberId);
+        validateArticleNotDeleted(article);
+        
+        article.delete(); // dirty checking
     }
 }
