@@ -55,8 +55,8 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
     private final ArticleFactory articleFactory;
 
     @Override
-    @ValidateS3ImageUpload
-    @ValidateArticle
+//    @ValidateS3ImageUpload
+//    @ValidateArticle
     public ArticleWithPhotos createArticle(Long memberId, ArticleRequestDTO request, MultipartFile mainImage, List<MultipartFile> imageFiles) {
         Member member = getMember(memberId);
         Category category = getCategory(request.categoryId());
@@ -78,8 +78,8 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
     }
 
     @Override
-    @ValidateS3ImageUpload
-    @ValidateArticle
+//    @ValidateS3ImageUpload
+//    @ValidateArticle
     public ArticleWithPhotos createArticle(Long memberId, ArticleWithLocationRequestDTO request, MultipartFile mainImage, List<MultipartFile> imageFiles) {
         Member member = getMember(memberId);
         Category category = getCategory(request.categoryId());
