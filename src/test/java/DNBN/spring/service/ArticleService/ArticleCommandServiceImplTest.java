@@ -666,4 +666,87 @@ class ArticleCommandServiceImplTest {
             });
         }
     }
+
+    @Nested
+    @DisplayName("게시물 예외 처리")
+    class ArticleExceptionTest {
+
+        @Test
+        @DisplayName("게시물 수정 시 권한 검증 실패로 예외 발생")
+        void updateArticle_permissionDenied_throwsException() {
+            Long articleId = 10L;
+            ArticleUpdateRequestDTO request = getUpdateRequest();
+            
+            Member otherMember = getOtherMember();
+            Category category = getCategory();
+            Place place = getPlace();
+            Region region = getRegion();
+            
+            // 다른 멤버가 작성한 게시물
+            Article article = getArticle(otherMember, category, place, region);
+
+            when(articleRepository.findById(articleId)).thenReturn(Optional.of(article));
+
+            assertThrows(RuntimeException.class, () -> {
+                articleCommandService.updateArticle(memberId, articleId, request, null, null);
+            });
+        }
+
+        @Test
+        @DisplayName("게시물 삭제 시 권한 검증 실패로 예외 발생")
+        void deleteArticle_permissionDenied_throwsException() {
+            Long articleId = 10L;
+            
+            Member otherMember = getOtherMember();
+            Category category = getCategory();
+            Place place = getPlace();
+            Region region = getRegion();
+            
+            // 다른 멤버가 작성한 게시물
+            Article article = getArticle(otherMember, category, place, region);
+
+            when(articleRepository.findById(articleId)).thenReturn(Optional.of(article));
+
+            assertThrows(RuntimeException.class, () -> {
+                articleCommandService.deleteArticle(memberId, articleId);
+            });
+        }
+
+        @Test
+        @DisplayName("이미 삭제된 게시물 수정 시 예외 발생")
+        void updateArticle_alreadyDeleted_throwsException() {
+            Long articleId = 10L;
+            ArticleUpdateRequestDTO request = getUpdateRequest();
+            Member member = getMember();
+            Category category = getCategory();
+            Place place = getPlace();
+            Region region = getRegion();
+            
+            Article article = getDeletedArticle(member, category, place, region);
+
+            when(articleRepository.findById(articleId)).thenReturn(Optional.of(article));
+
+            assertThrows(RuntimeException.class, () -> {
+                articleCommandService.updateArticle(memberId, articleId, request, null, null);
+            });
+        }
+
+        @Test
+        @DisplayName("이미 삭제된 게시물 삭제 시 예외 발생")
+        void deleteArticle_alreadyDeleted_throwsException() {
+            Long articleId = 10L;
+            Member member = getMember();
+            Category category = getCategory();
+            Place place = getPlace();
+            Region region = getRegion();
+            
+            Article article = getDeletedArticle(member, category, place, region);
+
+            when(articleRepository.findById(articleId)).thenReturn(Optional.of(article));
+
+            assertThrows(RuntimeException.class, () -> {
+                articleCommandService.deleteArticle(memberId, articleId);
+            });
+        }
+    }
 }
