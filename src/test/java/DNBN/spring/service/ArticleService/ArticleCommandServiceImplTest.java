@@ -1,5 +1,6 @@
 package DNBN.spring.service.ArticleService;
 
+import DNBN.spring.aws.s3.AmazonS3Manager;
 import DNBN.spring.domain.*;
 import DNBN.spring.domain.enums.PinCategory;
 import DNBN.spring.repository.ArticlePhotoRepository.ArticlePhotoRepository;
@@ -41,6 +42,7 @@ class ArticleCommandServiceImplTest {
     @Mock private ArticleUpdater articleUpdater;
     @Mock private PlaceUpdater placeUpdater;
     @Mock private ArticleFactory articleFactory;
+    @Mock private AmazonS3Manager s3Manager;
 
     @InjectMocks
     private ArticleCommandServiceImpl articleCommandService;
@@ -69,6 +71,10 @@ class ArticleCommandServiceImplTest {
 
     private ArticleWithLocationRequestDTO getWithLocationRequest() {
         return new ArticleWithLocationRequestDTO(categoryId, placeName, detailAddress, pinCategory, regionId, latitude, longitude, title, date, content);
+    }
+
+    private ArticleUpdateRequestDTO getUpdateRequest() {
+        return new ArticleUpdateRequestDTO(categoryId, regionId, placeId, "수정된 장소명", "RESTAURANT", "수정된 제목", date, "수정된 내용");
     }
 
     private Member getMember() {
@@ -417,6 +423,152 @@ class ArticleCommandServiceImplTest {
 
             assertThrows(IllegalArgumentException.class, () -> {
                 articleCommandService.createArticle(memberId, request, null, null);
+            });
+        }
+    }
+
+    @Nested
+    @DisplayName("게시물 수정 API")
+    class UpdateArticleTest {
+
+        @Test
+        @DisplayName("게시물 수정 시 성공")
+        void updateArticle_success() {
+            Long articleId = 10L;
+            ArticleUpdateRequestDTO request = getUpdateRequest();
+            Member member = getMember();
+            Category category = getCategory();
+            Place place = getPlace();
+            Region region = getRegion();
+            Article article = getArticle(member, category, place, region);
+
+            when(articleRepository.findById(articleId)).thenReturn(Optional.of(article));
+            when(articlePhotoRepository.findAllByArticle(article)).thenReturn(List.of());
+
+            ArticleCommandService.ArticleWithPhotos result = articleCommandService.updateArticle(memberId, articleId, request, null, null);
+
+            assertNotNull(result);
+            assertEquals(article, result.article);
+            assertTrue(result.photos.isEmpty());
+            verify(articleUpdater).updateArticleEntity(article, request);
+            verify(placeUpdater).updatePlaceEntity(place, request);
+            verify(articleImageService, never()).uploadAndSaveImages(any(), any(), any(), any(), any());
+        }
+
+        @Test
+        @DisplayName("이미지 변경 없이 게시물 수정 시 성공")
+        void updateArticle_noImageChange_success() {
+            Long articleId = 10L;
+            ArticleUpdateRequestDTO request = getUpdateRequest();
+            Member member = getMember();
+            Category category = getCategory();
+            Place place = getPlace();
+            Region region = getRegion();
+            Article article = getArticle(member, category, place, region);
+
+            List<ArticlePhoto> existingPhotos = List.of(
+                ArticlePhoto.builder().fileKey("existing-uuid").isMain(true).build()
+            );
+
+            when(articleRepository.findById(articleId)).thenReturn(Optional.of(article));
+            when(articlePhotoRepository.findAllByArticle(article)).thenReturn(existingPhotos);
+
+            ArticleCommandService.ArticleWithPhotos result = articleCommandService.updateArticle(memberId, articleId, request, null, null);
+
+            assertNotNull(result);
+            assertEquals(article, result.article);
+            assertEquals(1, result.photos.size());
+            verify(articleUpdater).updateArticleEntity(article, request);
+            verify(placeUpdater).updatePlaceEntity(place, request);
+            verify(articleImageService, never()).uploadAndSaveImages(any(), any(), any(), any(), any());
+        }
+
+        @Test
+        @DisplayName("이미지 변경과 함께 게시물 수정 시 성공")
+        void updateArticle_withImageChange_success() {
+            Long articleId = 10L;
+            ArticleUpdateRequestDTO request = getUpdateRequest();
+            Member member = getMember();
+            Category category = getCategory();
+            Place place = getPlace();
+            Region region = getRegion();
+            Article article = getArticle(member, category, place, region);
+
+            MultipartFile mainImage = mock(MultipartFile.class);
+            MultipartFile image1 = mock(MultipartFile.class);
+            List<MultipartFile> imageFiles = List.of(image1);
+
+            List<ArticlePhoto> existingPhotos = List.of(
+                ArticlePhoto.builder().fileKey("existing-uuid").isMain(true).build()
+            );
+
+            List<ArticlePhoto> newPhotos = List.of(
+                ArticlePhoto.builder().fileKey("new-main-uuid").isMain(true).build(),
+                ArticlePhoto.builder().fileKey("new-uuid-1").isMain(false).build()
+            );
+
+            when(mainImage.isEmpty()).thenReturn(false);
+            when(articleRepository.findById(articleId)).thenReturn(Optional.of(article));
+            when(articlePhotoRepository.findAllByArticle(article)).thenReturn(existingPhotos).thenReturn(newPhotos);
+
+            ArticleCommandService.ArticleWithPhotos result = articleCommandService.updateArticle(memberId, articleId, request, mainImage, imageFiles);
+
+            assertNotNull(result);
+            assertEquals(article, result.article);
+            assertEquals(2, result.photos.size());
+            verify(articleUpdater).updateArticleEntity(article, request);
+            verify(placeUpdater).updatePlaceEntity(place, request);
+            verify(s3Manager).deleteFile("existing-uuid");
+            verify(articlePhotoRepository).delete(any(ArticlePhoto.class));
+            verify(articleImageService).uploadAndSaveImages(article, place, region, mainImage, imageFiles);
+        }
+
+        @Test
+        @DisplayName("기존 이미지 삭제 후 새 이미지 업로드 시 성공")
+        void updateArticle_replaceImages_success() {
+            Long articleId = 10L;
+            ArticleUpdateRequestDTO request = getUpdateRequest();
+            Member member = getMember();
+            Category category = getCategory();
+            Place place = getPlace();
+            Region region = getRegion();
+            Article article = getArticle(member, category, place, region);
+
+            MultipartFile mainImage = mock(MultipartFile.class);
+            List<ArticlePhoto> existingPhotos = List.of(
+                ArticlePhoto.builder().fileKey("old-main-uuid").isMain(true).build(),
+                ArticlePhoto.builder().fileKey("old-sub-uuid").isMain(false).build()
+            );
+
+            List<ArticlePhoto> newPhotos = List.of(
+                ArticlePhoto.builder().fileKey("new-main-uuid").isMain(true).build()
+            );
+
+            when(mainImage.isEmpty()).thenReturn(false);
+            when(articleRepository.findById(articleId)).thenReturn(Optional.of(article));
+            when(articlePhotoRepository.findAllByArticle(article)).thenReturn(existingPhotos).thenReturn(newPhotos);
+
+            ArticleCommandService.ArticleWithPhotos result = articleCommandService.updateArticle(memberId, articleId, request, mainImage, null);
+
+            assertNotNull(result);
+            assertEquals(article, result.article);
+            assertEquals(1, result.photos.size());
+            verify(s3Manager).deleteFile("old-main-uuid");
+            verify(s3Manager).deleteFile("old-sub-uuid");
+            verify(articlePhotoRepository, times(2)).delete(any(ArticlePhoto.class));
+            verify(articleImageService).uploadAndSaveImages(article, place, region, mainImage, null);
+        }
+
+        @Test
+        @DisplayName("존재하지 않는 게시물 수정 시 예외 발생")
+        void updateArticle_articleNotFound() {
+            Long articleId = 999L;
+            ArticleUpdateRequestDTO request = getUpdateRequest();
+
+            when(articleRepository.findById(articleId)).thenReturn(Optional.empty());
+
+            assertThrows(RuntimeException.class, () -> {
+                articleCommandService.updateArticle(memberId, articleId, request, null, null);
             });
         }
     }
