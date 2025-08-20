@@ -10,6 +10,8 @@ import org.springframework.web.multipart.MultipartFile;
 import DNBN.spring.config.AmazonConfig;
 import DNBN.spring.domain.Uuid;
 import DNBN.spring.repository.UuidRepository.UuidRepository;
+import DNBN.spring.apiPayload.exception.handler.ArticlePhotoHandler;
+import DNBN.spring.apiPayload.code.status.ErrorStatus;
 
 import java.io.IOException;
 
@@ -30,11 +32,11 @@ public class AmazonS3Manager{
         metadata.setContentType(file.getContentType()); // aws의 s3의 폴더의 파일에서 다운로드 말고 브라우저에서 사진 확인 가능
         try {
             amazonS3.putObject(new PutObjectRequest(amazonConfig.getBucket(), keyName, file.getInputStream(), metadata));
+            return amazonS3.getUrl(amazonConfig.getBucket(), keyName).toString();
         } catch (IOException e){
             log.error("error at AmazonS3Manager uploadFile : {}", (Object) e.getStackTrace());
+            throw new ArticlePhotoHandler(ErrorStatus.ARTICLE_PHOTO_S3_UPLOAD_FAILED);
         }
-
-        return amazonS3.getUrl(amazonConfig.getBucket(), keyName).toString();
     }
 
     public String generateMemberKeyName(Uuid uuid) {
