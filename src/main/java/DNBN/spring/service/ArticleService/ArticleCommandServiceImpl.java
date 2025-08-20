@@ -83,11 +83,13 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
     public ArticleWithPhotos createArticle(Long memberId, ArticleWithLocationRequestDTO request, MultipartFile mainImage, List<MultipartFile> imageFiles) {
         Member member = getMember(memberId);
         Category category = getCategory(request.categoryId());
-        Region region = findRegionByCoordinates(request.latitude(), request.longitude());
+        Region region = findRegionByCoordinatesAccurate(request.latitude(), request.longitude());
+        log.debug("게시글 생성 API (미등록) - 위경도로 계산한 지역 ID: {}", region.getId());
 
         titleLengthValidator.validateArticleTitle(request.title());
         contentLengthValidator.validateArticleContent(request.content());
 
+        // TODO: 생성 책임 분리
         Place place = Place.builder()
             .region(region)
             .latitude(request.latitude())
@@ -126,6 +128,10 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
 
     private Region findRegionByCoordinates(Double latitude, Double longitude) {
         return regionRepository.findRegionByCoordinates(latitude, longitude);
+    }
+
+    private Region findRegionByCoordinatesAccurate(Double latitude, Double longitude) {
+        return regionRepository.findRegionByCoordinatesAccurate(latitude, longitude);
     }
 
     @Override
