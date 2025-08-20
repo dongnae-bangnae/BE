@@ -12,7 +12,6 @@ public record ArticleRequestDTO(
     @NotNull(message = "장소 ID는 필수입니다.") Long placeId,
     @NotBlank(message = "장소명은 필수입니다.") String placeName,
     @NotBlank(message = "핀 카테고리는 필수입니다.") String pinCategory,
-    @NotNull(message = "지역 ID는 필수입니다.") Long regionId,
     @NotBlank(message = "제목은 필수입니다.") String title,
     @NotNull(message = "날짜는 필수입니다.") LocalDate date,
     @NotBlank(message = "내용은 필수입니다.") String content

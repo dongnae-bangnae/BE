@@ -38,4 +38,12 @@ public class RegionRepositoryImpl implements RegionRepositoryCustom {
                 .limit(limit)
                 .fetch();
     }
+    
+    @Override
+    public Region findRegionByCoordinates(Double latitude, Double longitude) {
+        // TODO: 위경도 기반 지역을 검색 로직 구현 (현재는 임의 지역 반환)
+        return jpaQueryFactory.selectFrom(region)
+                .orderBy(region.id.asc())
+                .fetchFirst();
+    }
 }
