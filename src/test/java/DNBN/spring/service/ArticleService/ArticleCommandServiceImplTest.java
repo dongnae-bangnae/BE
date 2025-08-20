@@ -109,6 +109,16 @@ class ArticleCommandServiceImplTest {
                 .build();
     }
 
+    private Member getOtherMember() {
+        return Member.builder().id(999L).build();
+    }
+    
+    private Article getDeletedArticle(Member member, Category category, Place place, Region region) {
+        Article article = getArticle(member, category, place, region);
+        article.delete();
+        return article;
+    }
+
     @Nested
     @DisplayName("게시물 생성 API (기존 장소)")
     class CreateArticleTest {
@@ -602,6 +612,54 @@ class ArticleCommandServiceImplTest {
             Long articleId = 999L;
 
             when(articleRepository.findById(articleId)).thenReturn(Optional.empty());
+
+            assertThrows(RuntimeException.class, () -> {
+                articleCommandService.deleteArticle(memberId, articleId);
+            });
+        }
+    }
+
+    @Nested
+    @DisplayName("게시물 권한 검증")
+    class ArticlePermissionTest {
+
+        @Test
+        @DisplayName("본인이 아닌 게시물 수정 시 권한 없음 예외 발생")
+        void updateArticle_notOwner_throwsException() {
+            Long articleId = 10L;
+            ArticleUpdateRequestDTO request = getUpdateRequest();
+            
+            Member otherMember = getOtherMember();
+            Member member = getMember();
+            Category category = getCategory();
+            Place place = getPlace();
+            Region region = getRegion();
+            
+            // 다른 멤버가 작성한 게시물
+            Article article = getArticle(otherMember, category, place, region);
+
+            when(articleRepository.findById(articleId)).thenReturn(Optional.of(article));
+
+            assertThrows(RuntimeException.class, () -> {
+                articleCommandService.updateArticle(memberId, articleId, request, null, null);
+            });
+        }
+
+        @Test
+        @DisplayName("본인이 아닌 게시물 삭제 시 권한 없음 예외 발생")
+        void deleteArticle_notOwner_throwsException() {
+            Long articleId = 10L;
+            
+            Member otherMember = getOtherMember();
+            Member member = getMember();
+            Category category = getCategory();
+            Place place = getPlace();
+            Region region = getRegion();
+            
+            // 다른 멤버가 작성한 게시물
+            Article article = getArticle(otherMember, category, place, region);
+
+            when(articleRepository.findById(articleId)).thenReturn(Optional.of(article));
 
             assertThrows(RuntimeException.class, () -> {
                 articleCommandService.deleteArticle(memberId, articleId);
