@@ -63,75 +63,25 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
         Place place = getPlace(request.placeId());
         Region region = place.getRegion();
 
-        place.updateTitle(request.placeName());
-        place.updatePinCategory(PinCategory.valueOf(request.pinCategory().toUpperCase()));
-
-        titleLengthValidator.validateArticleTitle(request.title());
-        contentLengthValidator.validateArticleContent(request.content());
-
-        Article article = articleFactory.create(member, category, place, region, request);
-        articleRepository.save(article);
-
-        articleImageService.uploadAndSaveImages(article, place, region, mainImage, imageFiles);
-        List<ArticlePhoto> savedPhotos = articlePhotoRepository.findAllByArticle(article);
-        return new ArticleWithPhotos(article, savedPhotos);
+        updatePlaceInfo(place, request);
+        validateArticleContent(request);
+        
+        return createArticleInternal(member, category, place, region, request, mainImage, imageFiles);
     }
 
     @Override
-//    @ValidateS3ImageUpload
-//    @ValidateArticle
+    @ValidateS3ImageUpload
+    @ValidateArticle
     public ArticleWithPhotos createArticle(Long memberId, ArticleWithLocationRequestDTO request, MultipartFile mainImage, List<MultipartFile> imageFiles) {
         Member member = getMember(memberId);
         Category category = getCategory(request.categoryId());
         Region region = findRegionByCoordinatesAccurate(request.latitude(), request.longitude());
         log.debug("게시글 생성 API (미등록) - 위경도로 계산한 지역 ID: {}", region.getId());
 
-        titleLengthValidator.validateArticleTitle(request.title());
-        contentLengthValidator.validateArticleContent(request.content());
-
-        // TODO: 생성 책임 분리
-        Place place = Place.builder()
-            .region(region)
-            .latitude(request.latitude())
-            .longitude(request.longitude())
-            .title(request.placeName())
-            .address(request.detailAddress())
-            .pinCategory(PinCategory.valueOf(request.pinCategory().toUpperCase()))
-            .build();
-
-        place = placeRepository.save(place);
-
-        Article article = articleFactory.create(member, category, place, region, request);
-        articleRepository.save(article);
-
-        articleImageService.uploadAndSaveImages(article, place, region, mainImage, imageFiles);
-        List<ArticlePhoto> savedPhotos = articlePhotoRepository.findAllByArticle(article);
-        return new ArticleWithPhotos(article, savedPhotos);
-    }
-
-    private Member getMember(Long memberId) {
-        return memberRepository.findById(memberId)
-            .orElseThrow(() -> new MemberHandler(ErrorStatus.MEMBER_NOT_FOUND));
-    }
-    private Category getCategory(Long categoryId) {
-        return categoryRepository.findById(categoryId)
-            .orElseThrow(() -> new CategoryHandler(ErrorStatus.CATEGORY_NOT_FOUND));
-    }
-    private Place getPlace(Long placeId) {
-        return placeRepository.findById(placeId)
-            .orElseThrow(() -> new PlaceHandler(ErrorStatus.PLACE_NOT_FOUND));
-    }
-    private Region getRegion(Long regionId) {
-        return regionRepository.findById(regionId)
-            .orElseThrow(() -> new RegionHandler(ErrorStatus.REGION_NOT_FOUND));
-    }
-
-    private Region findRegionByCoordinates(Double latitude, Double longitude) {
-        return regionRepository.findRegionByCoordinates(latitude, longitude);
-    }
-
-    private Region findRegionByCoordinatesAccurate(Double latitude, Double longitude) {
-        return regionRepository.findRegionByCoordinatesAccurate(latitude, longitude);
+        validateArticleContent(request);
+        Place place = createAndSaveNewPlace(request, region);
+        
+        return createArticleInternal(member, category, place, region, request, mainImage, imageFiles);
     }
 
     @Override
@@ -143,27 +93,138 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
         validateArticleOwner(article, memberId);
         validateArticleNotDeleted(article);
 
-        articleUpdater.updateArticleEntity(article, request);
-        placeUpdater.updatePlaceEntity(article.getPlace(), request);
+        updateArticleAndPlace(article, request);
+        updateArticleImages(article, mainImage, imageFiles);
 
         List<ArticlePhoto> photos = articlePhotoRepository.findAllByArticle(article);
-        // 새로운 이미지가 제공된 경우, 기존 이미지 삭제 후 새로 추가
-        if ((mainImage != null && !mainImage.isEmpty()) || (imageFiles != null && !imageFiles.isEmpty())) {
-            for (ArticlePhoto photo : photos) {
-                s3Manager.deleteFile(photo.getFileKey());
-                articlePhotoRepository.delete(photo);
-            }
+        return new ArticleWithPhotos(article, photos);
+    }
 
-            articleImageService.uploadAndSaveImages(article, article.getPlace(), article.getRegion(), mainImage, imageFiles);
-            photos = articlePhotoRepository.findAllByArticle(article);
+    @Override
+    @ValidateArticle
+    public void deleteArticle(Long memberId, Long articleId) {
+        Article article = getArticle(articleId);
+        
+        validateArticleOwner(article, memberId);
+        validateArticleNotDeleted(article);
+        
+        article.delete();
+    }
+
+    private void updatePlaceInfo(Place place, ArticleRequestDTO request) {
+        place.updateTitle(request.placeName());
+        place.updatePinCategory(PinCategory.valueOf(request.pinCategory().toUpperCase()));
+    }
+
+    private void validateArticleContent(ArticleRequestDTO request) {
+        titleLengthValidator.validateArticleTitle(request.title());
+        contentLengthValidator.validateArticleContent(request.content());
+    }
+
+    private void validateArticleContent(ArticleWithLocationRequestDTO request) {
+        titleLengthValidator.validateArticleTitle(request.title());
+        contentLengthValidator.validateArticleContent(request.content());
+    }
+
+    private ArticleWithPhotos createArticleInternal(Member member, Category category, Place place, Region region, 
+            ArticleRequestDTO request, MultipartFile mainImage, List<MultipartFile> imageFiles) {
+        
+        Article article = articleFactory.create(member, category, place, region, request);
+        articleRepository.save(article);
+
+        articleImageService.uploadAndSaveImages(article, place, region, mainImage, imageFiles);
+        List<ArticlePhoto> savedPhotos = articlePhotoRepository.findAllByArticle(article);
+        
+        return new ArticleWithPhotos(article, savedPhotos);
+    }
+
+    private ArticleWithPhotos createArticleInternal(Member member, Category category, Place place, Region region, 
+            ArticleWithLocationRequestDTO request, MultipartFile mainImage, List<MultipartFile> imageFiles) {
+        
+        Article article = articleFactory.create(member, category, place, region, request);
+        articleRepository.save(article);
+
+        articleImageService.uploadAndSaveImages(article, place, region, mainImage, imageFiles);
+        List<ArticlePhoto> savedPhotos = articlePhotoRepository.findAllByArticle(article);
+        
+        return new ArticleWithPhotos(article, savedPhotos);
+    }
+
+    private Place createAndSaveNewPlace(ArticleWithLocationRequestDTO request, Region region) {
+        Place place = Place.builder()
+                .region(region)
+                .latitude(request.latitude())
+                .longitude(request.longitude())
+                .title(request.placeName())
+                .address(request.detailAddress())
+                .pinCategory(PinCategory.valueOf(request.pinCategory().toUpperCase()))
+                .build();
+
+        return placeRepository.save(place);
+    }
+
+    private void updateArticleAndPlace(Article article, ArticleUpdateRequestDTO request) {
+        articleUpdater.updateArticleEntity(article, request);
+        placeUpdater.updatePlaceEntity(article.getPlace(), request);
+    }
+
+    private void updateArticleImages(Article article, MultipartFile mainImage, List<MultipartFile> imageFiles) {
+        if (!hasNewImages(mainImage, imageFiles)) {
+            return;
         }
 
-        return new ArticleWithPhotos(article, photos);
+        deleteExistingImages(article);
+        uploadNewImages(article, mainImage, imageFiles);
+    }
+
+    private boolean hasNewImages(MultipartFile mainImage, List<MultipartFile> imageFiles) {
+        return (mainImage != null && !mainImage.isEmpty()) || 
+               (imageFiles != null && !imageFiles.isEmpty());
+    }
+
+    private void deleteExistingImages(Article article) {
+        List<ArticlePhoto> photos = articlePhotoRepository.findAllByArticle(article);
+        for (ArticlePhoto photo : photos) {
+            s3Manager.deleteFile(photo.getFileKey());
+            articlePhotoRepository.delete(photo);
+        }
+    }
+
+    private void uploadNewImages(Article article, MultipartFile mainImage, List<MultipartFile> imageFiles) {
+        articleImageService.uploadAndSaveImages(article, article.getPlace(), article.getRegion(), mainImage, imageFiles);
+    }
+
+    private Member getMember(Long memberId) {
+        return memberRepository.findById(memberId)
+                .orElseThrow(() -> new MemberHandler(ErrorStatus.MEMBER_NOT_FOUND));
+    }
+
+    private Category getCategory(Long categoryId) {
+        return categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new CategoryHandler(ErrorStatus.CATEGORY_NOT_FOUND));
+    }
+
+    private Place getPlace(Long placeId) {
+        return placeRepository.findById(placeId)
+                .orElseThrow(() -> new PlaceHandler(ErrorStatus.PLACE_NOT_FOUND));
+    }
+
+    private Region getRegion(Long regionId) {
+        return regionRepository.findById(regionId)
+                .orElseThrow(() -> new RegionHandler(ErrorStatus.REGION_NOT_FOUND));
+    }
+
+    private Region findRegionByCoordinates(Double latitude, Double longitude) {
+        return regionRepository.findRegionByCoordinates(latitude, longitude);
+    }
+
+    private Region findRegionByCoordinatesAccurate(Double latitude, Double longitude) {
+        return regionRepository.findRegionByCoordinatesAccurate(latitude, longitude);
     }
 
     private Article getArticle(Long articleId) {
         return articleRepository.findById(articleId)
-            .orElseThrow(() -> new ArticleHandler(ErrorStatus.ARTICLE_NOT_FOUND));
+                .orElseThrow(() -> new ArticleHandler(ErrorStatus.ARTICLE_NOT_FOUND));
     }
 
     private void validateArticleOwner(Article article, Long memberId) {
@@ -176,16 +237,5 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
         if (article.isDeleted()) {
             throw new RuntimeException("이미 삭제된 게시물입니다.");
         }
-    }
-
-    @Override
-    @ValidateArticle
-    public void deleteArticle(Long memberId, Long articleId) {
-        Article article = getArticle(articleId);
-
-        validateArticleOwner(article, memberId);
-        validateArticleNotDeleted(article);
-
-        article.delete(); // dirty checking
     }
 }
