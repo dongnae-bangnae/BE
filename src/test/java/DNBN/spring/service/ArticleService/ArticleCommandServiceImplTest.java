@@ -66,11 +66,11 @@ class ArticleCommandServiceImplTest {
     }
 
     private ArticleRequestDTO getRequest() {
-        return new ArticleRequestDTO(categoryId, placeId, placeName, pinCategory, regionId, title, date, content);
+        return new ArticleRequestDTO(categoryId, placeId, placeName, pinCategory, title, date, content);
     }
 
     private ArticleWithLocationRequestDTO getWithLocationRequest() {
-        return new ArticleWithLocationRequestDTO(categoryId, placeName, detailAddress, pinCategory, regionId, latitude, longitude, title, date, content);
+        return new ArticleWithLocationRequestDTO(categoryId, placeName, detailAddress, pinCategory, latitude, longitude, title, date, content);
     }
 
     private ArticleUpdateRequestDTO getUpdateRequest() {
@@ -86,7 +86,15 @@ class ArticleCommandServiceImplTest {
     }
 
     private Place getPlace() {
-        return Place.builder().placeId(placeId).title(placeName).pinCategory(PinCategory.CAFE).build();
+        return Place.builder()
+                .placeId(placeId)
+                .title(placeName)
+                .pinCategory(PinCategory.CAFE)
+                .region(getRegion())
+                .latitude(37.123)
+                .longitude(127.456)
+                .address("테스트 주소")
+                .build();
     }
 
     private Region getRegion() {
@@ -133,11 +141,15 @@ class ArticleCommandServiceImplTest {
             Region region = getRegion();
             Article article = getArticle(member, category, place, region);
 
+            // Mock 설정을 더 명확하게
             when(memberRepository.findById(memberId)).thenReturn(Optional.of(member));
             when(categoryRepository.findById(categoryId)).thenReturn(Optional.of(category));
             when(placeRepository.findById(placeId)).thenReturn(Optional.of(place));
-            when(regionRepository.findById(regionId)).thenReturn(Optional.of(region));
-            when(articleFactory.create(member, category, place, region, request)).thenReturn(article);
+            
+            // ArticleFactory Mock 설정을 더 구체적으로
+            when(articleFactory.create(any(Member.class), any(Category.class), any(Place.class), any(Region.class), any(ArticleRequestDTO.class)))
+                .thenReturn(article);
+            
             when(articlePhotoRepository.findAllByArticle(article)).thenReturn(List.of());
 
             ArticleCommandService.ArticleWithPhotos result = articleCommandService.createArticle(memberId, request, null, null);
@@ -146,7 +158,7 @@ class ArticleCommandServiceImplTest {
             assertEquals(article, result.article);
             assertTrue(result.photos.isEmpty());
             verify(articleRepository).save(article);
-            verify(articleImageService).uploadAndSaveImages(article, place, region, null, null);
+            verify(articleImageService).uploadAndSaveImages(eq(article), eq(place), any(Region.class), eq(null), eq(null));
         }
 
         @Test
@@ -167,8 +179,8 @@ class ArticleCommandServiceImplTest {
             when(memberRepository.findById(memberId)).thenReturn(Optional.of(member));
             when(categoryRepository.findById(categoryId)).thenReturn(Optional.of(category));
             when(placeRepository.findById(placeId)).thenReturn(Optional.of(place));
-            when(regionRepository.findById(regionId)).thenReturn(Optional.of(region));
-            when(articleFactory.create(member, category, place, region, request)).thenReturn(article);
+            when(articleFactory.create(any(Member.class), any(Category.class), any(Place.class), any(Region.class), any(ArticleRequestDTO.class)))
+                .thenReturn(article);
             when(articlePhotoRepository.findAllByArticle(article)).thenReturn(photos);
 
             ArticleCommandService.ArticleWithPhotos result = articleCommandService.createArticle(memberId, request, mainImage, null);
@@ -178,7 +190,7 @@ class ArticleCommandServiceImplTest {
             assertEquals(1, result.photos.size());
             assertTrue(result.photos.get(0).getIsMain());
             verify(articleRepository).save(article);
-            verify(articleImageService).uploadAndSaveImages(article, place, region, mainImage, null);
+            verify(articleImageService).uploadAndSaveImages(eq(article), eq(place), any(Region.class), eq(mainImage), eq(null));
         }
 
         @Test
@@ -205,8 +217,8 @@ class ArticleCommandServiceImplTest {
             when(memberRepository.findById(memberId)).thenReturn(Optional.of(member));
             when(categoryRepository.findById(categoryId)).thenReturn(Optional.of(category));
             when(placeRepository.findById(placeId)).thenReturn(Optional.of(place));
-            when(regionRepository.findById(regionId)).thenReturn(Optional.of(region));
-            when(articleFactory.create(member, category, place, region, request)).thenReturn(article);
+            when(articleFactory.create(any(Member.class), any(Category.class), any(Place.class), any(Region.class), any(ArticleRequestDTO.class)))
+                .thenReturn(article);
             when(articlePhotoRepository.findAllByArticle(article)).thenReturn(photos);
 
             ArticleCommandService.ArticleWithPhotos result = articleCommandService.createArticle(memberId, request, mainImage, imageFiles);
@@ -215,7 +227,7 @@ class ArticleCommandServiceImplTest {
             assertEquals(article, result.article);
             assertEquals(3, result.photos.size());
             verify(articleRepository).save(article);
-            verify(articleImageService).uploadAndSaveImages(article, place, region, mainImage, imageFiles);
+            verify(articleImageService).uploadAndSaveImages(eq(article), eq(place), any(Region.class), eq(mainImage), eq(imageFiles));
         }
 
         @Test
@@ -258,23 +270,6 @@ class ArticleCommandServiceImplTest {
         }
 
         @Test
-        @DisplayName("존재하지 않는 지역으로 생성 시 예외 발생")
-        void createArticle_regionNotFound() {
-            ArticleRequestDTO request = getRequest();
-            Member member = getMember();
-            Category category = getCategory();
-            Place place = getPlace();
-            when(memberRepository.findById(memberId)).thenReturn(Optional.of(member));
-            when(categoryRepository.findById(categoryId)).thenReturn(Optional.of(category));
-            when(placeRepository.findById(placeId)).thenReturn(Optional.of(place));
-            when(regionRepository.findById(regionId)).thenReturn(Optional.empty());
-
-            assertThrows(RuntimeException.class, () -> {
-                articleCommandService.createArticle(memberId, request, null, null);
-            });
-        }
-
-        @Test
         @DisplayName("제목/내용 유효성 검증 실패 시 예외 발생")
         void createArticle_validationFail() {
             ArticleRequestDTO request = getRequest();
@@ -286,7 +281,6 @@ class ArticleCommandServiceImplTest {
             when(memberRepository.findById(memberId)).thenReturn(Optional.of(member));
             when(categoryRepository.findById(categoryId)).thenReturn(Optional.of(category));
             when(placeRepository.findById(placeId)).thenReturn(Optional.of(place));
-            when(regionRepository.findById(regionId)).thenReturn(Optional.of(region));
             doThrow(new IllegalArgumentException("제목 길이 오류")).when(titleLengthValidator).validateArticleTitle(anyString());
 
             assertThrows(IllegalArgumentException.class, () -> {
@@ -318,9 +312,10 @@ class ArticleCommandServiceImplTest {
 
             when(memberRepository.findById(memberId)).thenReturn(Optional.of(member));
             when(categoryRepository.findById(categoryId)).thenReturn(Optional.of(category));
-            when(regionRepository.findById(regionId)).thenReturn(Optional.of(region));
+            when(regionRepository.findRegionByCoordinatesAccurate(latitude, longitude)).thenReturn(region);
             when(placeRepository.save(any(Place.class))).thenReturn(place);
-            when(articleFactory.create(member, category, place, region, request)).thenReturn(article);
+            when(articleFactory.create(any(Member.class), any(Category.class), any(Place.class), any(Region.class), any(ArticleWithLocationRequestDTO.class)))
+                .thenReturn(article);
             when(articlePhotoRepository.findAllByArticle(article)).thenReturn(List.of());
 
             ArticleCommandService.ArticleWithPhotos result = articleCommandService.createArticle(memberId, request, null, null);
@@ -330,7 +325,7 @@ class ArticleCommandServiceImplTest {
             assertTrue(result.photos.isEmpty());
             verify(placeRepository).save(any(Place.class));
             verify(articleRepository).save(article);
-            verify(articleImageService).uploadAndSaveImages(article, place, region, null, null);
+            verify(articleImageService).uploadAndSaveImages(eq(article), eq(place), any(Region.class), eq(null), eq(null));
         }
 
         @Test
@@ -362,9 +357,10 @@ class ArticleCommandServiceImplTest {
 
             when(memberRepository.findById(memberId)).thenReturn(Optional.of(member));
             when(categoryRepository.findById(categoryId)).thenReturn(Optional.of(category));
-            when(regionRepository.findById(regionId)).thenReturn(Optional.of(region));
+            when(regionRepository.findRegionByCoordinatesAccurate(latitude, longitude)).thenReturn(region);
             when(placeRepository.save(any(Place.class))).thenReturn(place);
-            when(articleFactory.create(member, category, place, region, request)).thenReturn(article);
+            when(articleFactory.create(any(Member.class), any(Category.class), any(Place.class), any(Region.class), any(ArticleWithLocationRequestDTO.class)))
+                .thenReturn(article);
             when(articlePhotoRepository.findAllByArticle(article)).thenReturn(photos);
 
             ArticleCommandService.ArticleWithPhotos result = articleCommandService.createArticle(memberId, request, mainImage, imageFiles);
@@ -376,7 +372,7 @@ class ArticleCommandServiceImplTest {
             assertFalse(result.photos.get(1).getIsMain());
             verify(placeRepository).save(any(Place.class));
             verify(articleRepository).save(article);
-            verify(articleImageService).uploadAndSaveImages(article, place, region, mainImage, imageFiles);
+            verify(articleImageService).uploadAndSaveImages(eq(article), eq(place), any(Region.class), eq(mainImage), eq(imageFiles));
         }
 
         @Test
@@ -404,21 +400,6 @@ class ArticleCommandServiceImplTest {
         }
 
         @Test
-        @DisplayName("위치 정보와 함께 게시물 생성 시 존재하지 않는 지역으로 예외 발생")
-        void createArticleWithLocation_regionNotFound() {
-            ArticleWithLocationRequestDTO request = getWithLocationRequest();
-            Member member = getMember();
-            Category category = getCategory();
-            when(memberRepository.findById(memberId)).thenReturn(Optional.of(member));
-            when(categoryRepository.findById(categoryId)).thenReturn(Optional.of(category));
-            when(regionRepository.findById(regionId)).thenReturn(Optional.empty());
-
-            assertThrows(RuntimeException.class, () -> {
-                articleCommandService.createArticle(memberId, request, null, null);
-            });
-        }
-
-        @Test
         @DisplayName("위치 정보와 함께 게시물 생성 시 제목/내용 유효성 검증 실패로 예외 발생")
         void createArticleWithLocation_validationFail() {
             ArticleWithLocationRequestDTO request = getWithLocationRequest();
@@ -428,7 +409,7 @@ class ArticleCommandServiceImplTest {
 
             when(memberRepository.findById(memberId)).thenReturn(Optional.of(member));
             when(categoryRepository.findById(categoryId)).thenReturn(Optional.of(category));
-            when(regionRepository.findById(regionId)).thenReturn(Optional.of(region));
+            when(regionRepository.findRegionByCoordinatesAccurate(latitude, longitude)).thenReturn(region);
             doThrow(new IllegalArgumentException("제목 길이 오류")).when(titleLengthValidator).validateArticleTitle(anyString());
 
             assertThrows(IllegalArgumentException.class, () -> {
@@ -530,7 +511,7 @@ class ArticleCommandServiceImplTest {
             verify(placeUpdater).updatePlaceEntity(place, request);
             verify(s3Manager).deleteFile("existing-uuid");
             verify(articlePhotoRepository).delete(any(ArticlePhoto.class));
-            verify(articleImageService).uploadAndSaveImages(article, place, region, mainImage, imageFiles);
+            verify(articleImageService).uploadAndSaveImages(eq(article), eq(place), any(Region.class), eq(mainImage), eq(imageFiles));
         }
 
         @Test
@@ -566,7 +547,7 @@ class ArticleCommandServiceImplTest {
             verify(s3Manager).deleteFile("old-main-uuid");
             verify(s3Manager).deleteFile("old-sub-uuid");
             verify(articlePhotoRepository, times(2)).delete(any(ArticlePhoto.class));
-            verify(articleImageService).uploadAndSaveImages(article, place, region, mainImage, null);
+            verify(articleImageService).uploadAndSaveImages(eq(article), eq(place), any(Region.class), eq(mainImage), eq(null));
         }
 
         @Test
