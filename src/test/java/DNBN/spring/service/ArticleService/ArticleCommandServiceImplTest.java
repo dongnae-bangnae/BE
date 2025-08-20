@@ -420,4 +420,40 @@ class ArticleCommandServiceImplTest {
             });
         }
     }
+
+    @Nested
+    @DisplayName("게시물 삭제 API")
+    class DeleteArticleTest {
+
+        @Test
+        @DisplayName("게시물 삭제 시 성공")
+        void deleteArticle_success() {
+            Long articleId = 10L;
+            Member member = getMember();
+            Category category = getCategory();
+            Place place = getPlace();
+            Region region = getRegion();
+            Article article = getArticle(member, category, place, region);
+
+            when(articleRepository.findById(articleId)).thenReturn(Optional.of(article));
+
+            articleCommandService.deleteArticle(memberId, articleId);
+
+            verify(articleRepository).findById(articleId);
+            // article.delete() 메서드가 호출되었는지 확인 (dirty checking)
+            assertTrue(article.isDeleted());
+        }
+
+        @Test
+        @DisplayName("존재하지 않는 게시물 삭제 시 예외 발생")
+        void deleteArticle_articleNotFound() {
+            Long articleId = 999L;
+
+            when(articleRepository.findById(articleId)).thenReturn(Optional.empty());
+
+            assertThrows(RuntimeException.class, () -> {
+                articleCommandService.deleteArticle(memberId, articleId);
+            });
+        }
+    }
 }
