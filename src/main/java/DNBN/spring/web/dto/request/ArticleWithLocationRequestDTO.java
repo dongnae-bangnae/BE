@@ -12,7 +12,6 @@ public record ArticleWithLocationRequestDTO(
     @NotBlank(message = "장소명은 필수입니다.") String placeName,
     @NotBlank(message = "상세주소는 필수입니다.") String detailAddress,
     @NotBlank(message = "핀 카테고리는 필수입니다.") String pinCategory,
-    @NotNull(message = "지역 ID는 필수입니다.") Long regionId,
     @NotNull(message = "위도는 필수입니다.") Double latitude,
     @NotNull(message = "경도는 필수입니다.") Double longitude,
     @NotBlank(message = "제목은 필수입니다.") String title,
