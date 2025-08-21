@@ -53,10 +53,11 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
     private final ArticleUpdater articleUpdater;
     private final PlaceUpdater placeUpdater;
     private final ArticleFactory articleFactory;
+    private final ArticleImageUploadService articleImageUploadService;
 
     @Override
-//    @ValidateS3ImageUpload
-//    @ValidateArticle
+    @ValidateS3ImageUpload
+    @ValidateArticle
     public ArticleWithPhotos createArticle(Long memberId, ArticleRequestDTO request, MultipartFile mainImage, List<MultipartFile> imageFiles) {
         Member member = getMember(memberId);
         Category category = getCategory(request.categoryId());
@@ -129,23 +130,25 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
     private ArticleWithPhotos createArticleInternal(Member member, Category category, Place place, Region region, 
             ArticleRequestDTO request, MultipartFile mainImage, List<MultipartFile> imageFiles) {
         
+        List<ArticlePhoto> photos = articleImageUploadService.uploadImages(place, region, mainImage, imageFiles);
+        
         Article article = articleFactory.create(member, category, place, region, request);
         articleRepository.save(article);
-
-        articleImageService.uploadAndSaveImages(article, place, region, mainImage, imageFiles);
-        List<ArticlePhoto> savedPhotos = articlePhotoRepository.findAllByArticle(article);
+        
+        List<ArticlePhoto> savedPhotos = articleImageUploadService.saveImagesWithArticle(photos, article);
         
         return new ArticleWithPhotos(article, savedPhotos);
     }
 
     private ArticleWithPhotos createArticleInternal(Member member, Category category, Place place, Region region, 
             ArticleWithLocationRequestDTO request, MultipartFile mainImage, List<MultipartFile> imageFiles) {
+
+        List<ArticlePhoto> photos = articleImageUploadService.uploadImages(place, region, mainImage, imageFiles);
         
         Article article = articleFactory.create(member, category, place, region, request);
         articleRepository.save(article);
 
-        articleImageService.uploadAndSaveImages(article, place, region, mainImage, imageFiles);
-        List<ArticlePhoto> savedPhotos = articlePhotoRepository.findAllByArticle(article);
+        List<ArticlePhoto> savedPhotos = articleImageUploadService.saveImagesWithArticle(photos, article);
         
         return new ArticleWithPhotos(article, savedPhotos);
     }
@@ -191,7 +194,9 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
     }
 
     private void uploadNewImages(Article article, MultipartFile mainImage, List<MultipartFile> imageFiles) {
-        articleImageService.uploadAndSaveImages(article, article.getPlace(), article.getRegion(), mainImage, imageFiles);
+        // 이미지 업로드 먼저 진행
+        List<ArticlePhoto> photos = articleImageUploadService.uploadImages(article.getPlace(), article.getRegion(), mainImage, imageFiles);
+        articleImageUploadService.saveImagesWithArticle(photos, article);
     }
 
     private Member getMember(Long memberId) {

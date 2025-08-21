@@ -9,6 +9,7 @@ import org.hibernate.annotations.DynamicUpdate;
 
 @Entity
 @Getter
+@Setter
 @DynamicInsert
 @DynamicUpdate
 @Builder
