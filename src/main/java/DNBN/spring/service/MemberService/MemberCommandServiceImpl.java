@@ -259,18 +259,6 @@ public class MemberCommandServiceImpl implements MemberCommandService {
             throw new MemberHandler(ErrorStatus._BAD_REQUEST);
         }
 
-        // 파일 형식 검사
-        String contentType = profileImage.getContentType();
-        if (contentType == null || !contentType.startsWith("image/")) {
-            throw new MemberHandler(ErrorStatus.INVALID_IMAGE_TYPE);
-        }
-
-        // 파일 용량 제한 (10MB)
-        long maxFileSize = 10 * 1024 * 1024;
-        if (profileImage.getSize() > maxFileSize) {
-            throw new MemberHandler(ErrorStatus.IMAGE_FILE_TOO_LARGE);
-        }
-
         // UUID 생성 후 저장
         String uuidStr = UUID.randomUUID().toString();
         Uuid uuid = uuidRepository.save(Uuid.builder().uuid(uuidStr).build());
