@@ -23,6 +23,10 @@ public class ArticleImageService {
     private final ArticlePhotoRepository articlePhotoRepository;
 
     public List<ArticlePhoto> uploadAndSaveImages(Article article, Place place, Region region, MultipartFile mainImage, List<MultipartFile> imageFiles) {
+        if (mainImage == null || mainImage.isEmpty()) {
+            throw new ArticlePhotoHandler(ErrorStatus.ARTICLE_PHOTO_MAIN_IMAGE_REQUIRED);
+        }
+        
         List<ArticlePhoto> photos = new ArrayList<>();
         List<String> uploadedKeys = new ArrayList<>();
         try {
