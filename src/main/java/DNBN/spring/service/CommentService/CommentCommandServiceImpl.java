@@ -41,6 +41,7 @@ public class CommentCommandServiceImpl implements CommentCommandService {
     }
 
     @Override
+    @ValidateComment
     public CommentResponseDTO createComment(Long memberId, Long articleId, CommentRequestDTO request) {
         Article article = articleRepository.findById(articleId)
                 .orElseThrow(() -> new ArticleHandler(ErrorStatus.ARTICLE_NOT_FOUND));
