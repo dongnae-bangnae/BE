@@ -67,6 +67,7 @@ public class ArticleSpamController {
             summary = "광고 의심 신고 취소",
             description = "광고 의심 신고가 성공적으로 취소되었는지 확인합니다."
     )
+
     @DeleteMapping("/{articleId}/spams")
     public ResponseEntity<ApiResponse<SpamResponseDTO>> unspamArticle(
             @PathVariable Long articleId,

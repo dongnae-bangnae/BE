@@ -53,3 +53,4 @@ public class ArticleLikeService {
         return LikeResponseDTO.of(articleId, likesCount);
     }
 }
+
