@@ -53,7 +53,7 @@ public class AuthRestController {
     public void reissueAccessToken(HttpServletRequest request, HttpServletResponse response) {
 //    public ApiResponse<AuthResponseDTO.ReissueTokenResponseDTO> reissueAccessToken(HttpServletRequest request, HttpServletResponse response) {
 
-            String refreshToken = jwtTokenProvider.resolveRefreshToken(request);
+        String refreshToken = jwtTokenProvider.resolveRefreshToken(request);
         if (!StringUtils.hasText(refreshToken) || !jwtTokenProvider.isRefreshToken(refreshToken)) { // refreshToken == null은 !StringUtils.hasText(refreshToken)로 체크 가능
             throw new MemberHandler(ErrorStatus.INVALID_JWT_REFRESH_TOKEN); // TOKEN4002
         }
