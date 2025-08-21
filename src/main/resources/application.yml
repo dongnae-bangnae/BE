@@ -129,4 +129,4 @@ article:
       content:
         min-length: 2
         max-length: 1000
-      max-depth: 1
+        max-depth: 1
