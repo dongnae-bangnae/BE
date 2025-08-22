@@ -234,13 +234,13 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
 
     private void validateArticleOwner(Article article, Long memberId) {
         if (!article.getMember().getId().equals(memberId)) {
-            throw new RuntimeException("게시물 작성자만 수정/삭제할 수 있습니다.");
+            throw new ArticleHandler(ErrorStatus.ARTICLE_FORBIDDEN);
         }
     }
 
     private void validateArticleNotDeleted(Article article) {
         if (article.isDeleted()) {
-            throw new RuntimeException("이미 삭제된 게시물입니다.");
+            throw new ArticleHandler(ErrorStatus.ARTICLE_ALREADY_DELETED);
         }
     }
 }
