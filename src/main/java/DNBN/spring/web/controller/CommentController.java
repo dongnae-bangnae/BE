@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -65,7 +66,7 @@ public class CommentController {
         return ResponseEntity.status(SuccessStatus.COMMENT_DELETE_SUCCESS.getHttpStatus()).body(ApiResponse.of(SuccessStatus.COMMENT_DELETE_SUCCESS, null));
     }
 
-    @PatchMapping("/{commentId}")
+    @PutMapping("/{commentId}")
     @Operation(
         summary = "댓글 수정",
         description = "댓글 내용을 수정합니다. JWT 인증 필요.",
