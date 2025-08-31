@@ -22,6 +22,7 @@ import DNBN.spring.repository.CategoryRepository.CategoryRepository;
 import DNBN.spring.repository.MemberRepository.MemberRepository;
 import DNBN.spring.repository.PlaceRepository.PlaceRepository;
 import DNBN.spring.repository.RegionRepository.RegionRepository;
+import DNBN.spring.util.EntityFinder;
 import DNBN.spring.validation.validator.ContentLengthValidator;
 import DNBN.spring.validation.validator.TitleLengthValidator;
 import DNBN.spring.web.dto.request.ArticleRequestDTO;
@@ -199,24 +200,29 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
         articleImageUploadService.saveImagesWithArticle(photos, article);
     }
 
+    /*
+     * 도메인 및 서비스 구조 리팩토링으로 조회 로직이 자주 바뀌어
+     * getArticle, getMember 등 얇은 래퍼 메서드를 유지함
+     * 추후 구조가 안정화되면 EntityFinder 직접 호출로 변경 고려
+     */
+    private Article getArticle(Long articleId) {
+        return EntityFinder.getArticleOrThrow(articleRepository, articleId);
+    }
+
     private Member getMember(Long memberId) {
-        return memberRepository.findById(memberId)
-                .orElseThrow(() -> new MemberHandler(ErrorStatus.MEMBER_NOT_FOUND));
+        return EntityFinder.getMemberOrThrow(memberRepository, memberId);
     }
 
     private Category getCategory(Long categoryId) {
-        return categoryRepository.findById(categoryId)
-                .orElseThrow(() -> new CategoryHandler(ErrorStatus.CATEGORY_NOT_FOUND));
+        return EntityFinder.getCategoryOrThrow(categoryRepository, categoryId);
     }
 
     private Place getPlace(Long placeId) {
-        return placeRepository.findById(placeId)
-                .orElseThrow(() -> new PlaceHandler(ErrorStatus.PLACE_NOT_FOUND));
+        return EntityFinder.getPlaceOrThrow(placeRepository, placeId);
     }
 
     private Region getRegion(Long regionId) {
-        return regionRepository.findById(regionId)
-                .orElseThrow(() -> new RegionHandler(ErrorStatus.REGION_NOT_FOUND));
+        return EntityFinder.getRegionOrThrow(regionRepository, regionId);
     }
 
     private Region findRegionByCoordinates(Double latitude, Double longitude) {
@@ -225,11 +231,6 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
 
     private Region findRegionByCoordinatesAccurate(Double latitude, Double longitude) {
         return regionRepository.findRegionByCoordinatesAccurate(latitude, longitude);
-    }
-
-    private Article getArticle(Long articleId) {
-        return articleRepository.findById(articleId)
-                .orElseThrow(() -> new ArticleHandler(ErrorStatus.ARTICLE_NOT_FOUND));
     }
 
     private void validateArticleOwner(Article article, Long memberId) {
