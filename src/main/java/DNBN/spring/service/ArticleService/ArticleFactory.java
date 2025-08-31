@@ -12,10 +12,31 @@ import org.springframework.stereotype.Component;
 @Component
 public class ArticleFactory {
     public Article create(Member member, Category category, Place place, Region region, ArticleRequestDTO request) {
-        return Article.createFromRequest(member, category, place, region, request);
+        return Article.builder()
+                .member(member)
+                .category(category)
+                .place(place)
+                .region(region)
+                .title(request.title())
+                .date(request.date())
+                .content(request.content())
+                .likesCount(0L)
+                .spamCount(0L)
+                .build();
     }
 
     public Article create(Member member, Category category, Place place, Region region, ArticleWithLocationRequestDTO request) {
-        return Article.createFromRequest(member, category, place, region, request);
+        return Article.builder()
+                .member(member)
+                .category(category)
+                .place(place)
+                .region(region)
+                .title(request.title())
+                .date(request.date())
+                .content(request.content())
+                .likesCount(0L)
+                .spamCount(0L)
+                .build();
     }
 }
+

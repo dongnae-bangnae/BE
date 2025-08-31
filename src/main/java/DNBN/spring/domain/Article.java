@@ -128,33 +128,4 @@ public class Article extends BaseEntity {
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "challengeId")
   private Challenge challenge;
-
-  public static Article createFromRequest(Member member, Category category, Place place, Region region, DNBN.spring.web.dto.request.ArticleRequestDTO request) {
-        return Article.builder()
-                .member(member)
-                .category(category)
-                .place(place)
-                .region(region)
-                .title(request.title())
-                .date(request.date())
-                .content(request.content())
-                .likesCount(0L)
-                .spamCount(0L)
-                .commentCount(0L)
-                .build();
-    }
-    public static Article createFromRequest(Member member, Category category, Place place, Region region, DNBN.spring.web.dto.request.ArticleWithLocationRequestDTO request) {
-        return Article.builder()
-                .member(member)
-                .category(category)
-                .place(place)
-                .region(region)
-                .title(request.title())
-                .date(request.date())
-                .content(request.content())
-                .likesCount(0L)
-                .spamCount(0L)
-                .commentCount(0L)
-                .build();
-    }
 }
