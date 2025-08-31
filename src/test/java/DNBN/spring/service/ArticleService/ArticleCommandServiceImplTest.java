@@ -39,7 +39,6 @@ class ArticleCommandServiceImplTest {
     @Mock private TitleLengthValidator titleLengthValidator;
     @Mock private ContentLengthValidator contentLengthValidator;
     @Mock private ArticleImageService articleImageService;
-    @Mock private ArticleUpdater articleUpdater;
     @Mock private PlaceUpdater placeUpdater;
     @Mock private ArticleFactory articleFactory;
     @Mock private ArticleImageUploadService articleImageUploadService;
@@ -472,7 +471,7 @@ class ArticleCommandServiceImplTest {
             Category category = getCategory();
             Place place = getPlace();
             Region region = getRegion();
-            Article article = getArticle(member, category, place, region);
+            Article article = spy(getArticle(member, category, place, region));
 
             when(articleRepository.findById(articleId)).thenReturn(Optional.of(article));
             when(articlePhotoRepository.findAllByArticle(article)).thenReturn(List.of());
@@ -485,12 +484,12 @@ class ArticleCommandServiceImplTest {
             assertNotNull(result);
             assertEquals(article, result.article);
             assertTrue(result.photos.isEmpty());
-            verify(articleUpdater).updateTitle(article, request.title());
-            verify(articleUpdater).updateContent(article, request.content());
-            verify(articleUpdater).updateDate(article, request.date());
-            verify(articleUpdater).updateCategory(article, category);
-            verify(articleUpdater).updateRegion(article, region);
-            verify(articleUpdater).updatePlace(article, place);
+            verify(article).updateTitle(request.title());
+            verify(article).updateContent(request.content());
+            verify(article).updateDate(request.date());
+            verify(article).updateCategory(category);
+            verify(article).updateRegion(region);
+            verify(article).updatePlace(place);
             verify(placeUpdater).updatePlaceEntity(place, request);
             verify(articleImageUploadService, never()).uploadImages(any(), any(), any(), any());
         }
@@ -504,7 +503,7 @@ class ArticleCommandServiceImplTest {
             Category category = getCategory();
             Place place = getPlace();
             Region region = getRegion();
-            Article article = getArticle(member, category, place, region);
+            Article article = spy(getArticle(member, category, place, region));
 
             List<ArticlePhoto> existingPhotos = List.of(
                 ArticlePhoto.builder().fileKey("existing-uuid").isMain(true).build()
@@ -521,12 +520,12 @@ class ArticleCommandServiceImplTest {
             assertNotNull(result);
             assertEquals(article, result.article);
             assertEquals(1, result.photos.size());
-            verify(articleUpdater).updateTitle(article, request.title());
-            verify(articleUpdater).updateContent(article, request.content());
-            verify(articleUpdater).updateDate(article, request.date());
-            verify(articleUpdater).updateCategory(article, category);
-            verify(articleUpdater).updateRegion(article, region);
-            verify(articleUpdater).updatePlace(article, place);
+            verify(article).updateTitle(request.title());
+            verify(article).updateContent(request.content());
+            verify(article).updateDate(request.date());
+            verify(article).updateCategory(category);
+            verify(article).updateRegion(region);
+            verify(article).updatePlace(place);
             verify(placeUpdater).updatePlaceEntity(place, request);
             verify(articleImageUploadService, never()).uploadImages(any(), any(), any(), any());
         }
@@ -540,7 +539,7 @@ class ArticleCommandServiceImplTest {
             Category category = getCategory();
             Place place = getPlace();
             Region region = getRegion();
-            Article article = getArticle(member, category, place, region);
+            Article article = spy(getArticle(member, category, place, region));
 
             MultipartFile mainImage = mock(MultipartFile.class);
             MultipartFile image1 = mock(MultipartFile.class);
@@ -567,12 +566,12 @@ class ArticleCommandServiceImplTest {
             assertNotNull(result);
             assertEquals(article, result.article);
             assertEquals(2, result.photos.size());
-            verify(articleUpdater).updateTitle(article, request.title());
-            verify(articleUpdater).updateContent(article, request.content());
-            verify(articleUpdater).updateDate(article, request.date());
-            verify(articleUpdater).updateCategory(article, category);
-            verify(articleUpdater).updateRegion(article, region);
-            verify(articleUpdater).updatePlace(article, place);
+            verify(article).updateTitle(request.title());
+            verify(article).updateContent(request.content());
+            verify(article).updateDate(request.date());
+            verify(article).updateCategory(category);
+            verify(article).updateRegion(region);
+            verify(article).updatePlace(place);
             verify(placeUpdater).updatePlaceEntity(place, request);
             verify(s3Manager).deleteFile("existing-uuid");
             verify(articlePhotoRepository).delete(any(ArticlePhoto.class));
@@ -589,7 +588,7 @@ class ArticleCommandServiceImplTest {
             Category category = getCategory();
             Place place = getPlace();
             Region region = getRegion();
-            Article article = getArticle(member, category, place, region);
+            Article article = spy(getArticle(member, category, place, region));
 
             MultipartFile mainImage = mock(MultipartFile.class);
             List<ArticlePhoto> existingPhotos = List.of(
@@ -613,6 +612,13 @@ class ArticleCommandServiceImplTest {
             assertNotNull(result);
             assertEquals(article, result.article);
             assertEquals(1, result.photos.size());
+            verify(article).updateTitle(request.title());
+            verify(article).updateContent(request.content());
+            verify(article).updateDate(request.date());
+            verify(article).updateCategory(category);
+            verify(article).updateRegion(region);
+            verify(article).updatePlace(place);
+            verify(placeUpdater).updatePlaceEntity(place, request);
             verify(s3Manager).deleteFile("old-main-uuid");
             verify(s3Manager).deleteFile("old-sub-uuid");
             verify(articlePhotoRepository, times(2)).delete(any(ArticlePhoto.class));
