@@ -16,7 +16,6 @@ import DNBN.spring.apiPayload.code.status.ErrorStatus;
 @DynamicUpdate
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor
 public class Article extends BaseEntity {
 
   @Id
@@ -148,4 +147,31 @@ public class Article extends BaseEntity {
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "challengeId")
   private Challenge challenge;
+
+    @Builder
+    public Article(Long articleId, Member member, Category category, Place place, Region region, String title, String content, Long likesCount, Long spamCount, Long commentCount, LocalDateTime deletedAt, String hashtag, LocalDate date, Challenge challenge) {
+        if (title == null || title.trim().isEmpty()) {
+            throw new ArticleHandler(ErrorStatus.ARTICLE_TITLE_NULL_ERROR);
+        }
+        if (content == null || content.trim().isEmpty()) {
+            throw new ArticleHandler(ErrorStatus.ARTICLE_CONTENT_NULL_ERROR);
+        }
+        if (date == null) {
+            throw new ArticleHandler(ErrorStatus.ARTICLE_DATE_NULL_ERROR);
+        }
+        this.articleId = articleId;
+        this.member = member;
+        this.category = category;
+        this.place = place;
+        this.region = region;
+        this.title = title;
+        this.content = content;
+        this.likesCount = likesCount == null ? 0L : likesCount;
+        this.spamCount = spamCount == null ? 0L : spamCount;
+        this.commentCount = commentCount;
+        this.deletedAt = deletedAt;
+        this.hashtag = hashtag;
+        this.date = date;
+        this.challenge = challenge;
+    }
 }
