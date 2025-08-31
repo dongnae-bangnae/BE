@@ -476,13 +476,21 @@ class ArticleCommandServiceImplTest {
 
             when(articleRepository.findById(articleId)).thenReturn(Optional.of(article));
             when(articlePhotoRepository.findAllByArticle(article)).thenReturn(List.of());
+            when(categoryRepository.findById(categoryId)).thenReturn(Optional.of(category));
+            when(regionRepository.findById(regionId)).thenReturn(Optional.of(region));
+            when(placeRepository.findById(placeId)).thenReturn(Optional.of(place));
 
             ArticleCommandService.ArticleWithPhotos result = articleCommandService.updateArticle(memberId, articleId, request, null, null);
 
             assertNotNull(result);
             assertEquals(article, result.article);
             assertTrue(result.photos.isEmpty());
-            verify(articleUpdater).updateArticleEntity(article, request);
+            verify(articleUpdater).updateTitle(article, request.title());
+            verify(articleUpdater).updateContent(article, request.content());
+            verify(articleUpdater).updateDate(article, request.date());
+            verify(articleUpdater).updateCategory(article, category);
+            verify(articleUpdater).updateRegion(article, region);
+            verify(articleUpdater).updatePlace(article, place);
             verify(placeUpdater).updatePlaceEntity(place, request);
             verify(articleImageUploadService, never()).uploadImages(any(), any(), any(), any());
         }
@@ -504,13 +512,21 @@ class ArticleCommandServiceImplTest {
 
             when(articleRepository.findById(articleId)).thenReturn(Optional.of(article));
             when(articlePhotoRepository.findAllByArticle(article)).thenReturn(existingPhotos);
+            when(categoryRepository.findById(categoryId)).thenReturn(Optional.of(category));
+            when(regionRepository.findById(regionId)).thenReturn(Optional.of(region));
+            when(placeRepository.findById(placeId)).thenReturn(Optional.of(place));
 
             ArticleCommandService.ArticleWithPhotos result = articleCommandService.updateArticle(memberId, articleId, request, null, null);
 
             assertNotNull(result);
             assertEquals(article, result.article);
             assertEquals(1, result.photos.size());
-            verify(articleUpdater).updateArticleEntity(article, request);
+            verify(articleUpdater).updateTitle(article, request.title());
+            verify(articleUpdater).updateContent(article, request.content());
+            verify(articleUpdater).updateDate(article, request.date());
+            verify(articleUpdater).updateCategory(article, category);
+            verify(articleUpdater).updateRegion(article, region);
+            verify(articleUpdater).updatePlace(article, place);
             verify(placeUpdater).updatePlaceEntity(place, request);
             verify(articleImageUploadService, never()).uploadImages(any(), any(), any(), any());
         }
@@ -542,13 +558,21 @@ class ArticleCommandServiceImplTest {
             when(mainImage.isEmpty()).thenReturn(false);
             when(articleRepository.findById(articleId)).thenReturn(Optional.of(article));
             when(articlePhotoRepository.findAllByArticle(article)).thenReturn(existingPhotos).thenReturn(newPhotos);
+            when(categoryRepository.findById(categoryId)).thenReturn(Optional.of(category));
+            when(regionRepository.findById(regionId)).thenReturn(Optional.of(region));
+            when(placeRepository.findById(placeId)).thenReturn(Optional.of(place));
 
             ArticleCommandService.ArticleWithPhotos result = articleCommandService.updateArticle(memberId, articleId, request, mainImage, imageFiles);
 
             assertNotNull(result);
             assertEquals(article, result.article);
             assertEquals(2, result.photos.size());
-            verify(articleUpdater).updateArticleEntity(article, request);
+            verify(articleUpdater).updateTitle(article, request.title());
+            verify(articleUpdater).updateContent(article, request.content());
+            verify(articleUpdater).updateDate(article, request.date());
+            verify(articleUpdater).updateCategory(article, category);
+            verify(articleUpdater).updateRegion(article, region);
+            verify(articleUpdater).updatePlace(article, place);
             verify(placeUpdater).updatePlaceEntity(place, request);
             verify(s3Manager).deleteFile("existing-uuid");
             verify(articlePhotoRepository).delete(any(ArticlePhoto.class));
@@ -580,6 +604,9 @@ class ArticleCommandServiceImplTest {
             when(mainImage.isEmpty()).thenReturn(false);
             when(articleRepository.findById(articleId)).thenReturn(Optional.of(article));
             when(articlePhotoRepository.findAllByArticle(article)).thenReturn(existingPhotos).thenReturn(newPhotos);
+            when(categoryRepository.findById(categoryId)).thenReturn(Optional.of(category));
+            when(regionRepository.findById(regionId)).thenReturn(Optional.of(region));
+            when(placeRepository.findById(placeId)).thenReturn(Optional.of(place));
 
             ArticleCommandService.ArticleWithPhotos result = articleCommandService.updateArticle(memberId, articleId, request, mainImage, null);
 
