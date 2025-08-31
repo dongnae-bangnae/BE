@@ -45,7 +45,6 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
     private final TitleLengthValidator titleLengthValidator;
     private final ContentLengthValidator contentLengthValidator;
     private final ArticleImageService articleImageService;
-    private final ArticleUpdater articleUpdater;
     private final PlaceUpdater placeUpdater;
     private final ArticleFactory articleFactory;
     private final ArticleImageUploadService articleImageUploadService;
@@ -80,6 +79,7 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
         return createArticleInternal(member, category, place, region, request, mainImage, imageFiles);
     }
 
+    // 로직 복잡..
     @Override
     @ValidateS3ImageUpload
     @ValidateArticle
@@ -168,25 +168,25 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
 
     private void updateArticleAndPlace(Article article, ArticleUpdateRequestDTO request) {
         if (request.title() != null) {
-            articleUpdater.updateTitle(article, request.title());
+            article.updateTitle(request.title());
         }
         if (request.content() != null) {
-            articleUpdater.updateContent(article, request.content());
+            article.updateContent(request.content());
         }
         if (request.date() != null) {
-            articleUpdater.updateDate(article, request.date());
+            article.updateDate(request.date());
         }
         if (request.categoryId() != null) {
             Category category = getCategory(request.categoryId());
-            articleUpdater.updateCategory(article, category);
+            article.updateCategory(category);
         }
         if (request.regionId() != null) {
             Region region = getRegion(request.regionId());
-            articleUpdater.updateRegion(article, region);
+            article.updateRegion(region);
         }
         if (request.placeId() != null) {
             Place place = getPlace(request.placeId());
-            articleUpdater.updatePlace(article, place);
+            article.updatePlace(place);
         }
         placeUpdater.updatePlaceEntity(article.getPlace(), request);
     }
