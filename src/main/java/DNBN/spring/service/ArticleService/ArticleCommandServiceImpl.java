@@ -2,12 +2,6 @@ package DNBN.spring.service.ArticleService;
 
 import DNBN.spring.aop.annotation.ValidateArticle;
 import DNBN.spring.aop.annotation.ValidateS3ImageUpload;
-import DNBN.spring.apiPayload.code.status.ErrorStatus;
-import DNBN.spring.apiPayload.exception.handler.ArticleHandler;
-import DNBN.spring.apiPayload.exception.handler.CategoryHandler;
-import DNBN.spring.apiPayload.exception.handler.MemberHandler;
-import DNBN.spring.apiPayload.exception.handler.PlaceHandler;
-import DNBN.spring.apiPayload.exception.handler.RegionHandler;
 import DNBN.spring.aws.s3.AmazonS3Manager;
 import DNBN.spring.domain.Article;
 import DNBN.spring.domain.ArticlePhoto;
@@ -123,14 +117,20 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
 
     private ArticleWithPhotos createArticleInternal(Member member, Category category, Place place, Region region, 
             ArticleRequestDTO request, MultipartFile mainImage, List<MultipartFile> imageFiles) {
-        
+
         List<ArticlePhoto> photos = articleImageUploadService.uploadImages(place, region, mainImage, imageFiles);
-        
-        Article article = articleFactory.create(member, category, place, region, request);
+        Article article = articleFactory.create(
+            member,
+            category,
+            place,
+            region,
+            request.title(),
+            request.date(),
+            request.content()
+        );
         articleRepository.save(article);
-        
         List<ArticlePhoto> savedPhotos = articleImageUploadService.saveImagesWithArticle(photos, article);
-        
+
         return new ArticleWithPhotos(article, savedPhotos);
     }
 
@@ -138,12 +138,18 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
             ArticleWithLocationRequestDTO request, MultipartFile mainImage, List<MultipartFile> imageFiles) {
 
         List<ArticlePhoto> photos = articleImageUploadService.uploadImages(place, region, mainImage, imageFiles);
-        
-        Article article = articleFactory.create(member, category, place, region, request);
+        Article article = articleFactory.create(
+            member,
+            category,
+            place,
+            region,
+            request.title(),
+            request.date(),
+            request.content()
+        );
         articleRepository.save(article);
-
         List<ArticlePhoto> savedPhotos = articleImageUploadService.saveImagesWithArticle(photos, article);
-        
+
         return new ArticleWithPhotos(article, savedPhotos);
     }
 
@@ -161,7 +167,27 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
     }
 
     private void updateArticleAndPlace(Article article, ArticleUpdateRequestDTO request) {
-        articleUpdater.updateArticleEntity(article, request);
+        if (request.title() != null) {
+            articleUpdater.updateTitle(article, request.title());
+        }
+        if (request.content() != null) {
+            articleUpdater.updateContent(article, request.content());
+        }
+        if (request.date() != null) {
+            articleUpdater.updateDate(article, request.date());
+        }
+        if (request.categoryId() != null) {
+            Category category = getCategory(request.categoryId());
+            articleUpdater.updateCategory(article, category);
+        }
+        if (request.regionId() != null) {
+            Region region = getRegion(request.regionId());
+            articleUpdater.updateRegion(article, region);
+        }
+        if (request.placeId() != null) {
+            Place place = getPlace(request.placeId());
+            articleUpdater.updatePlace(article, place);
+        }
         placeUpdater.updatePlaceEntity(article.getPlace(), request);
     }
 
