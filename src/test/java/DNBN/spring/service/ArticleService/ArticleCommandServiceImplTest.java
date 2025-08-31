@@ -144,17 +144,14 @@ class ArticleCommandServiceImplTest {
 
             List<ArticlePhoto> photos = List.of();
 
-            // Mock 설정을 실제 메서드 호출 순서대로 정렬
             when(memberRepository.findById(memberId)).thenReturn(Optional.of(member));
             when(categoryRepository.findById(categoryId)).thenReturn(Optional.of(category));
             when(placeRepository.findById(placeId)).thenReturn(Optional.of(place));
             when(articleImageUploadService.uploadImages(place, region, null, null)).thenReturn(photos);
-            when(articleFactory.create(member, category, place, region, request)).thenReturn(article);
+            when(articleFactory.create(member, category, place, region, request.title(), request.date(), request.content())).thenReturn(article);
             when(articleRepository.save(article)).thenReturn(article);
             when(articleImageUploadService.saveImagesWithArticle(photos, article)).thenReturn(photos);
 
-            // AOP 어노테이션을 우회하여 실제 구현체 메서드 직접 호출
-            // Reflection을 사용하여 private 메서드에 접근
             try {
                 java.lang.reflect.Method createArticleInternal = ArticleCommandServiceImpl.class
                     .getDeclaredMethod("createArticleInternal", Member.class, Category.class, Place.class, Region.class, 
@@ -163,11 +160,6 @@ class ArticleCommandServiceImplTest {
                 
                 ArticleCommandService.ArticleWithPhotos result = (ArticleCommandService.ArticleWithPhotos) 
                     createArticleInternal.invoke(articleCommandService, member, category, place, region, request, null, null);
-
-                // 디버깅을 위한 로그 추가
-                System.out.println("Result: " + result);
-                System.out.println("Result.article: " + result.article);
-                System.out.println("Expected article: " + article);
 
                 assertNotNull(result);
                 assertEquals(article, result.article);
@@ -199,7 +191,7 @@ class ArticleCommandServiceImplTest {
             when(categoryRepository.findById(categoryId)).thenReturn(Optional.of(category));
             when(placeRepository.findById(placeId)).thenReturn(Optional.of(place));
             when(articleImageUploadService.uploadImages(place, region, mainImage, null)).thenReturn(photos);
-            when(articleFactory.create(member, category, place, region, request)).thenReturn(article);
+            when(articleFactory.create(member, category, place, region, request.title(), request.date(), request.content())).thenReturn(article);
             when(articleRepository.save(article)).thenReturn(article);
             when(articleImageUploadService.saveImagesWithArticle(photos, article)).thenReturn(photos);
 
@@ -249,7 +241,7 @@ class ArticleCommandServiceImplTest {
             when(categoryRepository.findById(categoryId)).thenReturn(Optional.of(category));
             when(placeRepository.findById(placeId)).thenReturn(Optional.of(place));
             when(articleImageUploadService.uploadImages(place, region, mainImage, imageFiles)).thenReturn(photos);
-            when(articleFactory.create(member, category, place, region, request)).thenReturn(article);
+            when(articleFactory.create(member, category, place, region, request.title(), request.date(), request.content())).thenReturn(article);
             when(articleRepository.save(article)).thenReturn(article);
             when(articleImageUploadService.saveImagesWithArticle(photos, article)).thenReturn(photos);
 
@@ -360,7 +352,7 @@ class ArticleCommandServiceImplTest {
             when(regionRepository.findRegionByCoordinatesAccurate(latitude, longitude)).thenReturn(region);
             when(placeRepository.save(any(Place.class))).thenReturn(place);
             when(articleImageUploadService.uploadImages(place, region, null, null)).thenReturn(photos);
-            when(articleFactory.create(member, category, place, region, request)).thenReturn(article);
+            when(articleFactory.create(member, category, place, region, request.title(), request.date(), request.content())).thenReturn(article);
             when(articleRepository.save(article)).thenReturn(article);
             when(articleImageUploadService.saveImagesWithArticle(photos, article)).thenReturn(photos);
 
@@ -407,7 +399,7 @@ class ArticleCommandServiceImplTest {
             when(regionRepository.findRegionByCoordinatesAccurate(latitude, longitude)).thenReturn(region);
             when(placeRepository.save(any(Place.class))).thenReturn(place);
             when(articleImageUploadService.uploadImages(place, region, mainImage, imageFiles)).thenReturn(photos);
-            when(articleFactory.create(member, category, place, region, request)).thenReturn(article);
+            when(articleFactory.create(member, category, place, region, request.title(), request.date(), request.content())).thenReturn(article);
             when(articleRepository.save(article)).thenReturn(article);
             when(articleImageUploadService.saveImagesWithArticle(photos, article)).thenReturn(photos);
 
