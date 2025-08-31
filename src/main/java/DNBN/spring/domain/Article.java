@@ -7,6 +7,8 @@ import java.time.LocalDateTime;
 import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
+import DNBN.spring.apiPayload.exception.handler.ArticleHandler;
+import DNBN.spring.apiPayload.code.status.ErrorStatus;
 
 @Entity
 @Getter
@@ -101,27 +103,45 @@ public class Article extends BaseEntity {
     return !isDeleted();
   }
 
-  public void setTitle(String title) {
+  public void updateTitle(String title) {
+    if (title == null || title.trim().isEmpty()) {
+      throw new ArticleHandler(ErrorStatus.ARTICLE_TITLE_NULL_ERROR);
+    }
     this.title = title;
   }
 
-  public void setContent(String content) {
+  public void updateContent(String content) {
+    if (content == null || content.trim().isEmpty()) {
+      throw new ArticleHandler(ErrorStatus.ARTICLE_CONTENT_NULL_ERROR);
+    }
     this.content = content;
   }
 
-  public void setDate(LocalDate date) {
+  public void updateDate(LocalDate date) {
+    if (date == null) {
+      throw new ArticleHandler(ErrorStatus.ARTICLE_DATE_NULL_ERROR);
+    }
     this.date = date;
   }
 
-  public void setCategory(Category category) {
+  public void updateCategory(Category category) {
+    if (category == null) {
+      throw new ArticleHandler(ErrorStatus.ARTICLE_CATEGORY_NULL_ERROR);
+    }
     this.category = category;
   }
 
-  public void setPlace(Place place) {
+  public void updatePlace(Place place) {
+    if (place == null) {
+      throw new ArticleHandler(ErrorStatus.ARTICLE_PLACE_NULL_ERROR);
+    }
     this.place = place;
   }
 
-  public void setRegion(Region region) {
+  public void updateRegion(Region region) {
+    if (region == null) {
+      throw new ArticleHandler(ErrorStatus.ARTICLE_REGION_NULL_ERROR);
+    }
     this.region = region;
   }
 

@@ -34,6 +34,10 @@ public enum ErrorStatus implements BaseErrorCode {
     ARTICLE_ALREADY_DELETED(HttpStatus.CONFLICT, "ARTICLE4005", "이미 삭제된 게시글입니다."),
     ARTICLE_TITLE_NULL_ERROR(HttpStatus.BAD_REQUEST, "ARTICLE4006", "제목이 비어 있습니다."),
     ARTICLE_CONTENT_NULL_ERROR(HttpStatus.BAD_REQUEST, "ARTICLE4007", "내용이 비어 있습니다."),
+    ARTICLE_DATE_NULL_ERROR(HttpStatus.BAD_REQUEST, "ARTICLE4008", "날짜가 비어 있습니다."),
+    ARTICLE_CATEGORY_NULL_ERROR(HttpStatus.BAD_REQUEST, "ARTICLE4009", "카테고리가 비어 있습니다."),
+    ARTICLE_PLACE_NULL_ERROR(HttpStatus.BAD_REQUEST, "ARTICLE4010", "장소가 비어 있습니다."),
+    ARTICLE_REGION_NULL_ERROR(HttpStatus.BAD_REQUEST, "ARTICLE4011", "지역이 비어 있습니다."),
 
     // articlePhoto & S3
     ARTICLE_PHOTO_MAIN_IMAGE_REQUIRED(HttpStatus.BAD_REQUEST, "ARTICLEPHOTO4002", "대표 이미지는 필수입니다."),

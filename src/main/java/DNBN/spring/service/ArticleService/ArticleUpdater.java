@@ -29,30 +29,29 @@ public class ArticleUpdater {
     public void updateArticleEntity(Article article, ArticleUpdateRequestDTO request) {
         if (request.title() != null) {
             titleLengthValidator.validateArticleTitle(request.title());
-            article.setTitle(request.title());
+            article.updateTitle(request.title());
         }
         if (request.content() != null) {
             contentLengthValidator.validateArticleContent(request.content());
-            article.setContent(request.content());
+            article.updateContent(request.content());
         }
         if (request.date() != null) {
-            article.setDate(request.date());
+            article.updateDate(request.date());
         }
         if (request.categoryId() != null) {
             Category category = categoryRepository.findById(request.categoryId())
                     .orElseThrow(() -> new CategoryHandler(ErrorStatus.CATEGORY_NOT_FOUND));
-            article.setCategory(category);
+            article.updateCategory(category);
         }
         if (request.regionId() != null) {
             Region region = regionRepository.findById(request.regionId())
                     .orElseThrow(() -> new RegionHandler(ErrorStatus.REGION_NOT_FOUND));
-            article.setRegion(region);
+            article.updateRegion(region);
         }
         if (request.placeId() != null) {
             Place place = placeRepository.findById(request.placeId())
                     .orElseThrow(() -> new PlaceHandler(ErrorStatus.PLACE_NOT_FOUND));
-            article.setPlace(place);
+            article.updatePlace(place);
         }
     }
 }
-
