@@ -123,14 +123,20 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
 
     private ArticleWithPhotos createArticleInternal(Member member, Category category, Place place, Region region, 
             ArticleRequestDTO request, MultipartFile mainImage, List<MultipartFile> imageFiles) {
-        
+
         List<ArticlePhoto> photos = articleImageUploadService.uploadImages(place, region, mainImage, imageFiles);
-        
-        Article article = articleFactory.create(member, category, place, region, request);
+        Article article = articleFactory.create(
+            member,
+            category,
+            place,
+            region,
+            request.title(),
+            request.date(),
+            request.content()
+        );
         articleRepository.save(article);
-        
         List<ArticlePhoto> savedPhotos = articleImageUploadService.saveImagesWithArticle(photos, article);
-        
+
         return new ArticleWithPhotos(article, savedPhotos);
     }
 
@@ -138,12 +144,18 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
             ArticleWithLocationRequestDTO request, MultipartFile mainImage, List<MultipartFile> imageFiles) {
 
         List<ArticlePhoto> photos = articleImageUploadService.uploadImages(place, region, mainImage, imageFiles);
-        
-        Article article = articleFactory.create(member, category, place, region, request);
+        Article article = articleFactory.create(
+            member,
+            category,
+            place,
+            region,
+            request.title(),
+            request.date(),
+            request.content()
+        );
         articleRepository.save(article);
-
         List<ArticlePhoto> savedPhotos = articleImageUploadService.saveImagesWithArticle(photos, article);
-        
+
         return new ArticleWithPhotos(article, savedPhotos);
     }
 
