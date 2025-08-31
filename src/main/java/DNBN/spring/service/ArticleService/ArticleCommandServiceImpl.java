@@ -92,9 +92,6 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
     public ArticleWithPhotos updateArticle(Long memberId, Long articleId, ArticleUpdateRequestDTO request, MultipartFile mainImage, List<MultipartFile> imageFiles) {
         Article article = getArticle(articleId);
 
-        validateArticleOwner(article, memberId);
-        validateArticleNotDeleted(article);
-
         updateArticleAndPlace(article, request);
         updateArticleImages(article, mainImage, imageFiles);
 
@@ -106,10 +103,6 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
     @ValidateArticle
     public void deleteArticle(Long memberId, Long articleId) {
         Article article = getArticle(articleId);
-        
-        validateArticleOwner(article, memberId);
-        validateArticleNotDeleted(article);
-        
         article.delete();
     }
 
@@ -231,17 +224,5 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
 
     private Region findRegionByCoordinatesAccurate(Double latitude, Double longitude) {
         return regionRepository.findRegionByCoordinatesAccurate(latitude, longitude);
-    }
-
-    private void validateArticleOwner(Article article, Long memberId) {
-        if (!article.getMember().getId().equals(memberId)) {
-            throw new RuntimeException("게시물 작성자만 수정/삭제할 수 있습니다.");
-        }
-    }
-
-    private void validateArticleNotDeleted(Article article) {
-        if (article.isDeleted()) {
-            throw new RuntimeException("이미 삭제된 게시물입니다.");
-        }
     }
 }
