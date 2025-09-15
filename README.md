@@ -25,8 +25,8 @@
   
 | 뿡야(이소연) | 양갱(류연경) | 지니(김현진) | 하론(조하은) | 토리(오혜인) |
 |:----------------:|:------------:|:------------:|:-------------:| :-------------: |
-| <img src="https://github.com/silviasylee03.png" width="100"/><br/> | <img src="https://github.com/ryuyeonkyoung.png" width="100"/><br/> | <img src="https://github.com/tellgeniewish.png" width="100"/><br/> | <img src="https://github.com/zhwan2845.png" width="100"/><br/> | <img src="https://github.com/haein45.png" width="100"/><br/> |
-| [@silviasylee03](https://github.com/silviasylee03) | [@ryuyeonkyoung](https://github.com/ryuyeonkyoung) | [@tellgeniewish](https://github.com/tellgeniewish) | [@zhwan2845](https://github.com/zhwan2845) | [@haein45](https://github.com/haein45) |
+| <img src="https://github.com/BBungya.png" width="100"/><br/> | <img src="https://github.com/ryuyeonkyoung.png" width="100"/><br/> | <img src="https://github.com/tellgeniewish.png" width="100"/><br/> | <img src="https://github.com/zhwan2845.png" width="100"/><br/> | <img src="https://github.com/haein45.png" width="100"/><br/> |
+| [@silviasylee03](https://github.com/BBungya) | [@ryuyeonkyoung](https://github.com/ryuyeonkyoung) | [@tellgeniewish](https://github.com/tellgeniewish) | [@zhwan2845](https://github.com/zhwan2845) | [@haein45](https://github.com/haein45) |
 
 </div>
 
